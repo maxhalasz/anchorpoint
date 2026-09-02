@@ -71,8 +71,34 @@ window.LG = (function () {
     }
   }
 
-  return {
+  function reset(){
+    try { ['lg_found', 'lg_unlocked', 'lg_opened'].forEach(function (k) { LS.removeItem(k); }); } catch (e) {}
+    location.reload();
+  }
+
+  var api = {
     found: found, unlocked: unlocked, addFound: addFound, unlock: unlock, isUnlocked: isUnlocked,
-    wireTerm: wireTerm, paintIndex: paintIndex, normalize: normalize, TERMS: TERMS, DOOR_ANSWER: DOOR_ANSWER
+    wireTerm: wireTerm, paintIndex: paintIndex, normalize: normalize, TERMS: TERMS,
+    DOOR_ANSWER: DOOR_ANSWER, reset: reset
   };
+
+  // ?dev panel — force unlock states for testing
+  if (/[?&]dev\b/.test(location.search)) {
+    var run = function () {
+      var p = document.createElement('div');
+      p.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:200000;background:#111;color:#9f9;font:11px/1.6 monospace;padding:8px 10px;border:1px solid #3a3';
+      p.innerHTML = '<b>LG dev</b><br>' +
+        '<button data-a="network">unlock network</button> <button data-a="doctor">unlock doctor</button> ' +
+        '<button data-a="reset">reset</button>';
+      p.addEventListener('click', function (e) {
+        var a = e.target.getAttribute('data-a');
+        if (a === 'reset') reset();
+        else if (a) { unlock(a); location.reload(); }
+      });
+      document.body.appendChild(p);
+    };
+    if (document.body) run(); else document.addEventListener('DOMContentLoaded', run);
+  }
+
+  return api;
 })();

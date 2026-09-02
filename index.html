@@ -297,6 +297,25 @@
     }, 22000);
   }
 
+  // ---- dev tools: window.AP + ?dev panel to force the chance events ----
+  window.AP = {
+    eyes:   function(){ if(document.getElementById('eyes')) return; var im=new Image(); im.onload=eyesTakeover; im.onerror=function(){ console.warn('img/eyes.png missing'); }; im.src='img/eyes.png'; },
+    palette:function(){ document.body.classList.toggle('pd'); },
+    dream:  function(){ try{ localStorage.setItem('ap_gap','7'); localStorage.setItem('ap_pos','7'); }catch(e){} location.reload(); },
+    normal: function(){ try{ localStorage.setItem('ap_gap','7'); localStorage.setItem('ap_pos','1'); }catch(e){} location.reload(); },
+    reset:  function(){ try{ ['ap_pos','ap_gap','ap_lastMessage','st_visits','st_seenDark','st_seenLight','lg_found','lg_unlocked','lg_opened'].forEach(function(k){ localStorage.removeItem(k); }); }catch(e){} location.reload(); },
+    state:  function(){ return { pos:pos, gap:gap, dreaming:dreaming }; }
+  };
+  if(/[?&]dev\b/.test(location.search)){
+    var dp = document.createElement('div');
+    dp.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:200000;background:#111;color:#9f9;font:11px/1.6 monospace;padding:8px 10px;border:1px solid #3a3';
+    dp.innerHTML = '<b>AP dev</b> &nbsp;pos ' + pos + '/' + gap + (dreaming ? ' <span style="color:#f99">DREAM</span>' : '') +
+      '<br><button data-a="dream">dream</button> <button data-a="normal">normal</button> ' +
+      '<button data-a="eyes">eyes</button> <button data-a="palette">palette</button> <button data-a="reset">reset</button>';
+    dp.addEventListener('click', function(e){ var a = e.target.getAttribute('data-a'); if(a && window.AP[a]) window.AP[a](); });
+    document.body.appendChild(dp);
+  }
+
   function submitMessage(text){
     try{
       if(window.firebase && firebase.apps && firebase.apps.length){
