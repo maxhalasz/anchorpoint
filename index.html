@@ -272,24 +272,24 @@
   function eyesTakeover(){
     var v = document.createElement('div');
     v.id = 'eyes';
-    var n = Math.round((window.innerWidth * window.innerHeight) / 13000);
-    n = Math.max(55, Math.min(170, n));
+    var n = Math.round((window.innerWidth * window.innerHeight) / 6500);   // many more of them
+    n = Math.max(120, Math.min(360, n));
     for(var i = 0; i < n; i++){
       var e = document.createElement('img');
       e.src = 'img/eyes.png';
-      var base = 0.4 + Math.random() * 0.4;          // its settled, visible opacity
+      var base = 0.22 + Math.random() * 0.38;         // settled opacity, dimmer
       e.style.position = 'absolute';
       e.style.left = (Math.random() * 100) + '%';
       e.style.top = (Math.random() * 100) + '%';
-      e.style.width = (55 + Math.random() * 230) + 'px';
+      e.style.width = (50 + Math.random() * 210) + 'px';
       e.style.transform = 'translate(-50%,-50%) rotate(' + (Math.random() * 360) + 'deg)';
-      e.style.filter = 'brightness(' + (0.12 + Math.random() * 0.22).toFixed(3) + ')';
+      e.style.filter = 'brightness(' + (0.05 + Math.random() * 0.13).toFixed(3) + ')';  // darker overall
       e.style.opacity = base.toFixed(3);
       // start at the final state; only a very slight up/down drift after that
-      e.style.setProperty('--lo', (base - 0.06).toFixed(3));
-      e.style.setProperty('--hi', Math.min(1, base + 0.05).toFixed(3));
-      e.style.animation = 'eyeflick ' + (2.6 + Math.random() * 3.4).toFixed(2) + 's ease-in-out '
-                        + (Math.random() * 2).toFixed(2) + 's infinite alternate';
+      e.style.setProperty('--lo', Math.max(0, base - 0.05).toFixed(3));
+      e.style.setProperty('--hi', Math.min(1, base + 0.04).toFixed(3));
+      e.style.animation = 'eyeflick ' + (2.8 + Math.random() * 3.6).toFixed(2) + 's ease-in-out '
+                        + (Math.random() * 2.4).toFixed(2) + 's infinite alternate';
       v.appendChild(e);
     }
     document.body.appendChild(v);

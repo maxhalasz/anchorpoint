@@ -26,12 +26,21 @@
   --ink-black:#1e1a14;
   --ink-pencil:#463f31;
 
-  /* TEXTURE SLOTS — swap these for Max's real PNG scans (url("../img/xxx.png")).
-     Left as procedural noise for now. */
-  --tex-paper: var(--fibre-a);
-  --tex-desk:  var(--felt);
-  --tex-tape:  none;
-  --tex-stain: var(--stain);
+  /* TEXTURE SLOTS — Max drops the real scans at these paths and they take over.
+     Until a file exists the browser skips that layer and the procedural grain
+     (--fibre-*) underneath carries the look. See ledger/ASSETS.md. */
+  --tex-paper:      url("../img/tex/paper-default.png");
+  --tex-paper-stain:url("../img/tex/paper-stained.png");
+  --tex-paper-rag:  url("../img/tex/paper-ragged.png");
+  --tex-paper-tiss: url("../img/tex/paper-tissue.png");
+  --tex-paper-blk:  url("../img/tex/photocopy-black.png");
+  --tex-paper-wrong:url("../img/tex/bg-wrong.png");
+  --tex-desk:       url("../img/tex/desk.png");
+  --tex-tape:       url("../img/tex/tape-strip.png");
+  --tex-tape-x:     url("../img/tex/tape-cross.png");
+  --tex-stain:      url("../img/tex/stain-1.png");
+  --tex-stain-ring: url("../img/tex/stain-ring.png");
+  --tex-bleed:      url("../img/tex/paper-bleedthrough.png");
 
   /* stacked grain: two frequencies of paper fibre */
   --fibre-a:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.40 0 0 0 0 0.31 0 0 0 0 0.17 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
@@ -48,15 +57,25 @@ body{
   color:var(--ink);
   font-family:'Special Elite','Courier New',monospace;
   background:
-    radial-gradient(ellipse at 50% 26%, rgba(86,110,58,.10), transparent 55%),
+    var(--felt),
     var(--tex-desk),
-    repeating-linear-gradient(94deg, rgba(0,0,0,.06) 0 3px, transparent 3px 7px),
     linear-gradient(175deg, var(--desk-2), var(--desk) 55%, #030601);
+  background-size:auto, cover, auto;
+  background-repeat:repeat, no-repeat, no-repeat;
+  background-position:center, center, center;
   background-color:#040702;
+  background-blend-mode:overlay, multiply, normal;
   background-attachment:fixed;
 }
+/* "Make it darker + do well-done shadow-lighting work" — a warm pool of light
+   where the leaf sits, everything else falling off hard into the dark. */
 body::before{ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  box-shadow:inset 0 0 320px rgba(0,0,0,.85), inset 0 0 90px rgba(0,0,0,.55); }
+  background:radial-gradient(ellipse 62% 46% at 50% 40%,
+    rgba(255,238,205,.09), rgba(255,238,205,.03) 45%, transparent 72%);
+  mix-blend-mode:screen; }
+body::after{ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  box-shadow:inset 0 0 380px rgba(0,0,0,.92), inset 0 0 120px rgba(0,0,0,.7);
+  background:linear-gradient(180deg, rgba(0,0,0,.35), transparent 22%, transparent 78%, rgba(0,0,0,.5)); }
 a{color:var(--blue)}
 
 /* ---------- a loose leaf ---------- */
@@ -65,20 +84,32 @@ a{color:var(--blue)}
   color:var(--ink);
   background-color:var(--paper);
   background-image:
-    radial-gradient(circle at 16% 10%, rgba(120,84,36,.30), transparent 20%),
-    radial-gradient(circle at 88% 62%, rgba(110,74,30,.28), transparent 24%),
-    radial-gradient(circle at 58% 94%, rgba(120,84,36,.22), transparent 18%),
-    radial-gradient(circle at 40% 44%, rgba(96,64,26,.14), transparent 30%),
-    var(--tex-stain),
-    var(--fibre-b),
     var(--tex-paper),
+    var(--fibre-b),
+    var(--fibre-a),
+    radial-gradient(circle at 16% 10%, rgba(120,84,36,.26), transparent 20%),
+    radial-gradient(circle at 88% 62%, rgba(110,74,30,.24), transparent 24%),
+    radial-gradient(circle at 58% 94%, rgba(120,84,36,.18), transparent 18%),
     linear-gradient(180deg, var(--paper-hi), var(--paper) 38%, var(--paper-lo));
+  background-size:cover, auto, auto, auto, auto, auto, auto;
+  background-repeat:no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-blend-mode:multiply, overlay, overlay, normal, normal, normal, normal;
   border:1px solid var(--paper-deep);
   box-shadow:
     0 1px 0 rgba(255,255,255,.22) inset,
-    0 3px 5px rgba(0,0,0,.35),
-    0 30px 70px rgba(0,0,0,.7);
+    0 4px 10px rgba(0,0,0,.4),
+    0 40px 90px rgba(0,0,0,.72),
+    0 0 60px rgba(255,236,200,.05);
 }
+/* --- paper stocks: <article class="leaf" data-stock="stained"> --- */
+.leaf[data-stock="stained"]{--tex-paper:var(--tex-paper-stain)}
+.leaf[data-stock="ragged"] {--tex-paper:var(--tex-paper-rag)}
+.leaf[data-stock="tissue"] {--tex-paper:var(--tex-paper-tiss);--paper:#eee7d2}
+.leaf[data-stock="black"]  {--tex-paper:var(--tex-paper-blk);--paper:#161310;--ink:#cabfa6;--ink-soft:#8c836c;--rule:#4a443a}
+.leaf[data-stock="wrong"]  {--tex-paper:var(--tex-paper-wrong);--paper:#c9b48f}
+/* faint ghost text bleeding through from the other side */
+.leaf.bleed::before{background:var(--tex-bleed), linear-gradient(180deg, transparent 45%, rgba(80,52,20,.2) 49%, rgba(255,255,255,.1) 51%, transparent 55%), var(--grime);
+  background-size:cover,100% 100%,420px 420px;background-repeat:no-repeat,no-repeat,repeat;opacity:.85}
 .leaf::before{  /* fold lines + heavy foxing + grime */
   content:"";position:absolute;inset:0;pointer-events:none;
   background:
@@ -166,12 +197,19 @@ a{color:var(--blue)}
 .xrefs .lead{font-family:'IM Fell English SC',serif;letter-spacing:2px;font-size:11px;color:var(--ink-soft);display:block;margin-bottom:2px}
 
 /* ---------- tape / clip / pin ---------- */
-.tape{position:absolute;width:120px;height:30px;background:var(--tape);mix-blend-mode:multiply;
-  box-shadow:0 1px 2px rgba(0,0,0,.15);border-left:1px dashed rgba(255,255,255,.3);border-right:1px dashed rgba(255,255,255,.3)}
-.tape.tl{top:-13px;left:-24px;transform:rotate(-40deg)}
-.tape.tr{top:-13px;right:-24px;transform:rotate(41deg)}
-.tape.bl{bottom:-13px;left:-20px;transform:rotate(46deg)}
-.tape.br{bottom:-13px;right:-20px;transform:rotate(-43deg)}
+.tape{position:absolute;width:128px;height:34px;
+  background:var(--tex-tape), var(--tape);
+  background-size:cover;background-blend-mode:multiply;
+  mix-blend-mode:multiply;opacity:.92;
+  box-shadow:0 1px 3px rgba(0,0,0,.22);
+  border-left:1px dashed rgba(255,255,255,.25);border-right:1px dashed rgba(255,255,255,.25)}
+.tape.tl{top:-15px;left:-26px;transform:rotate(-40deg)}
+.tape.tr{top:-15px;right:-26px;transform:rotate(41deg)}
+.tape.bl{bottom:-15px;left:-22px;transform:rotate(46deg)}
+.tape.br{bottom:-15px;right:-22px;transform:rotate(-43deg)}
+.tape.v{width:34px;height:150px}
+.tape.x{width:96px;height:96px;background:var(--tex-tape-x) center/contain no-repeat;
+  mix-blend-mode:multiply;border:0;box-shadow:none}
 .pin{position:absolute;width:16px;height:16px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%, #f2b6b0, #b23a2c 60%, #7c1d12);
   box-shadow:0 3px 5px rgba(0,0,0,.5)}
@@ -186,6 +224,34 @@ a{color:var(--blue)}
 .wax{position:absolute;width:44px;height:44px;border-radius:48% 52% 55% 45%/50% 46% 54% 50%;
   background:radial-gradient(circle at 38% 34%,#a2321f,#5c150c 72%);
   box-shadow:0 2px 6px rgba(0,0,0,.5), inset 0 -4px 6px rgba(0,0,0,.4)}
+
+/* a stain dropped on a leaf — <span class="stain ring" style="left:60%;top:20%"></span> */
+.stain{position:absolute;width:200px;height:200px;pointer-events:none;
+  background:var(--tex-stain) center/contain no-repeat;mix-blend-mode:multiply;opacity:.5}
+.stain.ring{background-image:var(--tex-stain-ring);width:260px;height:260px;opacity:.42}
+
+/* ---------- collage — the core Ledger move ----------
+   a base area, torn photo/paper fragments glued onto it at angles, a strip of
+   tape over the seam, and handwriting that runs ACROSS everything, often up the
+   tape. Model of the "Extra collages" reference. */
+.collage{position:relative;margin:18px 0;min-height:220px}
+.frag{position:absolute;background:#fdf9ec;padding:6px;
+  box-shadow:0 5px 14px rgba(0,0,0,.5);}
+.frag img,.frag .void{display:block;width:100%}
+.frag .void{height:150px;background:repeating-linear-gradient(45deg,#e2d6ba 0 9px,#d6c8a6 9px 18px)}
+.frag.torn{padding:0;box-shadow:none;
+  -webkit-mask:var(--tex-paper-rag) center/cover;mask:var(--tex-paper-rag) center/cover;
+  background:transparent}
+.frag.p1{left:2%;top:12%;width:52%;transform:rotate(-2.5deg)}
+.frag.p2{right:6%;top:0;width:40%;transform:rotate(2deg);filter:grayscale(1) contrast(.9)}
+.frag.p3{left:26%;bottom:0;width:44%;transform:rotate(1.4deg)}
+.collage .strip{position:absolute;right:14%;top:-6%;width:36px;height:112%;
+  background:var(--tex-tape), var(--tape);background-size:cover;background-blend-mode:multiply;
+  mix-blend-mode:multiply;transform:rotate(2deg);opacity:.9}
+.collage .scrawl{position:absolute;right:12%;top:8%;
+  font-family:'Caveat',cursive;font-size:19px;color:var(--blue);
+  writing-mode:vertical-rl;transform:rotate(4deg);text-shadow:0 0 2px rgba(240,230,200,.4)}
+.collage .cap{position:absolute;left:2%;bottom:-24px;font-family:'Caveat',cursive;color:var(--red);font-size:17px;transform:rotate(-2deg)}
 
 /* a taped-in clipping */
 .clipping{background:#efe9d6;border:1px solid #cabf9e;padding:12px 14px;margin:14px 0;position:relative;
