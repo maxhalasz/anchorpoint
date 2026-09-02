@@ -7,12 +7,12 @@
 <title>△ p.89</title>
 <link rel="stylesheet" href="ledger.css">
 <style>
-  .flow{width:100%;height:auto;margin:8px 0}
-  .flow text{font-family:'Caveat',cursive}
-  .node{fill:none;stroke:#2a2016;stroke-width:1.8}
-  .arc{fill:none;stroke:#2a2016;stroke-width:1.3}
-  .arc.q{stroke-dasharray:3 3}
-  .amt{fill:#7c2b1c}.lbl{fill:#2a2016}
+  .flow{margin:8px -20px;border:1px solid var(--paper-deep);background:rgba(120,84,36,.05);
+    overflow:auto;max-height:64vh;box-shadow:inset 0 0 40px rgba(90,60,25,.3)}
+  .flow svg{display:block}
+  .flow text{font-family:'Kalam',cursive;font-weight:300;fill:#2a2016}
+  .flow text.amt{fill:#7c2b1c;font-weight:400}
+  .flow .hint{font:11px 'Special Elite',monospace;color:var(--ink-soft);padding:4px 12px}
 </style>
 </head>
 <body>
@@ -23,51 +23,12 @@
   <span class="tape tr"></span><span class="tape bl"></span><span class="tape br"></span>
 
   <h1>the flow &mdash; the octopus</h1>
-  <p class="kicker">same week as p.88, worse pen pressure. I gave it his name for it.</p>
 
-  <div class="hw tall">
+  <div class="hw">
     <span class="lbl">PHOTO: Max<b>the redraw &mdash; twice as many boxes, arrows crossing arrows, whole corner scribbled out and started again, coffee ring</b></span>
   </div>
 
-  <svg class="flow" viewBox="0 0 760 420">
-    <g class="node">
-      <rect x="14" y="190" width="96" height="38" rx="3"/>
-      <rect x="150" y="70" width="96" height="36" rx="3"/><rect x="150" y="150" width="96" height="36" rx="3"/>
-      <rect x="150" y="230" width="96" height="36" rx="3"/><rect x="150" y="320" width="96" height="36" rx="3"/>
-      <rect x="300" y="30" width="104" height="36" rx="3"/><rect x="300" y="110" width="104" height="36" rx="3"/>
-      <rect x="300" y="190" width="104" height="36" rx="3"/><rect x="300" y="270" width="104" height="36" rx="3"/>
-      <rect x="300" y="350" width="104" height="36" rx="3"/>
-      <rect x="460" y="80" width="108" height="36" rx="3"/><rect x="460" y="170" width="108" height="36" rx="3"/>
-      <rect x="460" y="270" width="108" height="36" rx="3"/>
-      <rect x="620" y="130" width="120" height="36" rx="3"/><rect x="620" y="230" width="120" height="36" rx="3"/>
-    </g>
-    <g class="arc">
-      <path d="M110 200 C 130 120 135 90 148 88"/><path d="M110 208 C 130 168 135 168 148 168"/>
-      <path d="M110 216 C 130 244 135 248 148 248"/><path d="M110 224 C 130 320 135 338 148 338"/>
-      <path class="q" d="M246 88 C 270 40 275 48 298 48"/><path d="M246 168 C 270 120 275 128 298 128"/>
-      <path d="M246 168 C 270 200 275 208 298 208"/><path class="q" d="M246 248 C 270 270 275 288 298 288"/>
-      <path d="M246 338 C 270 360 275 368 298 368"/>
-      <path d="M404 48 C 430 90 435 96 458 98"/><path class="q" d="M404 128 C 430 160 435 180 458 186"/>
-      <path d="M404 208 C 430 250 435 280 458 286"/><path d="M404 288 C 430 200 435 190 458 188"/>
-      <path class="q" d="M404 368 C 430 320 435 296 458 292"/>
-      <path d="M568 98 C 600 120 604 142 618 146"/><path d="M568 186 C 600 200 604 224 618 240"/>
-      <path class="q" d="M568 286 C 600 260 604 250 618 246"/>
-      <path class="q" d="M740 148 C 720 400 200 410 120 226"/>
-    </g>
-    <g class="lbl" font-size="14">
-      <text x="20" y="214">DRE</text>
-      <text x="156" y="92">NeuroStat</text><text x="156" y="172">Aegis</text>
-      <text x="150" y="252">Meridian Hand</text><text x="156" y="342">3 named men</text>
-      <text x="306" y="52">holding co.</text><text x="306" y="132">holding co.</text>
-      <text x="306" y="212">holding co.</text><text x="306" y="292">holding co.</text><text x="306" y="372">trust</text>
-      <text x="466" y="102">Halcyon&#8209;Vantage</text><text x="470" y="192">Caselight</text><text x="470" y="292">offshore x?</text>
-      <text x="626" y="152">everything else</text><text x="626" y="252">&mdash; ? &mdash;</text>
-    </g>
-    <g class="amt" font-size="13">
-      <text x="300" y="24">$ 148 k &rarr; &rarr; &rarr;</text>
-      <text x="470" y="330">"the reporter had this part"</text>
-    </g>
-  </svg>
+  <div class="flow"><div class="hint">same week as p.88, worse pen pressure. I gave it his name for it.</div><svg id="flow" width="2200" height="1500" viewBox="0 0 2200 1500"></svg></div>
 
   <p>Names in the margin are not mine. They are the ones people already wrote
   whole books about &mdash; a bank of crooks with an intelligence wing, the
@@ -94,10 +55,83 @@
   <label>the index</label>
   <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
   <div class="slips"></div>
+  <div class="pulled"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
 <script src="ledger.js"></script>
 <script src="cipher.js"></script>
-<script>LG.initPage('p89'); LG.addFound('the money');</script>
+<script>
+LG.initPage('p89'); LG.addFound('the money');
+(function(){
+  var SVG='http://www.w3.org/2000/svg';
+  var svg=document.getElementById('flow');
+  if(!window.rough){ svg.parentNode.innerHTML='<div class="hint">[diagram]</div>'; return; }
+  function seedRand(s){ return function(){ s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/4294967296; }; }
+  var rnd=seedRand(8989);
+
+  var cols=[
+    ['DRE'],
+    ['NeuroStat','Aegis','Meridian Hand','3 named men'],
+    ['holding co.','holding co.','holding co.','holding co.','a trust','a trust'],
+    ['Halcyon-Vantage','Caselight','offshore','offshore','offshore','nominee'],
+    ['fund','fund','fund','a charity','a charity','nominee','nominee'],
+    ['Halcyon-Vantage (again)','the software','the software'],
+    ['everything else','everything else','- ? -']
+  ];
+  var nodes=[], gapX=(2200-220)/(cols.length-1);
+  cols.forEach(function(list,ci){
+    var n=list.length, gy=(1500-160)/n;
+    list.forEach(function(lbl,ri){
+      nodes.push({ci:ci, lbl:lbl, x: 100 + ci*gapX + (rnd()-0.5)*40,
+        y: 80 + ri*gy + gy/2 - 20 + (rnd()-0.5)*60, w:140, h:40});
+    });
+  });
+  function byCol(c){ return nodes.filter(function(n){return n.ci===c;}); }
+
+  var edges=[];
+  for(var c=0;c<cols.length-1;c++){
+    byCol(c).forEach(function(a){
+      var next=byCol(c+1), k=1+((rnd()*4)|0);
+      for(var i=0;i<k;i++) edges.push([a, next[(rnd()*next.length)|0], rnd()<0.4]);
+      if(rnd()<0.55 && c>0) edges.push([a, byCol(c-1)[(rnd()*byCol(c-1).length)|0], true]);
+      if(rnd()<0.4 && c<cols.length-2) edges.push([a, byCol(c+2)[(rnd()*byCol(c+2).length)|0], true]);
+      if(rnd()<0.15) edges.push([a, nodes[(rnd()*nodes.length)|0], true]);  // stray
+    });
+  }
+
+  var rc=rough.svg(svg);
+  edges.forEach(function(e){
+    var a=e[0], b=e[1];
+    var x1=(b.ci<=a.ci)?a.x:a.x+a.w, y1=a.y+a.h/2, x2=b.x, y2=b.y+b.h/2;
+    var mx=(x1+x2)/2+(rnd()-0.5)*180, my=(y1+y2)/2+(rnd()-0.5)*140;
+    svg.appendChild(rc.curve([[x1,y1],[mx,my],[x2,y2]],
+      {roughness:3.2, bowing:4, stroke:'#2a2016', strokeWidth:1.1, strokeLineDash:e[2]?[4,4]:undefined}));
+  });
+  nodes.forEach(function(n){
+    svg.appendChild(rc.rectangle(n.x,n.y,n.w,n.h,{roughness:2.6, bowing:2, stroke:'#2a2016', strokeWidth:1.3}));
+    var t=document.createElementNS(SVG,'text');
+    t.setAttribute('x',n.x+n.w/2); t.setAttribute('y',n.y+n.h/2+4);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','13');
+    t.textContent=n.lbl; svg.appendChild(t);
+  });
+  // scribbled-out corner
+  for(var s=0;s<26;s++){
+    svg.appendChild(rc.line(1720+rnd()*380, 60+rnd()*260, 1720+rnd()*380, 60+rnd()*260,
+      {roughness:3, stroke:'#2a2016', strokeWidth:1}));
+  }
+  var sc=document.createElementNS(SVG,'text');
+  sc.setAttribute('x','1900'); sc.setAttribute('y','340'); sc.setAttribute('text-anchor','middle');
+  sc.setAttribute('font-size','13'); sc.textContent='(started this corner three times)'; svg.appendChild(sc);
+  // coffee ring
+  svg.appendChild(rc.circle(560, 1200, 260, {roughness:2, stroke:'rgba(120,74,30,.35)', strokeWidth:6, fill:'none'}));
+  var amt=document.createElementNS(SVG,'text');
+  amt.setAttribute('class','amt'); amt.setAttribute('x','360'); amt.setAttribute('y','70'); amt.setAttribute('font-size','15');
+  amt.textContent='$ 148 k  →  →  →'; svg.appendChild(amt);
+  var a2=document.createElementNS(SVG,'text');
+  a2.setAttribute('class','amt'); a2.setAttribute('x','1500'); a2.setAttribute('y','1440'); a2.setAttribute('font-size','14');
+  a2.textContent='"the reporter had this part"'; svg.appendChild(a2);
+})();
+</script>
 </body>
 </html>

@@ -5,11 +5,11 @@
    the connective tissue around it (page numbers, cross-refs, redaction).
    ========================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&family=Caveat:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&family=Kalam:wght@300;400;700&family=Caveat:wght@500;700&display=swap');
 
 :root{
-  --desk:#1b2916;
-  --desk-2:#233420;
+  --desk:#070d05;
+  --desk-2:#0e1809;
   --paper:#e7d9b6;
   --paper-hi:#f1e6c6;
   --paper-lo:#cdb587;
@@ -26,8 +26,9 @@
   /* stacked grain: two frequencies of paper fibre */
   --fibre-a:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.40 0 0 0 0 0.31 0 0 0 0 0.17 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
   --fibre-b:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.25' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.27 0 0 0 0 0.14 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
-  --grime:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.18 0 0 0 0 0.08 0 0 0 0.5 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='gamma' amplitude='1' exponent='3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
-  --felt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.12 0 0 0 0 0.05 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --grime:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.24 0 0 0 0 0.17 0 0 0 0 0.07 0 0 0 0.9 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='gamma' amplitude='1' exponent='4.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+  --stain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.22 0 0 0 0 0.06 0 0 0 0.8 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='gamma' amplitude='1' exponent='7'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  --felt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.03 0 0 0 0 0.07 0 0 0 0 0.02 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
 }
 
 *{box-sizing:border-box}
@@ -37,14 +38,15 @@ body{
   color:var(--ink);
   font-family:'Special Elite','Courier New',monospace;
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(120,150,86,.16), transparent 58%),
+    radial-gradient(ellipse at 50% 26%, rgba(86,110,58,.10), transparent 55%),
     var(--felt),
-    repeating-linear-gradient(94deg, rgba(0,0,0,.05) 0 3px, transparent 3px 7px),
-    linear-gradient(175deg, var(--desk-2), var(--desk) 60%, #141f10);
+    repeating-linear-gradient(94deg, rgba(0,0,0,.06) 0 3px, transparent 3px 7px),
+    linear-gradient(175deg, var(--desk-2), var(--desk) 55%, #030601);
+  background-color:#040702;
   background-attachment:fixed;
 }
 body::before{ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  box-shadow:inset 0 0 260px rgba(0,0,0,.72), inset 0 0 60px rgba(0,0,0,.4); }
+  box-shadow:inset 0 0 320px rgba(0,0,0,.85), inset 0 0 90px rgba(0,0,0,.55); }
 a{color:var(--blue)}
 
 /* ---------- a loose leaf ---------- */
@@ -53,28 +55,32 @@ a{color:var(--blue)}
   color:var(--ink);
   background-color:var(--paper);
   background-image:
-    radial-gradient(circle at 18% 12%, rgba(120,84,36,.22), transparent 22%),
-    radial-gradient(circle at 84% 68%, rgba(110,74,30,.20), transparent 26%),
-    radial-gradient(circle at 62% 92%, rgba(120,84,36,.16), transparent 20%),
+    radial-gradient(circle at 16% 10%, rgba(120,84,36,.30), transparent 20%),
+    radial-gradient(circle at 88% 62%, rgba(110,74,30,.28), transparent 24%),
+    radial-gradient(circle at 58% 94%, rgba(120,84,36,.22), transparent 18%),
+    radial-gradient(circle at 40% 44%, rgba(96,64,26,.14), transparent 30%),
+    var(--stain),
     var(--fibre-b),
     var(--fibre-a),
-    linear-gradient(180deg, var(--paper-hi), var(--paper) 40%, var(--paper-lo));
+    linear-gradient(180deg, var(--paper-hi), var(--paper) 38%, var(--paper-lo));
   border:1px solid var(--paper-deep);
   box-shadow:
-    0 1px 0 rgba(255,255,255,.25) inset,
-    0 3px 5px rgba(0,0,0,.3),
-    0 26px 60px rgba(0,0,0,.55);
+    0 1px 0 rgba(255,255,255,.22) inset,
+    0 3px 5px rgba(0,0,0,.35),
+    0 30px 70px rgba(0,0,0,.7);
 }
-.leaf::before{  /* fold line + heavy foxing + edge burn */
+.leaf::before{  /* fold lines + heavy foxing + grime */
   content:"";position:absolute;inset:0;pointer-events:none;
   background:
-    linear-gradient(180deg, transparent 46%, rgba(90,60,25,.16) 49%, rgba(255,255,255,.14) 51%, transparent 54%),
+    linear-gradient(180deg, transparent 45%, rgba(80,52,20,.22) 49%, rgba(255,255,255,.12) 51%, transparent 55%),
+    linear-gradient(92deg, transparent 22%, rgba(80,52,20,.10) 24%, transparent 27%),
     var(--grime);
-  mix-blend-mode:multiply;
+  background-size:100% 100%, 100% 100%, 420px 420px;
+  mix-blend-mode:multiply;opacity:.9;
 }
 .leaf::after{
   content:"";position:absolute;inset:0;pointer-events:none;
-  box-shadow:inset 0 0 90px rgba(110,74,30,.4), inset 0 0 22px rgba(70,44,16,.5);
+  box-shadow:inset 0 0 120px rgba(96,60,22,.5), inset 0 0 30px rgba(60,38,14,.6);
 }
 .leaf.tilt{transform:rotate(-.6deg)}
 .leaf.tilt-r{transform:rotate(.7deg)}
@@ -85,9 +91,8 @@ a{color:var(--blue)}
   font-size:15px;color:var(--ink-soft)}
 .pagenum.l{right:auto;left:26px}
 
-.leaf h1{font-family:'IM Fell English SC',serif;font-weight:400;font-size:30px;letter-spacing:1px;
-  text-transform:uppercase;margin:0 0 4px}
-.leaf .kicker{font-family:'IM Fell English',serif;font-style:italic;color:var(--ink-soft);font-size:15px;margin:0 0 22px}
+.leaf h1{font-family:'IM Fell English SC',serif;font-weight:400;font-size:29px;letter-spacing:1px;
+  text-transform:uppercase;margin:0 0 20px}
 .leaf p{font-size:14.5px;line-height:1.95;margin:0 0 14px}
 .rule{border:0;border-top:1px solid var(--rule);margin:22px 0}
 .rule.dbl{border-top:3px double var(--rule)}
@@ -109,9 +114,9 @@ a{color:var(--blue)}
 .hw img{display:block;width:100%;filter:sepia(.22) contrast(.96)}
 
 /* ---------- ink registers ---------- */
-.hand{font-family:'Caveat',cursive;font-size:21px;line-height:1.42;color:var(--blue)}
+.hand{font-family:'Kalam','Caveat',cursive;font-weight:300;font-size:18px;line-height:1.6;color:var(--blue)}
 .hand.red{color:var(--red)}
-.hand.pencil{color:#4a4436}
+.hand.pencil{color:#463f31}
 .type-red{color:var(--red)}
 .circled{position:relative;display:inline-block;padding:0 4px}
 .circled::after{content:"";position:absolute;inset:-6px -9px;border:2px solid var(--red);
@@ -120,10 +125,10 @@ a{color:var(--blue)}
 /* a later correction over an earlier line — different pen, different year */
 .correction{position:relative}
 .correction s{color:var(--ink-soft);text-decoration-thickness:2px;text-decoration-color:var(--red-soft)}
-.correction .fix{display:block;font-family:'Caveat',cursive;color:var(--red);font-size:19px;transform:rotate(-1.5deg);margin-top:2px}
+.correction .fix{display:block;font-family:'Kalam',cursive;font-weight:400;color:var(--red);font-size:17px;transform:rotate(-1deg);margin-top:2px}
 
 /* ---------- marginalia ---------- */
-.margin{position:absolute;font-family:'Caveat',cursive;font-size:19px;color:var(--red);width:170px;line-height:1.3}
+.margin{position:absolute;font-family:'Kalam',cursive;font-weight:300;font-size:16px;color:var(--red);width:170px;line-height:1.42}
 .margin.r{right:-196px;transform:rotate(-4deg)}
 .margin.l{left:-196px;text-align:right;transform:rotate(3deg)}
 .margin.blue{color:var(--blue)}
@@ -207,5 +212,8 @@ a{color:var(--blue)}
   padding:7px 10px;margin:6px 0;font-size:12px;line-height:1.7;animation:print .4s ease-out}
 .slip a{color:var(--red)}
 .slip.dud{border-left-color:#8a7f61;color:var(--ink-soft);font-style:italic}
+.indexcard .pulled{margin-top:8px;font:10px/1.7 'Special Elite',monospace;color:var(--ink-soft);
+  word-spacing:2px;border-top:1px dotted var(--paper-lo);padding-top:6px}
+.indexcard .pulled:empty{display:none}
 @keyframes print{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @media(max-width:640px){ .indexcard{position:static;width:auto;margin:30px 16px;transform:none} }

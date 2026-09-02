@@ -7,13 +7,12 @@
 <title>△ p.88</title>
 <link rel="stylesheet" href="ledger.css">
 <style>
-  .flow{width:100%;height:auto;margin:10px 0}
-  .flow text{font-family:'Caveat',cursive}
-  .node{fill:none;stroke:#2a2016;stroke-width:2}
-  .arc{fill:none;stroke:#2a2016;stroke-width:1.6}
-  .arc.q{stroke-dasharray:4 3}
-  .amt{fill:#7c2b1c}
-  .lbl{fill:#2a2016}
+  .flow{margin:8px -20px;border:1px solid var(--paper-deep);background:rgba(120,84,36,.05);
+    overflow:auto;max-height:62vh;box-shadow:inset 0 0 40px rgba(90,60,25,.3)}
+  .flow svg{display:block}
+  .flow text{font-family:'Kalam',cursive;font-weight:300;fill:#2a2016}
+  .flow text.amt{fill:#7c2b1c;font-weight:400}
+  .flow .hint{font:11px 'Special Elite',monospace;color:var(--ink-soft);padding:4px 12px}
 </style>
 </head>
 <body>
@@ -24,51 +23,12 @@
   <span class="tape tl"></span><span class="pin tc"></span>
 
   <h1>the flow &mdash; first pass</h1>
-  <p class="kicker">middle. drawn on the back of a rates notice. I still thought I could hold it in my head.</p>
 
   <div class="hw">
     <span class="lbl">PHOTO: Max<b>the real hand-drawn version, biro, arrows doubling back, three amounts scribbled and crossed</b></span>
   </div>
 
-  <svg class="flow" viewBox="0 0 760 380">
-    <g class="node">
-      <rect x="20" y="168" width="120" height="46" rx="3"/>
-      <rect x="230" y="40" width="118" height="44" rx="3"/>
-      <rect x="230" y="150" width="118" height="44" rx="3"/>
-      <rect x="230" y="262" width="118" height="44" rx="3"/>
-      <rect x="440" y="90" width="128" height="44" rx="3"/>
-      <rect x="440" y="210" width="128" height="44" rx="3"/>
-      <rect x="628" y="150" width="112" height="44" rx="3"/>
-    </g>
-    <g class="arc">
-      <path d="M140 182 C 190 150 195 66 228 62"/>
-      <path d="M140 190 C 190 190 195 172 228 172"/>
-      <path d="M140 200 C 190 250 195 282 228 284"/>
-      <path class="q" d="M348 62 C 400 70 405 108 438 110"/>
-      <path d="M348 172 C 400 150 405 120 438 118"/>
-      <path d="M348 172 C 400 200 405 224 438 230"/>
-      <path class="q" d="M348 284 C 400 270 405 244 438 240"/>
-      <path d="M568 112 C 600 130 604 158 626 164"/>
-      <path d="M568 232 C 600 210 604 184 626 178"/>
-      <path class="q" d="M740 172 C 720 330 360 340 300 306"/>
-    </g>
-    <g class="lbl" font-size="17">
-      <text x="34" y="196">the DRE</text>
-      <text x="244" y="66">NeuroStat</text>
-      <text x="244" y="176">Aegis Corp</text>
-      <text x="238" y="288">Meridian Hand</text>
-      <text x="452" y="116">Halcyon&#8209;Vantage</text>
-      <text x="452" y="236">Caselight Systems</text>
-      <text x="636" y="176">&mdash; ? &mdash;</text>
-    </g>
-    <g class="amt" font-size="15">
-      <text x="150" y="150">grant</text>
-      <text x="150" y="236">"consultancy"</text>
-      <text x="360" y="44">$ <tspan class="redn">▮▮▮</tspan> k</text>
-      <text x="360" y="322">back as equipment</text>
-      <text x="574" y="150">holds all three</text>
-    </g>
-  </svg>
+  <div class="flow"><div class="hint">drawn on the back of a rates notice &mdash; scroll it, it does not fit the page</div><svg id="flow" width="1680" height="1120" viewBox="0 0 1680 1120"></svg></div>
 
   <p>It goes out as a grant, comes back as a consultancy fee, leaves again as
   equipment nobody unpacks. Every box I draw turns out to have two more boxes
@@ -79,7 +39,7 @@
   point of the software. <!-- TEXT: Max --></p>
 
   <p class="hand red">I blacked the top figure out on purpose. It is redrawn on
-  the next pass. Tap the next pass, then come back.</p>
+  the next pass. Read the next pass, then this one fills itself in.</p>
 
   <div class="xrefs">
     <span class="lead">he cross-refs</span>
@@ -89,7 +49,7 @@
     <a class="xref" data-p="p256">p.256</a>
   </div>
 
-  <span class="margin r blue" id="ret" hidden>added later, in pencil: the figure was 148. it is 148 on every pass. I keep blacking it out because writing it down twice felt like agreeing to it.</span>
+  <span class="margin r blue" id="ret" hidden>the figure was 148. it is 148 on every pass. I keep blacking it out because writing it down twice felt like agreeing to it.</span>
 </article>
 
 <div class="indexcard">
@@ -97,17 +57,75 @@
   <label>the index</label>
   <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
   <div class="slips"></div>
+  <div class="pulled"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
 <script src="ledger.js"></script>
 <script src="cipher.js"></script>
 <script>
 LG.initPage('p88');
-if(LG.hasSeen('p89')){
-  document.querySelectorAll('.redn').forEach(function(t){ t.textContent='148'; t.removeAttribute('class'); });
-  var r=document.getElementById('ret'); if(r) r.hidden=false;
-  LG.addFound('the money');
-}
+(function(){
+  var SVG='http://www.w3.org/2000/svg';
+  var svg=document.getElementById('flow');
+  if(!window.rough){ svg.parentNode.innerHTML='<div class="hint">[diagram]</div>'; return; }
+  function seedRand(s){ return function(){ s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/4294967296; }; }
+  var rnd=seedRand(880);
+  var seen89 = LG.hasSeen('p89');
+
+  var cols=[
+    ['the DRE'],
+    ['NeuroStat','Aegis Corp','Meridian Hand'],
+    ['holding co. (DE)','holding co. (JE)','holding co. (BVI)','a "foundation"'],
+    ['Halcyon-Vantage','Caselight Systems','offshore, name lost','offshore, name lost'],
+    ['nominee','nominee','nominee','a trust','a trust'],
+    ['everything downstream','- ? -']
+  ];
+  var nodes=[], gapX=(1680-200)/(cols.length-1);
+  cols.forEach(function(list,ci){
+    var n=list.length, gy=(1120-140)/n;
+    list.forEach(function(lbl,ri){
+      nodes.push({ci:ci, lbl:lbl, x: 90 + ci*gapX + (rnd()-0.5)*26,
+        y: 70 + ri*gy + gy/2 - 22 + (rnd()-0.5)*40, w:150, h:44});
+    });
+  });
+  function byCol(c){ return nodes.filter(function(n){return n.ci===c;}); }
+
+  var edges=[];
+  for(var c=0;c<cols.length-1;c++){
+    byCol(c).forEach(function(a){
+      var next=byCol(c+1), k=1+((rnd()*3)|0);
+      for(var i=0;i<k;i++) edges.push([a, next[(rnd()*next.length)|0], rnd()<0.35]);
+      if(rnd()<0.4 && c>0) edges.push([a, byCol(c-1)[(rnd()*byCol(c-1).length)|0], true]);
+      if(rnd()<0.25 && c<cols.length-2) edges.push([a, byCol(c+2)[(rnd()*byCol(c+2).length)|0], true]);
+    });
+  }
+
+  var rc=rough.svg(svg);
+  edges.forEach(function(e){
+    var a=e[0], b=e[1];
+    var x1=(b.ci<=a.ci)?a.x:a.x+a.w, y1=a.y+a.h/2, x2=b.x, y2=b.y+b.h/2;
+    var mx=(x1+x2)/2+(rnd()-0.5)*120, my=(y1+y2)/2+(rnd()-0.5)*90;
+    svg.appendChild(rc.curve([[x1,y1],[mx,my],[x2,y2]],
+      {roughness:2.6, bowing:3, stroke:'#2a2016', strokeWidth:1.2, strokeLineDash:e[2]?[5,4]:undefined}));
+  });
+  nodes.forEach(function(n){
+    svg.appendChild(rc.rectangle(n.x,n.y,n.w,n.h,{roughness:2.1, bowing:1.6, stroke:'#2a2016', strokeWidth:1.4}));
+    var t=document.createElementNS(SVG,'text');
+    t.setAttribute('x',n.x+n.w/2); t.setAttribute('y',n.y+n.h/2+5);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','15');
+    t.textContent=n.lbl; svg.appendChild(t);
+  });
+  var amt=document.createElementNS(SVG,'text');
+  amt.setAttribute('class','amt'); amt.setAttribute('x','300'); amt.setAttribute('y','120'); amt.setAttribute('font-size','16');
+  amt.textContent = seen89 ? '$ 148 k' : '$ ▮▮▮ k';
+  svg.appendChild(amt);
+  var a2=document.createElementNS(SVG,'text');
+  a2.setAttribute('class','amt'); a2.setAttribute('x','300'); a2.setAttribute('y','1010'); a2.setAttribute('font-size','15');
+  a2.textContent='back in as "equipment"'; svg.appendChild(a2);
+
+  if(seen89){ var r=document.getElementById('ret'); if(r) r.hidden=false; LG.addFound('the money'); }
+})();
 </script>
 </body>
 </html>

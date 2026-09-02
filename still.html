@@ -6,48 +6,61 @@
 <meta name="robots" content="noindex,nofollow">
 <title> </title>
 <style>
-  html,body{margin:0;height:100%;overflow:hidden}
-  body{background:#000;color:#111;font-family:"Times New Roman",Times,serif}
+  html{background:#000}
+  body{margin:0;background:#000;color:#111;font-family:"Times New Roman",Times,serif;
+    min-height:1400vh;position:relative;overflow-x:hidden}
   body[data-bg="light"]{background:#fff}
+  body[data-bg="light"],html:has(body[data-bg="light"]){background:#fff}
 
   /* the thing you might miss if you blink */
-  .flash{
-    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-    font-size:19px;letter-spacing:.4px;text-align:center;white-space:nowrap;
-    text-decoration:none;
-  }
+  .flash{position:fixed;left:50%;top:46vh;transform:translate(-50%,-50%);
+    font-size:19px;letter-spacing:.4px;text-align:center;white-space:nowrap;text-decoration:none}
   body[data-bg="dark"]  .flash{color:#6a6a6a}
   body[data-bg="light"] .flash{color:#9a9a9a}
+  .flash::selection,.buried::selection,.tiny::selection{background:#b71c1c;color:#fff}
 
-  /* only legible when you drag-select the void */
-  .buried{
-    position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
-    font-size:14px;letter-spacing:2px;text-decoration:none;
-  }
+  /* one way forward: drag-select the void */
+  .buried{position:absolute;left:50%;top:92vh;transform:translateX(-50%);
+    font-size:14px;letter-spacing:2px;text-decoration:none}
   body[data-bg="dark"]  .buried{color:#000}
   body[data-bg="light"] .buried{color:#fff}
-  .buried::selection{background:#b71c1c;color:#fff}
-  .flash::selection{background:#b71c1c;color:#fff}
+
+  /* remote corners — invisible at 100%, legible only if you zoom in hard */
+  .tiny{position:absolute;font-size:1.6px;line-height:1.9;letter-spacing:0;white-space:pre}
+  body[data-bg="dark"]  .tiny{color:#141414}
+  body[data-bg="light"] .tiny{color:#f0f0f0}
+  .tiny.a{right:3px;top:38vh;text-align:right}
+  .tiny.b{left:3px;top:520vh}
+  .tiny.c{right:6px;bottom:2px;text-align:right}
 </style>
 </head>
 <body>
 
-  <!-- TEXT: Max — two halves that assemble into one line; dark bg shows the first, light bg the second -->
-  <a class="flash" id="flash" href="feed.html"></a>
+  <!-- TEXT: Max — TOTAL REWORK of the still-page line. tiny, corner, zoom to read.
+       three placements below; keep one or split across them. -->
+  <div class="tiny a">rework me &mdash; corner A</div>
+  <div class="tiny b">rework me &mdash; corner B (far down the page)</div>
+  <div class="tiny c">rework me &mdash; corner C</div>
 
-  <!-- one way forward: drag-select the screen -->
+  <a class="flash" id="flash" href="feed.html"></a>
   <a class="buried" href="feed.html">keep going</a>
+
+  <!-- EXCERPT: Max — a passage from an important book goes here, in the source only.
+       players find it by inspecting the page. leave it commented, or put it in the
+       hidden node below and encode it however you like. -->
+  <div hidden id="excerpt" data-note="EXCERPT: Max"></div>
 
   <!-- someone has been here before you. the page did not break. -->
 <script>
 (function(){
   var LS; try{ LS=window.localStorage; LS.setItem('__s','1'); LS.removeItem('__s'); }catch(e){ LS=null; }
 
-  var FRAG_DARK  = "you were counted the moment you";   // TEXT: Max
-  var FRAG_LIGHT = "arrived — and the list does not let go";  // TEXT: Max
+  var FRAG_DARK  = "REWORK — dark-bg half";   // TEXT: Max
+  var FRAG_LIGHT = "REWORK — light-bg half";  // TEXT: Max
 
   var dark = Math.random() < 0.5;
   document.body.setAttribute('data-bg', dark ? 'dark' : 'light');
+  document.documentElement.style.background = dark ? '#000' : '#fff';
 
   var visits = 1, seenD = false, seenL = false;
   if(LS){
@@ -60,17 +73,15 @@
   }
 
   var flash = document.getElementById('flash');
-  var assembled = (seenD && seenL) || visits >= 4;   // caught both halves, or kept coming back
+  var assembled = (seenD && seenL) || visits >= 4;
 
   if(assembled){
     flash.textContent = FRAG_DARK + " " + FRAG_LIGHT;
     flash.style.color = dark ? '#c8c8c8' : '#333';
     flash.style.whiteSpace = 'normal';
     flash.style.maxWidth = '80vw';
-    // stays put — it is the way through
   }else{
     flash.textContent = dark ? FRAG_DARK : FRAG_LIGHT;
-    // gone in about a second — unless you clicked it in time
     setTimeout(function(){ if(flash && flash.parentNode) flash.parentNode.removeChild(flash); }, 1150);
   }
 })();

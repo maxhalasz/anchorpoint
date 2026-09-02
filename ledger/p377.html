@@ -10,12 +10,17 @@
 <body>
 <a class="backlink" href="index.html">&larr; the pile</a>
 
-<article class="leaf tilt">
+<article class="leaf" id="sealed" hidden style="text-align:center">
+  <span class="pagenum">p. 377</span>
+  <div style="display:flex;justify-content:center;margin:26px 0"><div class="seal">SEALED</div></div>
+  <p class="hand red">The last one he sent opens once you have read <a class="xref" data-p="p256">p.256</a> and <a class="xref" data-p="p301">p.301</a>.</p>
+</article>
+
+<article class="leaf tilt" id="body" hidden>
   <span class="pagenum">p. 377</span>
   <span class="tape tl"></span><span class="tape tr"></span>
 
   <h1>&mdash;</h1>
-  <p class="kicker">the last one I am sending. not the last one there is.</p>
 
   <div class="hw">
     <span class="lbl">PHOTO: Max<b>a short page, careful again for once, like he slowed down on purpose for whoever gets here</b></span>
@@ -47,10 +52,16 @@
   <label>the index</label>
   <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
   <div class="slips"></div>
+  <div class="pulled"></div>
 </div>
 
 <script src="ledger.js"></script>
 <script src="cipher.js"></script>
-<script>LG.initPage('p377');</script>
+<script>
+LG.initPage('p377');
+var ok377 = !(LG.PAGES.p377.sealed && LG.PAGES.p377.sealed());
+document.getElementById(ok377 ? 'body' : 'sealed').hidden = false;
+LG.wireXrefs(document);
+</script>
 </body>
 </html>

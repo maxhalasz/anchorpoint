@@ -10,12 +10,17 @@
 <body>
 <a class="backlink" href="index.html">&larr; the pile</a>
 
-<article class="leaf tilt">
+<article class="leaf" id="sealed" hidden style="text-align:center">
+  <span class="pagenum">p. 213</span>
+  <div style="display:flex;justify-content:center;margin:26px 0"><div class="seal">SEALED</div></div>
+  <p class="hand red">This one opens once you have read <a class="xref" data-p="p212">p.212</a> and <a class="xref" data-p="p288">p.288</a>.</p>
+</article>
+
+<article class="leaf tilt" id="body" hidden>
   <span class="pagenum">p. 213</span>
   <span class="pin tc"></span>
 
   <h1>&mdash;</h1>
-  <p class="kicker">late. written at the kitchen table at an hour I will not put here.</p>
 
   <div class="hw">
     <span class="lbl">PHOTO: Max<b>a short page, large uneven hand, one line pressed almost through the paper</b></span>
@@ -44,13 +49,17 @@
   <label>the index</label>
   <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
   <div class="slips"></div>
+  <div class="pulled"></div>
 </div>
 
 <script src="ledger.js"></script>
 <script src="cipher.js"></script>
 <script>
 LG.initPage('p213');
-document.getElementById('mili').innerHTML = CIPHER.miliText('it is not surfacing it is being brought');
+var ok213 = !(LG.PAGES.p213.sealed && LG.PAGES.p213.sealed());
+document.getElementById(ok213 ? 'body' : 'sealed').hidden = false;
+LG.wireXrefs(document);
+if(ok213) document.getElementById('mili').innerHTML = CIPHER.miliText('it is not surfacing it is being brought');
 </script>
 </body>
 </html>

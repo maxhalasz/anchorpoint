@@ -7,120 +7,158 @@
 <title> </title>
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#0a0a0a}
-  #field{position:fixed;left:0;top:0;width:100%;will-change:transform}
-  .msg{
-    position:absolute;width:min(30em,74vw);
-    font:13px/1.45 "Courier New",Courier,monospace;color:#8d8d8d;
-    text-shadow:0 0 10px #000;
+  #stage{position:fixed;inset:0}
+  .m{
+    position:absolute;left:0;top:0;width:min(28em,72vw);
+    font:12.5px/1.42 "Courier New",Courier,monospace;color:#8d8d8d;
+    text-shadow:0 0 9px #000;white-space:pre-wrap;will-change:transform;
   }
-  .msg a{color:inherit;text-decoration:none}
+  .m a{color:inherit;text-decoration:none}
   #veil{position:fixed;inset:0;display:none;z-index:50}
-  #hint{position:fixed;left:0;right:0;bottom:9px;text-align:center;color:#333;font:11px monospace;z-index:40}
+  #hint{position:fixed;left:0;right:0;bottom:8px;text-align:center;color:#2f2f2f;font:11px monospace;z-index:40}
 </style>
 </head>
 <body>
-  <div id="field"></div>
+  <div id="stage"></div>
   <canvas id="veil"></canvas>
   <div id="hint">&nbsp;</div>
 
-  <!-- the noise takes it to notcrazy.html -->
+  <!-- forward: click "say it back", or your own message. no timer. -->
 <script>
 (function(){
   var LS; try{ LS = window.localStorage; }catch(e){ LS = null; }
 
   var POOL = [
-    "Is anyone still awake. I just need to know there is a real person on the other side.",
-    "I locked my door. Everyone downstairs is laughing. I feel like a ghost watching living people.",
-    "Is it normal to feel like your own home is not yours. I do not recognize the people in the photos.",
-    "I have not slept in four days. When I close my eyes I hear white noise, like a dead channel.",
-    "Did my meds stop working or am I just getting worse.",
-    "There is a thought that will not go away. It would be easier if I did not wake up. I do not want to die. I want it to stop.",
-    "If I vanished today it would take weeks for anyone to notice I was gone.",
-    "please help me",
-    "i cant stop crying and i dont know why",
-    "hello. is a real person reading this or is it a bot",
-    "i just want to disappear for a few months",
-    "sorry to bother you. nevermind.",
-    "It has been three weeks since I left the apartment. I wait at the peephole until the driver is gone.",
-    "I look at my family and feel nothing. When they hug me I force my body not to go stiff.",
-    "I hear footsteps in my attic every night at 3:14 exactly. I have gone up there. Nothing.",
-    "i keep replaying a conversation from five years ago. i cannot get out of it.",
-    "the pills make everything flat and the sadness comes through the wall anyway",
-    "everyone at work thinks im brilliant. i am waiting for them to find out i am not.",
-    "i wrote a list of who to call and there was no one to put on it",
-    "i am so tired of being the strong one",
-    "is this being recorded. please say if this is being recorded.",
-    "my brain is a room full of TVs on different channels and i cannot turn any of them off",
-    "i dont feel real. i feel like i am controlling a body from very far away.",
-    "i counted the pills again tonight. i just counted them. thats all."
+"Is anyone still awake. I just need to know there is a real person on the other side.",
+"I locked my door. Everyone downstairs is laughing. I feel like a ghost watching living people.",
+"Is it normal to feel like your own home is not yours. I do not recognize the people in the photos.",
+"I have not slept in four days. When I close my eyes I hear white noise, like a dead channel.",
+"Did my meds stop working or am I just getting worse.",
+"There is a thought that will not go away. It would be easier if I did not wake up. I do not want to die. I want it to stop.",
+"If I vanished today it would take weeks for anyone to notice I was gone.",
+"please help me",
+"i cant stop crying and i dont know why",
+"hello. is a real person reading this or is it a bot",
+"i just want to disappear for a few months",
+"sorry to bother you. nevermind.",
+"It has been three weeks since I left the apartment. I wait at the peephole until the driver is gone.",
+"I look at my family and feel nothing. When they hug me I force my body not to go stiff.",
+"I hear footsteps in my attic every night at 3:14 exactly. I have gone up there. Nothing.",
+"i keep replaying a conversation from five years ago. i cannot get out of it.",
+"the pills make everything flat and the sadness comes through the wall anyway",
+"everyone at work thinks im brilliant. i am waiting for them to find out i am not.",
+"i wrote a list of who to call and there was no one to put on it",
+"i am so tired of being the strong one",
+"my brain is a room full of TVs on different channels and i cannot turn any of them off",
+"i dont feel real. i feel like i am controlling a body from very far away.",
+"i counted the pills again tonight. i just counted them. thats all.",
+"I don't know who else to send this to. My family thinks I'm just stressed, but the shadows in the hallway don't move when I turn on the light. They just get darker. Is this a site for real doctors or just another auto-responder? Please answer.",
+"i haven't left my room in 4 days. every time i touch the doorknob i get this overwhelming feeling that the layout of my apartment building changed while i was asleep. like if i open it, it's just going to be a brick wall or endless dirt.",
+"Is it normal to feel like your reflection is lagging behind? I was brushing my teeth this morning and I swear I stopped moving a split second before the mirror did. I've been staring at the glass for two hours now.",
+"Do you keep records of these texts? If I tell you what I did, are you legally obligated to call the police?",
+"I didn't hurt anyone, I swear, but I found something that doesn't belong to me and I can't put it back",
+"Everything tastes like pennies lately. Copper. Metal. I haven't eaten a solid meal since Tuesday because the taste makes me want to pull my tongue out.",
+"Please delete my history after reading this. They monitor my traffic. I found this IP through an encrypted directory. If you are real, just reply with the word BLUE so I know it's safe to type.",
+"I can hear my house settling, but it only happens when I stop breathing. The moment I take a breath, the creaking stops.",
+"My hands don't look like my hands anymore. The fingers are too long. When I look down at the keyboard I feel like I'm controlling a puppet. depersonalization? derealization? what is this called?",
+"I'm just so tired. Not sleep-tired. Just tired of keeping the hum going. If I stop thinking about existing, I feel like the render distance of my life shrinks.",
+"help me please i cant stop shaking",
+"my skin feels too tight today",
+"ANYONE THERE?????",
+"Don't look at the sky tonight. Just don't.",
+"how do i make the noise in my ears sound like music instead of screaming",
+"I found this URL on a forum thread from 2008 that had all its other posts deleted. I don't know if this form still works or if this goes to a server rotting in a basement somewhere, but I need to put this into words.",
+"Three weeks ago I bought a vintage radio at a yard sale. Wood casing, vacuum tubes. When I plug it in it doesn't pick up FM or AM. It just broadcasts a voice reading numbers, dates, and full names. I haven't gone back into the living room since. I'm writing this from the bathroom.",
+"In my restless dreams, I see that town. Silent Hill. You promised me you'd take me there again someday. But because of me, you were never able to. Well, I'm alone there now, in our special place, waiting for you. Waiting for you to come and see me. But you never do. And so I wait, wrapped in my cocoon of pain and loneliness.",
+"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+"bro your hotline sucks nobody is answering the chat box, im literally bleeding out here (jk i cut my finger on a bag of Doritos give me a refund)",
+"Is this the site where you report ghost sightings or where you cry about your ex?",
+"fake site lol. took my IP address. enjoy seeing 400 gigabytes of shrek memes you nerds.",
+"hey hotline guy, if i eat a silicate gel packet do i turn into glass? asking for a friend who is currently crying under a desk.",
+"TEST TEST TEST IS THIS ON? GOOGLE HOW DO I BUY CHEAP MILK NEAR ME. WAIT THIS ISNT GOOGLE.",
+"I keep remembering a sister that my parents claim never existed. I have photos of her. I'm holding her hand in front of a Ferris wheel. Her face in the photo is scratched out, and when I show it to my mom she says it's just a smudge on a picture of me alone.",
+"please send someone to 404 Elm Street. Don't knock, just break the door down.",
+"is anyone there",
+"i hate who i am",
+"i don't know what to do with my life anymore"
   ];
+
   var ANOM = [
-    "It listed my exact IP address. How did you get that.",
-    "The text box flashed three times before I started typing. Is someone else on this line.",
-    "Why does the background go a lighter grey if I do not move my mouse for five minutes.",
-    "you sent this one. it is still here."    // TEXT: Max
+"It listed my exact IP address. How did you get that.",
+"The text box flashed three times before I started typing. Is someone else on this line.",
+"Why does the background go a lighter grey if I do not move my mouse for five minutes.",
+"you sent this one. it is still here."   // TEXT: Max
   ];
-  var DOOR = "if you can still read this, say it back — here";  // TEXT: Max
+  var DOOR = "if you can still read this, say it back — here";   // TEXT: Max
   var mine = LS && LS.getItem('ap_lastMessage');
 
-  var field = document.getElementById('field');
-  var vh = window.innerHeight, vw = window.innerWidth;
-  var FIELD_H = vh * 9;
-  field.style.height = FIELD_H + 'px';
+  var stage = document.getElementById('stage');
+  var W = window.innerWidth, H = window.innerHeight;
 
-  // one flat pool, uniform styling; a few special lines seeded once
-  var lines = [];
-  for(var r=0;r<9;r++){ POOL.forEach(function(t){ lines.push({t:t}); }); }
-  ANOM.forEach(function(t, ix){ lines.push({t:t}); if(ix < 3) lines.push({t:t}); });  // repeat the first three, keep "you sent this one" singular
-  if(mine) lines.push({t:mine, link:true});
-  for(var k=0;k<4;k++) lines.push({t:DOOR, link:true});
-  for(var i=lines.length-1;i>0;i--){ var j=(Math.random()*(i+1))|0; var x=lines[i];lines[i]=lines[j];lines[j]=x; }
+  // build the population
+  var items = [];
+  for (var r = 0; r < 6; r++) POOL.forEach(function (t) { items.push({ t: t }); });
+  ANOM.forEach(function (t, i) { for (var k = 0; k < (i < 3 ? 5 : 1); k++) items.push({ t: t }); });
+  if (mine) for (var q = 0; q < 3; q++) items.push({ t: mine, link: true });
+  for (var d = 0; d < 10; d++) items.push({ t: DOOR, link: true });
+  for (var i = items.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var x = items[i]; items[i] = items[j]; items[j] = x; }
 
-  // place them densely across the whole field, from the first frame
-  var COUNT = Math.min(lines.length, Math.round(FIELD_H / 46));
-  for(var m=0;m<COUNT;m++){
-    var it = lines[m];
+  var FIELD_W = W * 1.6, FIELD_H = H * 3.2;
+  var nodes = items.map(function (it) {
     var el = document.createElement(it.link ? 'a' : 'div');
-    el.className = 'msg';
-    if(it.link) el.href = 'notcrazy.html';
+    el.className = 'm';
+    if (it.link) el.href = 'notcrazy.html';
     el.textContent = it.t;
-    el.style.left = (4 + Math.random() * Math.max(4, vw - 360)) + 'px';
-    el.style.top = (Math.random() * (FIELD_H - 40)) + 'px';
-    el.style.opacity = (0.55 + Math.random() * 0.32).toFixed(2);
-    field.appendChild(el);
-  }
+    el.style.opacity = (0.45 + Math.random() * 0.4).toFixed(2);
+    stage.appendChild(el);
+    var mode = Math.random();
+    var o = {
+      el: el,
+      x: Math.random() * FIELD_W - (FIELD_W - W) / 2,
+      y: Math.random() * FIELD_H - (FIELD_H - H) / 2,
+      vx: 0, vy: 0
+    };
+    if (mode < 0.45) {            // slow drift, any direction
+      o.vx = (Math.random() - 0.5) * 10; o.vy = (Math.random() - 0.5) * 10;
+    } else if (mode < 0.8) {      // rising
+      o.vy = -(14 + Math.random() * 34); o.vx = (Math.random() - 0.5) * 4;
+    } else {                      // crossing
+      o.vx = (Math.random() < 0.5 ? -1 : 1) * (18 + Math.random() * 30); o.vy = (Math.random() - 0.5) * 4;
+    }
+    return o;
+  });
 
-  // the whole wall crawls upward, slowly
-  var travel = FIELD_H - vh, dur = 210000, t0 = performance.now(), collapsing = false;
-  (function crawl(now){
-    if(collapsing) return;
-    var k = Math.min(1, (now - t0) / dur);
-    field.style.transform = 'translateY(' + (-k * travel) + 'px)';
-    if(k < 1) requestAnimationFrame(crawl);
-  })(t0);
+  var last = performance.now();
+  (function tick(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    for (var i = 0; i < nodes.length; i++) {
+      var o = nodes[i];
+      o.x += o.vx * dt; o.y += o.vy * dt;
+      if (o.y < -(FIELD_H - H) / 2 - 60) o.y = (FIELD_H + H) / 2;
+      if (o.y > (FIELD_H + H) / 2 + 60) o.y = -(FIELD_H - H) / 2;
+      if (o.x < -(FIELD_W - W) / 2 - 400) o.x = (FIELD_W + W) / 2;
+      if (o.x > (FIELD_W + W) / 2 + 40) o.x = -(FIELD_W - W) / 2 - 380;
+      o.el.style.transform = 'translate(' + o.x.toFixed(1) + 'px,' + o.y.toFixed(1) + 'px)';
+    }
+    requestAnimationFrame(tick);
+  })(last);
 
-  setTimeout(function(){ document.getElementById('hint').textContent = 'say it back'; }, 22000);
+  setTimeout(function () { document.getElementById('hint').textContent = 'say it back'; }, 20000);
 
-  // after ~75s the noise takes over
-  setTimeout(function(){
-    collapsing = true;
-    field.style.transition = 'transform 2.2s ease-in, opacity 1.8s';
-    field.style.transform = 'translateY(' + (-travel - 200) + 'px)';
-    field.style.opacity = '0';
-    setTimeout(toStatic, 2400);
-  }, 75000);
-
-  function toStatic(){
+  // clicking a link: quick static wipe, then go
+  stage.addEventListener('click', function (e) {
+    var a = e.target.closest('a.m'); if (!a) return;
+    e.preventDefault();
     var c = document.getElementById('veil'); c.style.display = 'block';
-    var ctx = c.getContext('2d'); c.width = vw; c.height = vh;
-    var end = performance.now() + 1500;
-    (function draw(now){
-      var img = ctx.createImageData(c.width, c.height), d = img.data;
-      for(var i=0;i<d.length;i+=4){ var v=(Math.random()*255)|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
-      ctx.putImageData(img,0,0);
-      if(now < end) requestAnimationFrame(draw); else location.href = 'notcrazy.html';
+    var ctx = c.getContext('2d'); c.width = W; c.height = H;
+    var end = performance.now() + 900;
+    (function draw(t) {
+      var img = ctx.createImageData(c.width, c.height), p = img.data;
+      for (var i = 0; i < p.length; i += 4) { var v = (Math.random() * 255) | 0; p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255; }
+      ctx.putImageData(img, 0, 0);
+      if (t < end) requestAnimationFrame(draw); else location.href = 'notcrazy.html';
     })(performance.now());
-  }
+  });
 })();
 </script>
 </body>
