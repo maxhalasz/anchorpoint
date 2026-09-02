@@ -37,11 +37,15 @@
   --tex-paper-wrong:url("../img/tex/bg-wrong.jpg");
   --tex-paper-alt1: url("../img/tex/paper-alt1.jpg");
   --tex-paper-alt2: url("../img/tex/paper-alt2.jpg");
+  --tex-paper-white:url("../img/tex/paper-white.jpg");
   --tex-desk:       url("../img/tex/desk.jpg");
   --tex-tape:       url("../img/tex/tape-strip.png");
   --tex-tape-x:     url("../img/tex/tape-cross.png");
   --tex-stain:      url("../img/tex/stain-1.png");
+  --tex-stain-2:    url("../img/tex/stain-2.png");
+  --tex-stain-3:    url("../img/tex/stain-3.png");
   --tex-stain-ring: url("../img/tex/stain-ring.png");
+  --tex-stain-drip: url("../img/tex/black-drip.png");
   --tex-bleed:      url("../img/tex/paper-bleedthrough.jpg");
 
   /* stacked grain: two frequencies of paper fibre */
@@ -89,11 +93,15 @@ a{color:var(--blue)}
   position:relative;z-index:1;isolation:isolate;
   max-width:760px;margin:64px auto;padding:52px 58px 60px;
   color:var(--ink);
+  /* the paper photo is the surface, multiplied onto a warm tint so its
+     fibre / creases / foxing actually read */
   background-color:var(--paper);
-  background-image:linear-gradient(180deg, var(--paper-hi), var(--paper) 40%, var(--paper-lo));
+  background-image:var(--tex-paper), linear-gradient(180deg, var(--paper-hi), var(--paper) 42%, var(--paper-lo));
+  background-size:cover, auto;
+  background-position:center;
+  background-repeat:no-repeat, no-repeat;
+  background-blend-mode:multiply;
   border:1px solid var(--paper-deep);
-  /* light from top-left. tight contact shadow + progressively softer/longer
-     cast shadow offset bottom-right + a faint warm bounce on the lit side */
   box-shadow:
     0 1px 0 rgba(255,255,255,.3) inset,
     0 2px 3px rgba(0,0,0,.45),
@@ -102,17 +110,15 @@ a{color:var(--blue)}
     30px 66px 120px rgba(0,0,0,.42),
     -14px -8px 40px rgba(255,236,198,.05);
 }
-/* under the text: directional surface light + the paper scan + fibre */
+/* under the text: directional surface light only (paper is on .leaf now) */
 .leaf::before{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:
-    linear-gradient(125deg, rgba(255,248,226,.2), transparent 36%, rgba(52,34,14,.12) 96%),
-    var(--tex-paper),
-    var(--fibre-b),
-    var(--fibre-a);
-  background-size:100% 100%, cover, auto, auto;
-  background-repeat:no-repeat, no-repeat, repeat, repeat;
-  background-blend-mode:soft-light, soft-light, overlay, overlay;
+    linear-gradient(125deg, rgba(255,248,226,.22), transparent 34%, rgba(52,34,14,.14) 96%),
+    var(--fibre-b), var(--fibre-a);
+  background-size:100% 100%, auto, auto;
+  background-repeat:no-repeat, repeat, repeat;
+  background-blend-mode:soft-light, overlay, overlay;
 }
 /* over everything, handwriting included: the aging (no fixed stain here —
    stains are opt-in per leaf via <span class="stain">) */
@@ -222,19 +228,17 @@ a{color:var(--blue)}
 .xrefs .lead{font-family:'IM Fell English SC',serif;letter-spacing:2px;font-size:11px;color:var(--ink-soft);display:block;margin-bottom:2px}
 
 /* ---------- tape / clip / pin ---------- */
-.tape{position:absolute;width:128px;height:34px;
-  background:var(--tex-tape), var(--tape);
-  background-size:cover;background-blend-mode:multiply;
-  mix-blend-mode:multiply;opacity:.92;
-  box-shadow:0 1px 3px rgba(0,0,0,.22);
-  border-left:1px dashed rgba(255,255,255,.25);border-right:1px dashed rgba(255,255,255,.25)}
+.tape{position:absolute;width:132px;height:36px;
+  background:var(--tex-tape) center/100% 100% no-repeat;
+  mix-blend-mode:multiply;opacity:.82;
+  filter:drop-shadow(1px 2px 1px rgba(0,0,0,.28))}
 .tape.tl{top:-15px;left:-26px;transform:rotate(-40deg)}
 .tape.tr{top:-15px;right:-26px;transform:rotate(41deg)}
 .tape.bl{bottom:-15px;left:-22px;transform:rotate(46deg)}
 .tape.br{bottom:-15px;right:-22px;transform:rotate(-43deg)}
 .tape.v{width:34px;height:150px}
-.tape.x{width:96px;height:96px;background:var(--tex-tape-x) center/contain no-repeat;
-  mix-blend-mode:multiply;border:0;box-shadow:none}
+.tape.x{width:100px;height:100px;background:var(--tex-tape-x) center/contain no-repeat;
+  mix-blend-mode:multiply;opacity:.82;border:0;filter:drop-shadow(1px 2px 1px rgba(0,0,0,.28))}
 .pin{position:absolute;width:16px;height:16px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%, #f2b6b0, #b23a2c 60%, #7c1d12);
   box-shadow:0 3px 5px rgba(0,0,0,.5)}
@@ -250,16 +254,19 @@ a{color:var(--blue)}
   background:radial-gradient(circle at 38% 34%,#a2321f,#5c150c 72%);
   box-shadow:0 2px 6px rgba(0,0,0,.5), inset 0 -4px 6px rgba(0,0,0,.4)}
 
-/* a stain dropped on a leaf — <span class="stain ring" style="left:60%;top:20%"></span> */
-.stain{position:absolute;width:200px;height:200px;pointer-events:none;
-  background:var(--tex-stain) center/contain no-repeat;mix-blend-mode:multiply;opacity:.5}
-.stain.ring{background-image:var(--tex-stain-ring);width:260px;height:260px;opacity:.42}
+/* a stain dropped on a leaf — sits UNDER collages/clippings, over the paper */
+.stain{position:absolute;z-index:0;width:220px;height:220px;pointer-events:none;
+  background:var(--tex-stain) center/contain no-repeat;mix-blend-mode:multiply;opacity:.55}
+.stain.ring{background-image:var(--tex-stain-ring);width:280px;height:280px;opacity:.5}
+.stain.s2{background-image:var(--tex-stain-2)}
+.stain.s3{background-image:var(--tex-stain-3);width:300px;height:340px}
+.stain.drip{background-image:var(--tex-stain-drip);width:180px;height:360px;opacity:.6}
 
 /* ---------- collage — the core Ledger move ----------
    a base area, torn photo/paper fragments glued onto it at angles, a strip of
    tape over the seam, and handwriting that runs ACROSS everything, often up the
    tape. Model of the "Extra collages" reference. */
-.collage{position:relative;margin:18px 0;min-height:220px}
+.collage{position:relative;z-index:1;margin:18px 0;min-height:220px}
 .frag{position:absolute;background:#fdf9ec;padding:6px;
   box-shadow:0 5px 14px rgba(0,0,0,.5);}
 .frag img,.frag .void{display:block;width:100%}
@@ -270,19 +277,29 @@ a{color:var(--blue)}
 .frag.p1{left:2%;top:12%;width:52%;transform:rotate(-2.5deg)}
 .frag.p2{right:6%;top:0;width:40%;transform:rotate(2deg);filter:grayscale(1) contrast(.9)}
 .frag.p3{left:26%;bottom:0;width:44%;transform:rotate(1.4deg)}
-.collage .strip{position:absolute;right:14%;top:-6%;width:36px;height:112%;
-  background:var(--tex-tape), var(--tape);background-size:cover;background-blend-mode:multiply;
-  mix-blend-mode:multiply;transform:rotate(2deg);opacity:.9}
+.collage .strip{position:absolute;right:14%;top:-6%;width:40px;height:112%;
+  background:var(--tex-tape) center/100% 100% no-repeat;
+  mix-blend-mode:multiply;transform:rotate(2deg);opacity:.82;
+  filter:drop-shadow(1px 2px 1px rgba(0,0,0,.25))}
 .collage .scrawl{position:absolute;right:12%;top:8%;
   font-family:'Caveat',cursive;font-size:19px;color:var(--blue);
   writing-mode:vertical-rl;transform:rotate(4deg);text-shadow:0 0 2px rgba(240,230,200,.4)}
 .collage .cap{position:absolute;left:2%;bottom:-24px;font-family:'Caveat',cursive;color:var(--red);font-size:17px;transform:rotate(-2deg)}
 
-/* a taped-in clipping */
-.clipping{background:#efe9d6;border:1px solid #cabf9e;padding:12px 14px;margin:14px 0;position:relative;
-  font-family:'IM Fell English',serif;box-shadow:0 3px 8px rgba(0,0,0,.3);transform:rotate(-.8deg)}
+/* a taped-in clipping — NEWSPRINT, distinct from the leaf paper: cooler,
+   greyer, its own grain, and clearly a separate sheet laid on top */
+.clipping,.frontpage{position:relative;z-index:1;margin:16px 0;
+  background-color:#d9d3c4;
+  background-image:var(--tex-paper-white), linear-gradient(180deg,#e2ddce,#cfc8b6);
+  background-size:cover,auto;background-blend-mode:multiply;
+  color:#2b2822;
+  border:1px solid #b3ab98;
+  box-shadow:0 6px 18px rgba(0,0,0,.45), inset 0 0 30px rgba(120,110,90,.25);
+  filter:grayscale(.35) contrast(1.05);
+  transform:rotate(-.8deg)}
+.clipping{padding:12px 14px;font-family:'IM Fell English',serif}
 .clipping .head{font-family:'IM Fell English SC',serif;font-size:15px;letter-spacing:1px;margin-bottom:4px}
-.clipping .body{font-size:12.5px;line-height:1.6;color:#3a3120}
+.clipping .body{font-size:12.5px;line-height:1.6;color:#33302a}
 
 /* ---------- redaction ---------- */
 .redact{background:#171009;color:transparent;padding:0 5px;user-select:none;border-radius:1px}
