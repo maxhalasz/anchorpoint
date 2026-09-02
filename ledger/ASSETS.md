@@ -1,7 +1,11 @@
 # The Ledger — texture & collage assets
 
-Drop the PNGs at these exact paths and the CSS takes over automatically
-(until a file exists, the procedural grain underneath carries the look).
+**STATUS: your first batch is processed and wired in** (`img/tex/`, from the
+named files in Downloads — white knocked to alpha on the overlays, desk
+darkened to 0.55, everything resized/optimised). Replace any individual file
+in place to swap it. Extra stains / stocks: drop them in Downloads named
+clearly and I'll add + wire them.
+
 All paths are relative to the repo root.
 
 ## Surfaces / paper stocks  →  `img/tex/`

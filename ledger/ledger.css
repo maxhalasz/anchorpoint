@@ -29,18 +29,20 @@
   /* TEXTURE SLOTS — Max drops the real scans at these paths and they take over.
      Until a file exists the browser skips that layer and the procedural grain
      (--fibre-*) underneath carries the look. See ledger/ASSETS.md. */
-  --tex-paper:      url("../img/tex/paper-default.png");
-  --tex-paper-stain:url("../img/tex/paper-stained.png");
-  --tex-paper-rag:  url("../img/tex/paper-ragged.png");
-  --tex-paper-tiss: url("../img/tex/paper-tissue.png");
-  --tex-paper-blk:  url("../img/tex/photocopy-black.png");
-  --tex-paper-wrong:url("../img/tex/bg-wrong.png");
-  --tex-desk:       url("../img/tex/desk.png");
+  --tex-paper:      url("../img/tex/paper-default.jpg");
+  --tex-paper-stain:url("../img/tex/paper-stained.jpg");
+  --tex-paper-rag:  url("../img/tex/paper-ragged.jpg");
+  --tex-paper-tiss: url("../img/tex/paper-tissue.jpg");
+  --tex-paper-blk:  url("../img/tex/photocopy-black.jpg");
+  --tex-paper-wrong:url("../img/tex/bg-wrong.jpg");
+  --tex-paper-alt1: url("../img/tex/paper-alt1.jpg");
+  --tex-paper-alt2: url("../img/tex/paper-alt2.jpg");
+  --tex-desk:       url("../img/tex/desk.jpg");
   --tex-tape:       url("../img/tex/tape-strip.png");
   --tex-tape-x:     url("../img/tex/tape-cross.png");
   --tex-stain:      url("../img/tex/stain-1.png");
   --tex-stain-ring: url("../img/tex/stain-ring.png");
-  --tex-bleed:      url("../img/tex/paper-bleedthrough.png");
+  --tex-bleed:      url("../img/tex/paper-bleedthrough.jpg");
 
   /* stacked grain: two frequencies of paper fibre */
   --fibre-a:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.40 0 0 0 0 0.31 0 0 0 0 0.17 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
@@ -112,18 +114,19 @@ a{color:var(--blue)}
   background-repeat:no-repeat, no-repeat, repeat, repeat;
   background-blend-mode:soft-light, soft-light, overlay, overlay;
 }
-/* over everything, handwriting included: the aging */
+/* over everything, handwriting included: the aging (no fixed stain here —
+   stains are opt-in per leaf via <span class="stain">) */
 .leaf::after{
   content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
-  mix-blend-mode:multiply;opacity:.85;
+  mix-blend-mode:multiply;opacity:.8;
   background:
-    radial-gradient(circle at 16% 10%, rgba(120,84,36,.24), transparent 20%),
-    radial-gradient(circle at 88% 64%, rgba(110,74,30,.22), transparent 24%),
-    radial-gradient(circle at 56% 96%, rgba(120,84,36,.16), transparent 18%),
-    linear-gradient(180deg, transparent 44%, rgba(80,52,20,.16) 49%, rgba(255,255,255,.08) 51%, transparent 55%),
-    var(--tex-stain), var(--grime);
-  background-size:auto,auto,auto,100% 100%,cover,420px 420px;
-  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,repeat;
+    radial-gradient(circle at 14% 8%, rgba(120,84,36,.22), transparent 22%),
+    radial-gradient(circle at 90% 66%, rgba(110,74,30,.2), transparent 26%),
+    radial-gradient(circle at 54% 97%, rgba(120,84,36,.14), transparent 18%),
+    linear-gradient(180deg, transparent 44%, rgba(80,52,20,.14) 49%, rgba(255,255,255,.07) 51%, transparent 55%),
+    var(--grime);
+  background-size:auto,auto,auto,100% 100%,420px 420px;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat;
 }
 /* --- paper stocks: <article class="leaf" data-stock="stained"> --- */
 .leaf[data-stock="stained"]{--tex-paper:var(--tex-paper-stain)}
