@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AnchorPoint</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+  body{
+    background:#eef3ea;
+    color:#111111;
+    font-family:"Times New Roman", Times, serif;
+    font-size:17px;
+    line-height:1.4;
+    margin:0;
+  }
+  a{color:#0000ee}
+  a:visited{color:#551a8b}
+
+  .banner{background:#f2f7ef;border-bottom:3px solid #2e5d3b;padding:12px 22px;
+    display:flex;align-items:center;gap:14px}
+  .banner .mark{height:56px;width:auto;display:block}
+  .banner h1{margin:0;font-size:30px;color:#2e5d3b;letter-spacing:1px}
+  .banner .tag{font-style:italic;font-size:15px;color:#4a7c59}
+
+  table.layout{width:100%;border-collapse:collapse}
+  td.side{width:196px;vertical-align:top;background:#e2ecdb;border-right:2px solid #2e5d3b;padding:14px 12px}
+  td.body{vertical-align:top;padding:16px 22px}
+
+  .box{border:2px solid #2e5d3b;background:#ffffff;margin:0 0 16px}
+  .box>.bar{background:#2e5d3b;color:#e9f2e4;font-weight:bold;padding:3px 9px;font-size:15px;
+    font-family:Verdana,Arial,sans-serif;letter-spacing:.3px}
+  .box>.in{padding:11px 14px}
+  .box p{margin:0 0 10px}
+  .box p:last-child{margin-bottom:0}
+
+  .side .box{background:#f2f7ef;margin-bottom:14px}
+  .side .box>.in{padding:8px 9px}
+
+  .navlink{display:block;border:1px solid #2e5d3b;background:#e9f2e4;color:#0000ee;
+    padding:5px 9px;margin:4px 0;text-decoration:none;
+    font-family:Verdana,Arial,sans-serif;font-size:12px}
+  .navlink:visited{color:#0000ee}
+  .navlink:hover{background:#2e5d3b;color:#ffffff}
+  .navlink.act{background:#9c7a3a;border-color:#6f571f;color:#ffffff}
+  .navlink.act:hover{background:#6f571f}
+
+  .side ul{margin:2px 0;padding-left:17px;font-family:Verdana,Arial,sans-serif;font-size:12px}
+  .side li{margin:5px 0}
+  .side .note{font-size:13px;font-family:"Times New Roman",Times,serif}
+
+  .sig{font-style:italic}
+  ul.stats{margin:4px 0 0;padding-left:26px}
+  ul.stats li{margin:4px 0}
+
+  textarea{font-family:"Times New Roman",Times,serif;font-size:16px;padding:3px;width:98%;max-width:560px}
+  button.btn{font-family:Verdana,Arial,sans-serif;font-size:12px;padding:4px 14px;
+    background:#e2ecdb;border:2px solid #2e5d3b;color:#123;cursor:pointer}
+  button.btn:active{background:#cfe0c6}
+  button.btn.buy{background:#9c7a3a;border-color:#6f571f;color:#fff}
+  .anon{font-size:13px;font-family:Verdana,Arial,sans-serif}
+  .thanks{font-style:italic}
+
+  .snap{display:inline-block;width:150px;height:112px;border:2px solid #6f871f;background:#eef0e2;
+    color:#5c6b3a;font-family:Verdana,Arial,sans-serif;font-size:11px;text-align:center;
+    line-height:112px;margin:0 8px 6px 0;cursor:pointer;overflow:hidden}
+  .snap:hover{border-color:#2e5d3b}
+
+  .foot{background:#dbe6d3;border-top:2px solid #2e5d3b;padding:12px 22px;
+    font-size:12px;font-family:Verdana,Arial,sans-serif;color:#2b3b2b;line-height:1.7}
+  .foot a{color:#2b3b2b;text-decoration:none}
+  .foot a:hover{color:#0000ee;text-decoration:underline}
+  .tel{color:inherit;text-decoration:none;cursor:default}
+  .tel:hover{color:#0000ee;text-decoration:underline;cursor:pointer}
+
+  .overlay{position:fixed;inset:0;background:rgba(10,20,10,.45);display:none;z-index:60}
+  .overlay.on{display:block}
+  .dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:380px;max-width:92vw;background:#c8c8c8;border:2px outset #efefef;
+    font-family:Verdana,Arial,sans-serif;font-size:12px;color:#111}
+  .dialog .tb{background:#000080;color:#fff;font-weight:bold;padding:3px 4px 3px 7px;
+    display:flex;justify-content:space-between;align-items:center}
+  .dialog .tb button{background:#c8c8c8;border:1px outset #efefef;font-weight:bold;
+    width:19px;height:17px;line-height:11px;cursor:pointer}
+  .dialog .content{padding:14px}
+  .dialog .row{margin:10px 0}
+  .dialog button.win{background:#c8c8c8;border:2px outset #efefef;padding:4px 14px;cursor:pointer;font-size:12px}
+  .dialog button.win:active{border-style:inset}
+  .dialog.big{width:560px}
+  .bigimg{width:100%;height:340px;border:2px solid #6f871f;background:#eef0e2;color:#5c6b3a;
+    text-align:center;line-height:340px;font-size:13px}
+</style>
+</head>
+<body>
+
+  <div class="banner">
+    <img class="mark" src="img/anchor.png" alt="">
+    <div>
+      <h1 id="siteName">AnchorPoint</h1>
+      <div class="tag">a place to set something down</div>
+    </div>
+  </div>
+
+  <table class="layout"><tr>
+
+  <td class="side">
+    <div class="box"><div class="bar">Navigate</div><div class="in">
+      <a class="navlink act" href="#">Home</a>
+      <a class="navlink" href="#support">Find Support</a>
+      <a class="navlink" href="#" id="navDonate">Donate</a>
+      <a class="navlink" href="#" id="navTeam">Join the Team</a>
+      <a class="navlink" href="#about">About</a>
+    </div></div>
+
+    <div class="box"><div class="bar">Links</div><div class="in">
+      <ul>
+        <li><a href="https://www.nami.org/" target="_blank" rel="noopener">Nat'l Alliance on Mental Illness</a></li>
+        <li><a href="https://www.cdc.gov/mental-health/caring/index.html" target="_blank" rel="noopener">CDC &mdash; Mental Health</a></li>
+        <li><a href="#"><i>The Quiet Hours</i> (offline)</a></li>
+        <li><a href="#">Reading list</a></li>
+      </ul>
+    </div></div>
+
+    <div class="box"><div class="bar">Note</div><div class="in">
+      <div class="note">You can close this tab at any time. Nothing here follows you out.</div>
+    </div></div>
+  </td>
+
+  <td class="body">
+
+    <div class="box" id="about"><div class="bar">Welcome to AnchorPoint</div><div class="in">
+      <p>If you have found your way here, chances are you are carrying something you feel you
+      cannot hand to anyone else. I know that weight. I know how loud a quiet room gets after
+      midnight, and how your own head can turn into the most hostile place you know.</p>
+      <p>For a long time I kept all of it to myself. I thought admitting what went on in my mind
+      was a kind of surrender &mdash; proof I was weak. The truth is simpler. Nobody was built to
+      carry the whole world alone. This page grew out of a stretch of personal ruin, and then out
+      of a run of discoveries that changed my life.</p>
+      <p>You do not need every answer today. You do not need to fix all of it now. Sometimes the
+      first step toward quiet is not fighting the noise, but learning to sit down and talk with
+      your own head.</p>
+      <p>Make yourself at home. This place is yours.</p>
+      <p class="sig">&mdash; The Author</p>
+    </div></div>
+
+    <div class="box" id="support"><div class="bar">Find support</div><div class="in">
+      <p>There is no account to make and nothing to sign. Write what you need to write. It does
+      not have to be organized, and it does not have to make sense to anyone but you. People find
+      comfort in putting a feeling into words, even when nothing is sent back.</p>
+      <p>
+        <textarea id="msg" rows="6" placeholder="Type here. Take your time."></textarea><br>
+        <button class="btn" id="sendBtn">Send</button>
+        &nbsp;<span class="anon">Every message is completely anonymous and untraceable.</span>
+      </p>
+      <p id="thanksSlot"></p>
+    </div></div>
+
+    <div class="box"><div class="bar">Where the money goes</div><div class="in">
+      <p>AnchorPoint costs about $60 a month to keep online. Anything past that pays for a second
+      phone line in the evenings and for printing small cards with crisis numbers that I leave at
+      two shelters across town. That is the whole budget. There is no office and no salary.</p>
+      <p>So far this month: $23 of $60. If you have already found your footing, $3 once covers a
+      good part of a month. If you have not found it yet, keep your money and read on.</p>
+      <p><button class="btn buy" id="openDonate">Open the donations page</button></p>
+    </div></div>
+
+    <div class="box"><div class="bar">Some pictures</div><div class="in">
+      <p>
+        <span class="snap" data-cap="the porch, morning">the porch, morning</span>
+        <span class="snap" data-cap="the lake road">the lake road</span>
+        <span class="snap" data-cap="notebook, page 40">notebook, page 40</span>
+      </p>
+      <p>Nothing important. They just help me remember the good hours.</p>
+    </div></div>
+
+    <div class="box"><div class="bar">If it helps to know</div><div class="in">
+      <ul class="stats">
+        <li>In a given year, roughly one in five adults lives with a mental health condition.</li>
+        <li>Close to 60% of them will never talk to a professional about it.</li>
+        <li>Depression is among the leading causes of disability worldwide.</li>
+        <li>For people aged 15 to 29, suicide is one of the top causes of death.</li>
+        <li>The typical delay between first symptoms and first treatment is about a decade.</li>
+        <li>Most people improve with support &mdash; plain support, not necessarily treatment.</li>
+        <li>Reaching out once makes reaching out again easier.</li>
+      </ul>
+    </div></div>
+
+  </td>
+  </tr></table>
+
+  <div class="foot">
+    This page was last updated 8 months ago.<br>
+    AnchorPoint is a personal project. It is not therapy and not a crisis service. If you are in
+    immediate danger, call your local emergency number or go to the nearest emergency room.<br>
+    If you would rather not write, the line is
+    <a href="call-sim.html" class="tel">(207)&nbsp;555-0148</a>.<br>
+    Best viewed at 1024&times;768. &nbsp; &lsaquo; warmhands webring &rsaquo; &nbsp;
+    <a href="#" id="notAlone">you are not alone</a>
+  </div>
+  <!-- note to self: stop reading the messages before bed -->
+
+  <div class="overlay" id="ovDonate"><div class="dialog">
+    <div class="tb"><span>AnchorPoint &mdash; donations</span><button data-close>&times;</button></div>
+    <div class="content" id="donateBody">
+      <p>$3 once covers a good part of a month. Give what feels right.</p>
+      <div class="row">
+        <button class="win" data-pay>Pay by Card</button>
+        &nbsp;<button class="win" data-pay>Pear Pay</button>
+      </div>
+      <div class="row" style="color:#444">No account. No receipt kept.</div>
+    </div>
+  </div></div>
+
+  <div class="overlay" id="ovTeam"><div class="dialog">
+    <div class="tb"><span>AnchorPoint &mdash; volunteering</span><button data-close>&times;</button></div>
+    <div class="content">
+      <p>Thank you for wanting to help. AnchorPoint is one person, and it is at capacity right now.</p>
+      <p>These groups are not:</p>
+      <p><a href="https://www.nami.org/" target="_blank" rel="noopener">National Alliance on Mental Illness</a><br>
+      <a href="https://www.cdc.gov/mental-health/caring/index.html" target="_blank" rel="noopener">CDC &mdash; Mental Health</a></p>
+    </div>
+  </div></div>
+
+  <div class="overlay" id="ovImg"><div class="dialog big">
+    <div class="tb"><span id="imgTitle">Image</span><button data-close>&times;</button></div>
+    <div class="content"><div class="bigimg" id="bigimg">image</div></div>
+  </div></div>
+
+  <div class="overlay" id="ovNext"><div class="dialog">
+    <div class="tb"><span>&mdash;</span><button data-close>&times;</button></div>
+    <div class="content"><p><i>you are not alone</i></p>
+      <p style="color:#444">(this is where the next page opens &mdash; not built yet)</p></div>
+  </div></div>
+
+<script>
+(function(){
+  var LS;
+  try{ LS = window.localStorage; var t='__ap'; LS.setItem(t,'1'); LS.removeItem(t); }
+  catch(e){ LS = null; }
+
+  // hidden visit count -> only drives the AnchorPoint / DreamScape name flip
+  var visits = 1, flipAt = 4;
+  if(LS){
+    visits = (parseInt(LS.getItem('ap_visits'),10) || 0) + 1;
+    LS.setItem('ap_visits', String(visits));
+    flipAt = parseInt(LS.getItem('ap_flipAt'),10);
+    if(!(flipAt >= 4 && flipAt <= 10)){
+      flipAt = 4 + Math.floor(Math.random()*7);
+      LS.setItem('ap_flipAt', String(flipAt));
+    }
+  }
+  var dreaming = (visits >= flipAt && visits < flipAt + 2);
+  var nm = dreaming ? 'DreamScape' : 'AnchorPoint';
+  document.getElementById('siteName').textContent = nm;
+  document.title = nm;
+
+  function submitMessage(text){
+    try{
+      if(window.firebase && firebase.apps && firebase.apps.length){
+        firebase.database().ref('submissions').push({ text: text, ts: Date.now() });
+      }
+    }catch(e){ /* the page does nothing visible either way */ }
+  }
+
+  var msg = document.getElementById('msg');
+  document.getElementById('sendBtn').addEventListener('click', function(){
+    var text = msg.value.trim();
+    if(!text) return;
+    if(LS) LS.setItem('ap_lastMessage', text);
+    submitMessage(text);
+    msg.value = '';
+    document.getElementById('thanksSlot').innerHTML =
+      '<span class="thanks">Thank you for trusting us with this.</span>';
+  });
+
+  function openOv(id){ document.getElementById(id).classList.add('on'); }
+  function closeAll(){
+    var l = document.querySelectorAll('.overlay.on');
+    for(var i=0;i<l.length;i++) l[i].classList.remove('on');
+  }
+  document.querySelectorAll('.overlay').forEach(function(ov){
+    ov.addEventListener('click', function(e){ if(e.target === ov) closeAll(); });
+  });
+  document.querySelectorAll('[data-close]').forEach(function(b){
+    b.addEventListener('click', closeAll);
+  });
+
+  document.getElementById('navDonate').addEventListener('click', function(e){ e.preventDefault(); openOv('ovDonate'); });
+  document.getElementById('openDonate').addEventListener('click', function(){ openOv('ovDonate'); });
+  document.getElementById('navTeam').addEventListener('click', function(e){ e.preventDefault(); openOv('ovTeam'); });
+  document.getElementById('notAlone').addEventListener('click', function(e){ e.preventDefault(); openOv('ovNext'); });
+
+  document.querySelectorAll('#donateBody [data-pay]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var body = document.getElementById('donateBody');
+      body.innerHTML = '<p>Contacting payment processor&hellip;</p>';
+      setTimeout(function(){
+        body.innerHTML = '<p>Payment processor unavailable. Please try again later.</p>' +
+          '<div class="row"><button class="win" data-close>Close</button></div>';
+        body.querySelector('[data-close]').addEventListener('click', closeAll);
+      }, 2400);
+    });
+  });
+
+  document.querySelectorAll('.snap').forEach(function(s){
+    s.addEventListener('click', function(){
+      var cap = s.getAttribute('data-cap');
+      document.getElementById('imgTitle').textContent = 'Image — ' + cap;
+      document.getElementById('bigimg').textContent = cap;
+      openOv('ovImg');
+    });
+  });
+})();
+</script>
+</body>
+</html>
