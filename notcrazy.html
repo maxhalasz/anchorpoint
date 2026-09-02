@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title> </title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#dfe3da}
+  body{font-family:"Courier New",monospace}
+
+  #noise{position:fixed;inset:0;z-index:1;opacity:.5;mix-blend-mode:screen}
+
+  .plate{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:34px;text-align:center}
+
+  .big{position:relative;font-size:min(9vw,64px);font-weight:bold;letter-spacing:2px;
+    color:#eef1ea;animation:flick 3.3s steps(1) infinite}
+  .big::before,.big::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%}
+  .big::before{color:#ff3b3b;transform:translate(-2px,0);mix-blend-mode:screen;animation:sh1 2.7s steps(1) infinite}
+  .big::after {color:#3bd8ff;transform:translate(2px,0); mix-blend-mode:screen;animation:sh2 2.3s steps(1) infinite}
+  @keyframes flick{0%,7%,9%,54%,56%,100%{opacity:1}8%{opacity:.15}55%{opacity:.35}72%{opacity:.85}73%{opacity:.2}74%{opacity:1}}
+  @keyframes sh1{0%,100%{transform:translate(-2px,0)}33%{transform:translate(-5px,1px)}66%{transform:translate(1px,-1px)}}
+  @keyframes sh2{0%,100%{transform:translate(2px,0)}33%{transform:translate(5px,-1px)}66%{transform:translate(-1px,1px)}}
+
+  .lines{font-size:14px;line-height:2.1;color:#8f978c;min-height:5em}
+  .lines a{color:#c6ccbe;text-decoration:none;border-bottom:1px dotted #55605009}
+  .lines .in{opacity:0;animation:surf 6s ease-in-out infinite}
+  .lines .in:nth-child(2){animation-delay:2.4s}
+  .lines .in:nth-child(3){animation-delay:4.1s}
+  @keyframes surf{0%,100%{opacity:0}12%{opacity:.9}20%{opacity:.15}28%{opacity:.75}40%{opacity:0}}
+
+  /* the full address, only when you drag over it */
+  .buried{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);color:#000;font-size:12px;letter-spacing:1px}
+  .buried::selection{background:#b71c1c;color:#fff}
+
+  .scan{position:fixed;left:0;right:0;height:2px;background:rgba(255,255,255,.06);z-index:3;
+    animation:scan 7s linear infinite;pointer-events:none}
+  @keyframes scan{0%{top:-2%}100%{top:102%}}
+</style>
+</head>
+<body>
+  <canvas id="noise"></canvas>
+  <div class="scan"></div>
+
+  <div class="plate" id="plate">
+    <div class="big" data-text="You are not crazy">You are not crazy</div>
+    <div class="lines">
+      <div class="in">the rest of it is written down &mdash; <a href="ledger/">open the ledger</a></div>
+      <div class="in">if you need to ask, ask him: <a id="mail" href="mailto:theanchorpoint.author@gmail.com">theanchorpoint.author@gmail.com</a></div>
+      <div class="in">say it back and it stays said</div>
+    </div>
+  </div>
+
+  <!-- forward: ledger/  ·  contact: theanchorpoint.author@gmail.com  (TEXT: Max) -->
+  <span class="buried">theanchorpoint.author@gmail.com &nbsp;/&nbsp; ledger/</span>
+
+<script>
+(function(){
+  var c = document.getElementById('noise'), ctx = c.getContext('2d');
+  function size(){ c.width = window.innerWidth; c.height = window.innerHeight; }
+  size(); window.addEventListener('resize', size);
+
+  (function draw(){
+    var w = c.width, h = c.height;
+    var img = ctx.createImageData(w, h), d = img.data;
+    for(var i=0;i<d.length;i+=4){ var v = (Math.random()*255)|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
+    ctx.putImageData(img, 0, 0);
+    setTimeout(function(){ requestAnimationFrame(draw); }, 45);   // ~22fps, gritty
+  })();
+
+  // occasional hard glitch: shove the whole plate for a frame
+  var plate = document.getElementById('plate');
+  setInterval(function(){
+    if(Math.random() < 0.5){
+      plate.style.transform = 'translate(' + ((Math.random()*10-5)|0) + 'px,' + ((Math.random()*6-3)|0) + 'px)';
+      setTimeout(function(){ plate.style.transform = 'none'; }, 90);
+    }
+  }, 1700);
+})();
+</script>
+</body>
+</html>

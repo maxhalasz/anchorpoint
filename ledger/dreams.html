@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ III</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .entry{margin:16px 0;padding-left:14px;border-left:2px solid var(--rule)}
+  .entry .dt{font-family:'IM Fell English SC',serif;letter-spacing:2px;font-size:12px;color:var(--red)}
+  .glyph{vertical-align:middle;color:var(--blue)}
+  .gsp{display:inline-block;width:10px}
+  .decode{font-family:'IM Fell English SC',serif;letter-spacing:5px;color:var(--ink-soft);display:none;margin-top:6px}
+  body.read .decode{display:block}
+  .keybtn{font-family:'Special Elite';font-size:12px;background:var(--paper-hi);border:1px solid var(--paper-lo);padding:5px 12px;cursor:pointer;color:var(--ink)}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the ledger</a>
+
+<div class="sheet tilt-r">
+  <span class="tape tl"></span><span class="tape tr"></span>
+
+  <h1>III &middot; The Dreams</h1>
+  <div class="sub">i write the date and what i kept. lately i keep more of it</div>
+
+  <div class="entry"><div class="dt">03 / 02</div>
+    <p>The corridor again. Doors on one side only. I do not reach the end.</p></div>
+
+  <div class="entry"><div class="dt">03 / 19</div>
+    <p>Someone was talking in my sleep, in my voice. My wife heard it before I did.
+    An <span class="circled">Unusual Friend</span>, the doctor calls it. A way to make sense of things. <!-- TEXT: Max --></p></div>
+
+  <div class="entry"><div class="dt">04 / 07</div>
+    <p>Woke with my hand already moving. I drew this before I was properly awake.
+    It reads, if you have the other legend:</p>
+    <div class="ci" data-cipher="the word faces the wrong way" data-style="mili"></div>
+    <div class="decode">THE WORD FACES THE WRONG WAY</div>
+  </div>
+
+  <span class="margin r">second legend &mdash; the curled one &mdash; is in <a href="ciphers.html">the legend</a> too</span>
+
+  <hr class="rule">
+  <p><button class="keybtn" id="key">read it</button>
+     <span class="hand" style="margin-left:10px">the migraines wake me now. that is new.</span></p>
+</div>
+
+<!-- HINT: this decodes to a nudge for The Word -->
+<script src="ledger.js"></script>
+<script src="cipher.js"></script>
+<script>
+  document.querySelectorAll('.ci').forEach(function(el){
+    el.innerHTML = CIPHER.render(el.getAttribute('data-cipher'), el.getAttribute('data-style'));
+  });
+  document.getElementById('key').addEventListener('click', function(){
+    document.body.classList.add('read'); this.disabled = true; this.textContent = 'read';
+    LG.addFound('the dreams');
+  });
+</script>
+</body>
+</html>

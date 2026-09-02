@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title> </title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b0b0b}
+  body{font-family:Verdana,Arial,sans-serif}
+
+  #stream{position:fixed;inset:0}
+  .msg{
+    position:absolute;max-width:34em;padding:0 6px;
+    font-size:14px;line-height:1.5;color:#c7c7c7;opacity:0;
+    text-shadow:0 0 12px rgba(0,0,0,.9);
+    transition:opacity 1.4s linear;
+  }
+  .msg.mine{color:#e7e3d6}
+  .msg a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.35)}
+  .msg.anom{
+    font-family:"Courier New",monospace;color:#c98b83;font-size:13px;
+    text-shadow:0 0 10px rgba(120,20,10,.5);
+  }
+  .msg.anom.j{animation:jit .18s steps(2) infinite}
+  @keyframes jit{50%{transform:translateX(1px)}}
+
+  #static{position:fixed;inset:0;display:none;z-index:50;background:#000}
+  #hint{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#3a3a3a;font-size:11px}
+</style>
+</head>
+<body>
+  <div id="stream"></div>
+  <canvas id="static"></canvas>
+  <div id="hint">&nbsp;</div>
+
+  <!-- when the noise takes over it goes to notcrazy.html -->
+<script>
+(function(){
+  var LS; try{ LS=window.localStorage; }catch(e){ LS=null; }
+
+  var POOL = [
+    "Is anyone still awake? I just need to know there's a real person on the other side.",
+    "I went back to my room and locked the door. Everyone downstairs is laughing. I feel like a ghost watching living people.",
+    "Is it normal to feel like your own home isn't yours? I don't recognize the people in the photos on the wall.",
+    "I haven't slept in four days. When I close my eyes I hear white noise, like a TV tuned to a dead channel.",
+    "Did my meds stop working, or am I just getting worse?",
+    "There's a thought that won't go away. It would just be easier if I didn't wake up. I don't want to die. I want the noise to stop.",
+    "I feel like I don't belong anywhere. If I vanished today it would take weeks for anyone to notice.",
+    "please help me",
+    "i can't stop crying and i don't even know why",
+    "hello?? is there a real person reading this or is it a bot",
+    "i just want to disappear for a few months",
+    "sorry to bother you nevermind",
+    "bro is this connected to the cops? if i tell you i stole a pack of gum are you calling the FBI",
+    "weird ass site lmao found this on a reddit thread. are you a cult or something",
+    "design 2/10 way too dark, where is dark mode, looks like a deep web site",
+    "It's been three weeks since I left my apartment. I wait through the peephole until the driver leaves before I open the door.",
+    "I look at my family and feel nothing. When they hug me I have to force my body not to go stiff. Am I a monster.",
+    "I hear footsteps in my attic every night at exactly 3:14 AM. I've gone up there. There's nothing."
+  ];
+
+  var ANOM = [
+    "It listed my exact IP address. How did you get that?",
+    "The text box flashed three times before I even started typing. Is someone else on this line?",
+    "Why does the background shift to a lighter grey if I don't move my mouse for five minutes?",
+    "you sent this one. it is still here."   // TEXT: Max — the line that names the player
+  ];
+
+  var DOOR = "if you can still read this, say it back — here";  // TEXT: Max
+
+  var stream = document.getElementById('stream');
+  var mine = LS && LS.getItem('ap_lastMessage');
+  var queue = [], collapsing = false;
+
+  function build(){
+    POOL.forEach(function(t){ queue.push({t:t}); });
+    ANOM.forEach(function(t){ queue.push({t:t, anom:true}); });
+    if(mine) queue.push({t:mine, mine:true});
+    queue.push({t:DOOR, door:true});
+    // shuffle
+    for(var i=queue.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var x=queue[i];queue[i]=queue[j];queue[j]=x; }
+  }
+  build();
+
+  var qi = 0;
+  function spawn(){
+    if(collapsing) return;
+    var item = queue[qi % queue.length]; qi++;
+    var el = document.createElement(item.door || item.mine ? 'a' : 'div');
+    el.className = 'msg' + (item.anom ? ' anom' : '') + (item.mine ? ' mine' : '') + (item.anom && Math.random()<0.5 ? ' j' : '');
+    if(item.door || item.mine){ el.href = 'notcrazy.html'; }
+    el.textContent = item.t;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    el.style.left = (6 + Math.random() * Math.max(6, vw - 380)) + 'px';
+    el.style.top  = (vh + 20) + 'px';
+    stream.appendChild(el);
+    requestAnimationFrame(function(){ el.style.opacity = item.anom ? 0.9 : (0.5 + Math.random()*0.3); });
+    var dur = (22 + Math.random()*10) * 1000;
+    var start = performance.now();
+    (function rise(now){
+      var k = (now - start) / dur;
+      if(k >= 1 || !el.parentNode){ if(el.parentNode) el.parentNode.removeChild(el); return; }
+      el.style.top = (vh + 20 - k * (vh + 120)) + 'px';
+      if(k > 0.82) el.style.opacity = String((1 - (k - 0.82) / 0.18) * 0.7);
+      requestAnimationFrame(rise);
+    })(start);
+  }
+
+  var spawner = setInterval(function(){ spawn(); }, 2100);
+  spawn(); setTimeout(spawn, 700);
+
+  // after ~95s the noise takes over
+  setTimeout(function(){
+    collapsing = true;
+    clearInterval(spawner);
+    var all = stream.querySelectorAll('.msg');
+    for(var i=0;i<all.length;i++){ all[i].style.transition = 'top 2.4s ease-in, opacity 2s'; all[i].style.top = '-60px'; all[i].style.opacity = '0'; }
+    setTimeout(toStatic, 2600);
+  }, 95000);
+
+  function toStatic(){
+    var c = document.getElementById('static'); c.style.display = 'block';
+    var ctx = c.getContext('2d'); c.width = window.innerWidth; c.height = window.innerHeight;
+    var end = performance.now() + 1600;
+    (function draw(now){
+      var w = c.width, h = c.height, img = ctx.createImageData(w, h), d = img.data;
+      for(var i=0;i<d.length;i+=4){ var v = (Math.random()*255)|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
+      ctx.putImageData(img, 0, 0);
+      if(now < end) requestAnimationFrame(draw);
+      else location.href = 'notcrazy.html';
+    })(performance.now());
+  }
+
+  // faint, easy-to-miss nudge
+  setTimeout(function(){ document.getElementById('hint').textContent = 'say it back'; }, 30000);
+})();
+</script>
+</body>
+</html>

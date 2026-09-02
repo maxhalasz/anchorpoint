@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ IV</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .field{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:10px;margin:14px 0}
+  .mark{color:var(--ink);opacity:.8;cursor:default;display:flex;align-items:center;justify-content:center;padding:6px 0}
+  .mark.bad{cursor:pointer}
+  .mark.bad.got{color:var(--red);opacity:1}
+  .count{font-family:'IM Fell English SC',serif;letter-spacing:2px;color:var(--red)}
+  #reveal{display:none;margin-top:18px}
+  #reveal.show{display:block}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the ledger</a>
+
+<div class="sheet">
+  <span class="tape br"></span>
+  <h1>IV &middot; The Word</h1>
+  <div class="sub">i stopped noticing it. that is how it works</div>
+
+  <p>It is in the margins of the file, in the tilework of the archive, on the back
+  of the loan forms. Always the same. Almost. <!-- TEXT: Max --></p>
+
+  <span class="margin l">count the ones facing the wrong way. tap each.</span>
+  <p class="hand red">found <span class="count" id="c">0 / 3</span></p>
+
+  <div class="field" id="field"></div>
+
+  <div id="reveal" class="sheet" style="margin:0;box-shadow:none;border-style:dashed">
+    <p class="type-red">It is a mouth. It has always been a mouth. <!-- TEXT: Max --></p>
+  </div>
+</div>
+
+<!-- HINT: three marks are mirrored (transform scaleX -1); tap all three -->
+<script src="ledger.js"></script>
+<script>
+(function(){
+  var SYM = '<svg viewBox="0 0 24 28" width="20" height="24"><g stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><path d="M12 3 V 22"/><path d="M12 22 C 12 27 18 27 18 22"/></g><circle cx="12" cy="3" r="2" fill="currentColor"/></svg>';
+  var field = document.getElementById('field');
+  var bad = {}; var N = 60;
+  while(Object.keys(bad).length < 3) bad[Math.floor(Math.random()*N)] = 1;
+  for(var i=0;i<N;i++){
+    var d = document.createElement('div');
+    d.className = 'mark' + (bad[i] ? ' bad' : '');
+    d.innerHTML = SYM;
+    if(bad[i]) d.firstChild.style.transform = 'scaleX(-1)';
+    field.appendChild(d);
+  }
+  var got = 0;
+  field.addEventListener('click', function(e){
+    var m = e.target.closest('.mark.bad'); if(!m || m.classList.contains('got')) return;
+    m.classList.add('got'); got++;
+    document.getElementById('c').textContent = got + ' / 3';
+    if(got === 3){
+      document.getElementById('reveal').classList.add('show');
+      LG.addFound('the word');
+    }
+  });
+})();
+</script>
+</body>
+</html>

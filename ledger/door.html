@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ V</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .gate{display:flex;gap:8px;align-items:center;margin:14px 0}
+  .gate input{font-family:'Special Elite';font-size:16px;padding:5px 8px;border:1px solid var(--paper-lo);background:var(--paper-hi);color:var(--ink)}
+  .gate button{font-family:'Special Elite';font-size:13px;padding:6px 14px;cursor:pointer;border:1px solid var(--paper-lo);background:var(--paper-hi);color:var(--ink)}
+  #more{display:none} #more.show{display:block}
+  .bad{color:var(--red);font-family:'Caveat',cursive;font-size:18px}
+  .go{display:inline-block;margin-top:16px;font-family:'IM Fell English SC',serif;letter-spacing:2px;color:var(--red)}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the ledger</a>
+
+<div class="sheet tilt">
+  <span class="tape tl"></span><span class="tape tr"></span>
+
+  <h1>V &middot; The Door</h1>
+  <div class="sub">municipal records, sub-level. i worked there fourteen months before i saw it</div>
+
+  <p>A maintenance door, painted the same green as the wall, no handle plate. I had
+  walked past it every day. The morning I finally saw it properly, there was a mark
+  on it at eye height &mdash; the word &mdash; and I understood that no one else in
+  the building had ever seen the door at all. <!-- TEXT: Max --></p>
+
+  <p>It was held shut by an ordinary lock and by something that is not ordinary:
+  a concealment, a working, the kind of thing the DRE filed under one word.
+  I only get through it because of what happened to me when I was eight.</p>
+
+  <p>The word for it is <span class="redact" id="ans">████████</span>. Behind it: paper, floor to ceiling.</p>
+
+  <span class="margin r">it is written on the door itself. and one line in <a href="names.html">the Names</a> decodes to it.</span>
+
+  <div class="gate">
+    <input id="in" type="text" autocomplete="off" spellcheck="false" placeholder="name the working">
+    <button id="try">say it</button>
+    <span id="msg" class="bad"></span>
+  </div>
+
+  <div id="more">
+    <hr class="rule">
+    <p class="type-red">The lock gives. The other thing does not resist me. It never has.</p>
+    <p>What is behind the door is the rest of this &mdash; how I moved it out, who is
+    holding it now, and why it has to keep moving. <!-- TEXT: Max --></p>
+    <a class="go" href="network.html">&rarr; VI. The Network</a>
+  </div>
+</div>
+
+<!-- HINT: the working's name === LG.DOOR_ANSWER ("mislaid", placeholder). Also on names.html and the desk. -->
+<script src="ledger.js"></script>
+<script>
+(function(){
+  function attempt(){
+    var v = LG.normalize(document.getElementById('in').value);
+    if(!v) return;
+    if(v === LG.DOOR_ANSWER){
+      document.getElementById('ans').textContent = LG.DOOR_ANSWER.toUpperCase();
+      document.getElementById('ans').classList.add('solved');
+      document.getElementById('msg').textContent = '';
+      document.getElementById('more').classList.add('show');
+      document.querySelector('.gate').style.display = 'none';
+      LG.unlock('network'); LG.addFound(LG.DOOR_ANSWER);
+    }else{
+      document.getElementById('msg').textContent = 'the door stays shut.';
+    }
+  }
+  document.getElementById('try').addEventListener('click', attempt);
+  document.getElementById('in').addEventListener('keydown', function(e){ if(e.key==='Enter') attempt(); });
+})();
+</script>
+</body>
+</html>

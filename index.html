@@ -211,9 +211,10 @@
     If you would rather not write, the line is
     <a href="call-sim.html" class="tel">(207)&nbsp;555-0148</a>.<br>
     Best viewed at 1024&times;768. &nbsp; &lsaquo; warmhands webring &rsaquo; &nbsp;
-    <a href="#" id="notAlone">you are not alone</a>
+    <a href="still.html" id="notAlone">you are not alone</a>
   </div>
   <!-- note to self: stop reading the messages before bed -->
+  <!-- they only arrive if you write them down. write it in the box. -->
 
   <div class="overlay" id="ovDonate"><div class="dialog">
     <div class="tb"><span>AnchorPoint &mdash; donations</span><button data-close>&times;</button></div>
@@ -230,12 +231,6 @@
   <div class="overlay" id="ovImg"><div class="dialog big">
     <div class="tb"><span id="imgTitle">Image</span><button data-close>&times;</button></div>
     <div class="content"><div class="bigimg" id="bigimg">image</div></div>
-  </div></div>
-
-  <div class="overlay" id="ovNext"><div class="dialog">
-    <div class="tb"><span>&mdash;</span><button data-close>&times;</button></div>
-    <div class="content"><p><i>you are not alone</i></p>
-      <p style="color:#444">(this is where the next page opens &mdash; not built yet)</p></div>
   </div></div>
 
 <script>
@@ -310,15 +305,26 @@
     }catch(e){ /* the page does nothing visible either way */ }
   }
 
+  // TEXT: Max — the phrase that "arrives": echoes the tagline / the Find Support prompt
+  var KEY_PHRASE = 'some things arrive only if you write them down';
+  function normalize(s){ return s.toLowerCase().replace(/[^a-z ]+/g,'').replace(/\s+/g,' ').trim(); }
+
   var msg = document.getElementById('msg');
   document.getElementById('sendBtn').addEventListener('click', function(){
     var text = msg.value.trim();
     if(!text) return;
     if(LS) LS.setItem('ap_lastMessage', text);
     submitMessage(text);
+    var matched = normalize(text) === KEY_PHRASE;
     msg.value = '';
-    document.getElementById('thanksSlot').innerHTML =
-      '<span class="thanks">Thank you for trusting us with this.</span>';
+    var slot = document.getElementById('thanksSlot');
+    if(matched){
+      slot.innerHTML = '<span class="thanks">Then you already know where this goes.</span>';
+      var na = document.getElementById('notAlone');
+      na.style.color = '#0000ee'; na.style.textDecoration = 'underline';
+    }else{
+      slot.innerHTML = '<span class="thanks">Thank you for trusting us with this.</span>';
+    }
   });
 
   function openOv(id){ document.getElementById(id).classList.add('on'); }
@@ -335,7 +341,6 @@
 
   document.getElementById('navDonate').addEventListener('click', function(e){ e.preventDefault(); openOv('ovDonate'); });
   document.getElementById('openDonate').addEventListener('click', function(){ openOv('ovDonate'); });
-  document.getElementById('notAlone').addEventListener('click', function(e){ e.preventDefault(); openOv('ovNext'); });
 
   document.querySelectorAll('#donateBody [data-pay]').forEach(function(b){
     b.addEventListener('click', function(){
