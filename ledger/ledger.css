@@ -69,37 +69,60 @@ body{
 }
 /* "Make it darker + do well-done shadow-lighting work" — a warm pool of light
    where the leaf sits, everything else falling off hard into the dark. */
+/* one light source: warm, high, slightly left. Everything below follows it. */
 body::before{ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 62% 46% at 50% 40%,
-    rgba(255,238,205,.09), rgba(255,238,205,.03) 45%, transparent 72%);
+  background:
+    radial-gradient(ellipse 46% 34% at 47% 30%, rgba(255,240,208,.14), transparent 60%),
+    radial-gradient(ellipse 80% 62% at 50% 42%, rgba(255,236,200,.05), transparent 78%);
   mix-blend-mode:screen; }
 body::after{ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  box-shadow:inset 0 0 380px rgba(0,0,0,.92), inset 0 0 120px rgba(0,0,0,.7);
-  background:linear-gradient(180deg, rgba(0,0,0,.35), transparent 22%, transparent 78%, rgba(0,0,0,.5)); }
+  box-shadow:inset 0 0 420px rgba(0,0,0,.94), inset 0 0 140px rgba(0,0,0,.72);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.45), transparent 20%, transparent 74%, rgba(0,0,0,.6)),
+    radial-gradient(ellipse 60% 44% at 47% 30%, transparent 50%, rgba(0,0,0,.35) 100%); }
 a{color:var(--blue)}
 
 /* ---------- a loose leaf ---------- */
 .leaf{
-  position:relative;z-index:1;max-width:760px;margin:60px auto;padding:52px 58px 60px;
+  position:relative;z-index:1;isolation:isolate;
+  max-width:760px;margin:64px auto;padding:52px 58px 60px;
   color:var(--ink);
   background-color:var(--paper);
-  background-image:
+  background-image:linear-gradient(180deg, var(--paper-hi), var(--paper) 40%, var(--paper-lo));
+  border:1px solid var(--paper-deep);
+  /* light from top-left: short contact shadow, mid, long soft — plus a warm rim */
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.28) inset,
+    0 2px 4px rgba(0,0,0,.35),
+    -6px 14px 26px rgba(0,0,0,.4),
+    -14px 40px 80px rgba(0,0,0,.55),
+    -22px 70px 130px rgba(0,0,0,.45),
+    18px 20px 60px rgba(255,234,196,.04);
+}
+/* under the text: the paper scan + fibre, gently */
+.leaf::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(120deg, rgba(255,246,222,.16), transparent 42%),   /* the lit edge */
     var(--tex-paper),
     var(--fibre-b),
-    var(--fibre-a),
-    radial-gradient(circle at 16% 10%, rgba(120,84,36,.26), transparent 20%),
-    radial-gradient(circle at 88% 62%, rgba(110,74,30,.24), transparent 24%),
-    radial-gradient(circle at 58% 94%, rgba(120,84,36,.18), transparent 18%),
-    linear-gradient(180deg, var(--paper-hi), var(--paper) 38%, var(--paper-lo));
-  background-size:cover, auto, auto, auto, auto, auto, auto;
-  background-repeat:no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  background-blend-mode:multiply, overlay, overlay, normal, normal, normal, normal;
-  border:1px solid var(--paper-deep);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.22) inset,
-    0 4px 10px rgba(0,0,0,.4),
-    0 40px 90px rgba(0,0,0,.72),
-    0 0 60px rgba(255,236,200,.05);
+    var(--fibre-a);
+  background-size:100% 100%, cover, auto, auto;
+  background-repeat:no-repeat, no-repeat, repeat, repeat;
+  background-blend-mode:screen, soft-light, overlay, overlay;
+}
+/* over everything, handwriting included: the aging */
+.leaf::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  mix-blend-mode:multiply;opacity:.85;
+  background:
+    radial-gradient(circle at 16% 10%, rgba(120,84,36,.24), transparent 20%),
+    radial-gradient(circle at 88% 64%, rgba(110,74,30,.22), transparent 24%),
+    radial-gradient(circle at 56% 96%, rgba(120,84,36,.16), transparent 18%),
+    linear-gradient(180deg, transparent 44%, rgba(80,52,20,.16) 49%, rgba(255,255,255,.08) 51%, transparent 55%),
+    var(--tex-stain), var(--grime);
+  background-size:auto,auto,auto,100% 100%,cover,420px 420px;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,repeat;
 }
 /* --- paper stocks: <article class="leaf" data-stock="stained"> --- */
 .leaf[data-stock="stained"]{--tex-paper:var(--tex-paper-stain)}
@@ -107,21 +130,17 @@ a{color:var(--blue)}
 .leaf[data-stock="tissue"] {--tex-paper:var(--tex-paper-tiss);--paper:#eee7d2}
 .leaf[data-stock="black"]  {--tex-paper:var(--tex-paper-blk);--paper:#161310;--ink:#cabfa6;--ink-soft:#8c836c;--rule:#4a443a}
 .leaf[data-stock="wrong"]  {--tex-paper:var(--tex-paper-wrong);--paper:#c9b48f}
-/* faint ghost text bleeding through from the other side */
-.leaf.bleed::before{background:var(--tex-bleed), linear-gradient(180deg, transparent 45%, rgba(80,52,20,.2) 49%, rgba(255,255,255,.1) 51%, transparent 55%), var(--grime);
-  background-size:cover,100% 100%,420px 420px;background-repeat:no-repeat,no-repeat,repeat;opacity:.85}
-.leaf::before{  /* fold lines + heavy foxing + grime */
-  content:"";position:absolute;inset:0;pointer-events:none;
+/* faint ghost text bleeding through from the other side (adds to ::before) */
+.leaf.bleed::before{
   background:
-    linear-gradient(180deg, transparent 45%, rgba(80,52,20,.22) 49%, rgba(255,255,255,.12) 51%, transparent 55%),
-    linear-gradient(92deg, transparent 22%, rgba(80,52,20,.10) 24%, transparent 27%),
-    var(--grime);
-  background-size:100% 100%, 100% 100%, 420px 420px;
-  mix-blend-mode:multiply;opacity:.9;
-}
-.leaf::after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  box-shadow:inset 0 0 120px rgba(96,60,22,.5), inset 0 0 30px rgba(60,38,14,.6);
+    linear-gradient(120deg, rgba(255,246,222,.16), transparent 42%),
+    var(--tex-bleed),
+    var(--tex-paper),
+    var(--fibre-b),
+    var(--fibre-a);
+  background-size:100% 100%, cover, cover, auto, auto;
+  background-repeat:no-repeat, no-repeat, no-repeat, repeat, repeat;
+  background-blend-mode:screen, multiply, soft-light, overlay, overlay;
 }
 .leaf.tilt{transform:rotate(-.6deg)}
 .leaf.tilt-r{transform:rotate(.7deg)}

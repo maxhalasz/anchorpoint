@@ -9,7 +9,7 @@
   html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#dfe3da}
   body{font-family:"Courier New",monospace}
 
-  #noise{position:fixed;inset:0;z-index:1;opacity:.5;mix-blend-mode:screen}
+  #noise{position:fixed;inset:0;z-index:1;opacity:.5;mix-blend-mode:screen;image-rendering:pixelated}
 
   .plate{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:34px;text-align:center}
@@ -24,11 +24,11 @@
   @keyframes sh2{0%,100%{transform:translate(2px,0)}33%{transform:translate(5px,-1px)}66%{transform:translate(-1px,1px)}}
 
   .lines{font-size:14px;line-height:2.1;color:#8f978c;min-height:5em}
-  .lines a{color:#c6ccbe;text-decoration:none;border-bottom:1px dotted #55605009}
+  .lines a{color:#c6ccbe;text-decoration:none;border-bottom:1px dotted rgba(85,96,80,.5)}
   .lines .in{opacity:0;animation:surf 6s ease-in-out infinite}
-  .lines .in:nth-child(2){animation-delay:2.4s}
-  .lines .in:nth-child(3){animation-delay:4.1s}
-  @keyframes surf{0%,100%{opacity:0}12%{opacity:.9}20%{opacity:.15}28%{opacity:.75}40%{opacity:0}}
+  .lines .in:nth-child(2){animation-delay:1.1s}
+  .lines .in:nth-child(3){animation-delay:2.2s}
+  @keyframes surf{0%,100%{opacity:0}8%{opacity:.9}18%{opacity:.15}28%{opacity:.75}40%{opacity:0}}
 
   /* the full address, only when you drag over it */
   .buried{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);color:#000;font-size:12px;letter-spacing:1px}
@@ -47,29 +47,33 @@
     <div class="big" data-text="You are not crazy">You are not crazy</div>
     <div class="lines">
       <div class="in">the rest of it is written down &mdash; <a href="ledger/">open the ledger</a></div>
-      <div class="in">if you need to ask, ask him: <a id="mail" href="mailto:theanchorpoint.author@gmail.com">theanchorpoint.author@gmail.com</a></div>
+      <div class="in">if you need to ask, ask him: <a id="mail" href="mailto:anunusualfriend00@gmail.com">anunusualfriend00@gmail.com</a></div>
       <div class="in">say it back and it stays said</div>
     </div>
   </div>
 
-  <!-- forward: ledger/  ·  contact: theanchorpoint.author@gmail.com  (TEXT: Max) -->
-  <span class="buried">theanchorpoint.author@gmail.com &nbsp;/&nbsp; ledger/</span>
+  <!-- forward: ledger/  ·  contact: anunusualfriend00@gmail.com  (TEXT: Max) -->
+  <span class="buried">anunusualfriend00@gmail.com &nbsp;/&nbsp; ledger/</span>
 
 <script>
 (function(){
+  // noise rendered small then scaled up — full-screen per-pixel was the load hitch
   var c = document.getElementById('noise'), ctx = c.getContext('2d');
+  var buf = document.createElement('canvas'), bx = buf.getContext('2d');
+  var BW = 220, BH = 220;
+  buf.width = BW; buf.height = BH;
   function size(){ c.width = window.innerWidth; c.height = window.innerHeight; }
   size(); window.addEventListener('resize', size);
+  ctx.imageSmoothingEnabled = false;
 
+  var img = bx.createImageData(BW, BH), d = img.data;
   (function draw(){
-    var w = c.width, h = c.height;
-    var img = ctx.createImageData(w, h), d = img.data;
     for(var i=0;i<d.length;i+=4){ var v = (Math.random()*255)|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
-    ctx.putImageData(img, 0, 0);
-    setTimeout(function(){ requestAnimationFrame(draw); }, 45);   // ~22fps, gritty
+    bx.putImageData(img, 0, 0);
+    ctx.drawImage(buf, 0, 0, c.width, c.height);
+    setTimeout(function(){ requestAnimationFrame(draw); }, 45);
   })();
 
-  // occasional hard glitch: shove the whole plate for a frame
   var plate = document.getElementById('plate');
   setInterval(function(){
     if(Math.random() < 0.5){

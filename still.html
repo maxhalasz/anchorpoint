@@ -4,110 +4,53 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Redirecting&hellip;</title>
+<title> </title>
 <style>
-  html,body{margin:0;background:#f3f1ec}
-  body{font:14px/1.5 "Courier New",Courier,monospace;color:#111}
+  html,body{margin:0;background:#000}
+  body{
+    height:120000px;                 /* absolutely massive. this is the rest of your life. */
+    overflow-x:hidden;
+    position:relative;
+    color:#fff;
+    font-family:"Courier New",Courier,monospace;
+    cursor:default;
+  }
+  /* no hint that there is anything to scroll */
+  body::-webkit-scrollbar{width:0;height:0}
+  body{scrollbar-width:none}
 
-  /* --- the part that looks fine --- */
-  .top{min-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:30px 18px;background:#fbfaf7;border-bottom:1px solid #ddd}
-  .top h1{font:400 21px/1.3 Georgia,serif;margin:0 0 14px;color:#333}
-  .top p{margin:6px 0;color:#555;font-size:13px}
-  .spin{width:26px;height:26px;border:3px solid #ccc;border-top-color:#777;border-radius:50%;
-    margin:18px 0;animation:sp 1s linear infinite}
-  @keyframes sp{to{transform:rotate(360deg)}}
-  .top a{color:#0b57d0}
+  /* messages sit in the corners at ~2px — a few pale pixels unless you zoom in */
+  .spk{
+    position:absolute;
+    font-size:2px;line-height:2.4px;letter-spacing:0;white-space:pre;
+    color:#ffffff;user-select:text;
+  }
+  .spk a{color:#fff;text-decoration:none}
+  .spk::selection,.spk a::selection{background:#b71c1c;color:#fff}
 
-  /* --- the part where it stops working --- */
-  .log{padding:20px 16px 200px;white-space:pre-wrap;word-break:break-word;color:#2a2a2a}
-  .log .l{opacity:.72}
-  .log .l.bad{color:#7a2a2a}
-  .log .l.raw{color:#8a8a8a}
-  .log .l.hit{opacity:1;color:#0a6a2a;font-weight:bold}
-  .log .l.hit a{color:#0a6a2a;text-decoration:none;border-bottom:1px solid #0a6a2a}
-
-  /* blink: the destination, for about a second, before the page gives up */
-  #blink{position:fixed;inset:0;background:#f3f1ec;display:flex;align-items:center;justify-content:center;
-    font:400 40px Georgia,serif;color:#222;z-index:10}
-
-  #buried{color:#f3f1ec}
-  #buried::selection{background:#b71c1c;color:#fff}
-  .log .l::selection{background:#b71c1c;color:#fff}
+  /* invisible until you drag-select the void */
+  .buried{position:absolute;top:60px;left:6px;font-size:13px;color:#000;letter-spacing:2px;text-decoration:none}
+  .buried::selection{background:#b71c1c;color:#fff}
 </style>
 </head>
 <body>
 
-  <div id="blink">feed</div>
+  <!-- TEXT: Max — a few pale pixels in a corner at 100%; readable only zoomed -->
+  <span class="spk" style="top:14px;right:10px;text-align:right">Stuck in one body. Stuck in one mind.</span>
 
-  <div class="top">
-    <h1 id="head">Redirecting you to the next page&hellip;</h1>
-    <div class="spin"></div>
-    <p>If you are not taken there automatically, <a href="/safe" id="click">click here</a>.</p>
-    <p id="sub">This should only take a moment.</p>
-  </div>
+  <span class="spk" style="top:38000px;left:12px">For the rest of your life.
+This is the rest of your life.</span>
 
-  <div class="log" id="log"></div>
+  <span class="spk" style="top:78000px;right:14px;text-align:right">no door on this side either.</span>
 
-  <span id="buried">if it will not take you on its own: feed.html</span>
+  <!-- the way out, at the very end of it -->
+  <span class="spk" style="top:119940px;left:50%;transform:translateX(-50%)"><a href="feed.html">— out —</a></span>
 
-  <!-- redirect target keeps coming back 000. if you are stuck, the page you want is feed.html -->
-  <!-- EXCERPT: Max — a passage from an important book goes here, source only; encode it however you like -->
-  <div hidden id="excerpt" data-note="EXCERPT: Max"></div>
+  <!-- if you would rather not scroll the whole life: feed.html -->
+  <a class="buried" href="feed.html">keep going</a>
 
 <script>
-(function(){
-  var LS; try{ LS=window.localStorage; }catch(e){ LS=null; }
-  var visits = 1;
-  if(LS){ visits = (parseInt(LS.getItem('st_visits'),10)||0)+1; LS.setItem('st_visits', String(visits)); }
-
-  // blink the destination, then let the "broken redirect" take over
-  setTimeout(function(){ var b=document.getElementById('blink'); if(b) b.parentNode.removeChild(b); }, 1050);
-
-  // build a long retry log you can actually scroll through
-  var log = document.getElementById('log');
-  var N = 640, t = 1;
-  var lines = [];
-  var hitAt = 90 + ((Math.random()*400)|0);        // the one line that actually resolves
-  if(visits >= 4) hitAt = 6;                         // kept coming back -> it "completes" near the top
-  for(var i=0;i<N;i++){
-    t += 1 + ((Math.random()*6)|0);
-    var hh = String(((t/3600)|0)).padStart(2,'0');
-    var mm = String((((t/60)|0)%60)).padStart(2,'0');
-    var ss = String(t%60).padStart(2,'0');
-    var ts = '[' + hh + ':' + mm + ':' + ss + '] ';
-    if(i === hitAt){
-      lines.push({c:'hit', h: ts + 'GET  next  →  200 OK   ▸ <a href="feed.html">follow</a>'});
-    }else if(i === 4){
-      lines.push({c:'bad', t: ts + 'meta refresh fired → target returned 000. falling back to manual.'});
-    }else if(i % 57 === 0){
-      lines.push({c:'raw', t: '&lt;meta http-equiv="refresh" content="0; url=/safe"&gt;   (ignored: /safe → 000)'});
-    }else if(i % 23 === 0){
-      lines.push({c:'bad', t: ts + 'retrying… (attempt ' + (i) + ')'});
-    }else{
-      var r = Math.random();
-      var msg = r < .5 ? 'GET  next  →  000  (no response)'
-             : r < .8 ? 'GET  next  →  000  (connection reset)'
-             : 'GET  next  →  000  (timed out)';
-      lines.push({c:'', t: ts + msg});
-    }
-  }
-  var html = lines.map(function(o){
-    return '<div class="l ' + o.c + '">' + (o.h != null ? o.h : o.t) + '</div>';
-  }).join('');
-  log.innerHTML = html;
-
-  // the spinner text never resolves
-  var tries = 0;
-  setInterval(function(){
-    tries++;
-    document.getElementById('sub').textContent = 'This should only take a moment. (attempt ' + tries + ')';
-  }, 1400);
-  document.getElementById('click').addEventListener('click', function(e){
-    e.preventDefault();
-    document.getElementById('sub').textContent = '/safe returned 000. see the log below.';
-  });
-})();
+  try{ var v=(parseInt(localStorage.getItem('st_visits'),10)||0)+1; localStorage.setItem('st_visits',String(v)); }catch(e){}
 </script>
 </body>
 </html>

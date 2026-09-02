@@ -8,13 +8,10 @@
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#070707}
   #wrap{position:fixed;inset:0;overflow:hidden}
-  #stack{position:absolute;left:0;top:0;width:100%;will-change:transform}
-  .m{
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:20px;line-height:1.75;color:#9c9c9c;
-    padding:9px 7vw;max-width:none;text-shadow:0 0 10px #000;
-  }
-  .m a{color:#b7b7b7;text-decoration:none}
+  #flow{position:absolute;left:0;top:0;width:100%;will-change:transform;
+    font-family:Arial, Helvetica, sans-serif;font-size:19px;line-height:1.95;color:#9c9c9c;
+    padding:0 6vw;text-align:justify;text-shadow:0 0 9px #000;word-spacing:1px}
+  #flow a{color:#b7b7b7;text-decoration:none}
   #vig{position:fixed;inset:0;pointer-events:none;z-index:5;
     box-shadow:inset 0 0 260px rgba(0,0,0,.9), inset 0 0 90px rgba(0,0,0,.6)}
   #flick{position:fixed;inset:0;pointer-events:none;z-index:6;background:#000;opacity:0}
@@ -23,13 +20,13 @@
 </style>
 </head>
 <body>
-  <div id="wrap"><div id="stack"></div></div>
+  <div id="wrap"><div id="flow"></div></div>
   <div id="vig"></div>
   <div id="flick"></div>
   <canvas id="veil"></canvas>
   <div id="hint">&nbsp;</div>
 
-  <!-- forward: click "say it back", or your own message -->
+  <!-- forward: click "say it back", or your own message, somewhere in the run-on -->
 <script>
 (function(){
   var LS; try{ LS = window.localStorage; }catch(e){ LS = null; }
@@ -92,7 +89,6 @@
 "when did the streetlight outside stop turning off at dawn",
 "my dog will not go in the spare room anymore and i have started to agree with him"
   ];
-
   var ANOM = [
 "It listed my exact IP address. How did you get that.",
 "The text box flashed three times before I started typing. Is someone else on this line.",
@@ -102,41 +98,39 @@
   var DOOR = "if you can still read this, say it back — here";   // TEXT: Max
   var mine = LS && LS.getItem('ap_lastMessage');
 
-  // one flat list, everything stacked, random order
-  var list = [];
-  for (var r = 0; r < 5; r++) POOL.forEach(function (t) { list.push({ t: t }); });
-  ANOM.forEach(function (t, i) { for (var k = 0; k < (i < 3 ? 4 : 1); k++) list.push({ t: t }); });
-  if (mine) for (var q = 0; q < 3; q++) list.push({ t: mine, link: true });
-  for (var d = 0; d < 12; d++) list.push({ t: DOOR, link: true });
-  for (var i = list.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var x = list[i]; list[i] = list[j]; list[j] = x; }
+  var items = [];
+  for (var r = 0; r < 4; r++) POOL.forEach(function (t) { items.push({ t: t }); });
+  ANOM.forEach(function (t, i) { for (var k = 0; k < (i < 3 ? 3 : 1); k++) items.push({ t: t }); });
+  if (mine) for (var q = 0; q < 3; q++) items.push({ t: mine, link: true });
+  for (var d = 0; d < 10; d++) items.push({ t: DOOR, link: true });
+  for (var i = items.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var x = items[i]; items[i] = items[j]; items[j] = x; }
 
-  var stack = document.getElementById('stack');
-  function render(item){
-    var el = document.createElement(item.link ? 'a' : 'div');
-    el.className = 'm';
-    if (item.link) el.href = 'notcrazy.html';
-    el.textContent = item.t;
-    return el;
+  var GAP = '    ';   // 4 spaces between messages — reading flow, minimal distinction
+
+  var flow = document.getElementById('flow');
+  function fillHalf(host){
+    items.forEach(function(it, idx){
+      if (it.link){
+        var a = document.createElement('a'); a.href = 'notcrazy.html'; a.textContent = it.t;
+        host.appendChild(a);
+      } else {
+        host.appendChild(document.createTextNode(it.t));
+      }
+      host.appendChild(document.createTextNode(GAP));
+    });
   }
-  // two identical copies for a seamless upward loop
-  var half = document.createElement('div');
-  list.forEach(function(it){ half.appendChild(render(it)); });
-  stack.appendChild(half);
-  var half2 = half.cloneNode(true);
-  stack.appendChild(half2);
+  var half = document.createElement('span'); fillHalf(half); flow.appendChild(half);
+  var half2 = half.cloneNode(true); flow.appendChild(half2);
 
-  var H = half.offsetHeight;
-  var speed = 34;                       // px per second, upward
-  var y = 0, last = performance.now();
+  var H = half.getBoundingClientRect().height;
+  var speed = 30, y = 0, last = performance.now();
   (function crawl(now){
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
-    y -= speed * dt;
-    if (y <= -H) y += H;
-    stack.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+    y -= speed * dt; if (y <= -H) y += H;
+    flow.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
     requestAnimationFrame(crawl);
   })(last);
 
-  // occasional whole-screen flicker
   var flick = document.getElementById('flick');
   setInterval(function(){
     if (Math.random() < 0.4){
@@ -148,7 +142,7 @@
   setTimeout(function(){ document.getElementById('hint').textContent = 'say it back'; }, 18000);
 
   document.getElementById('wrap').addEventListener('click', function(e){
-    var a = e.target.closest('a.m'); if (!a) return;
+    var a = e.target.closest('a'); if (!a) return;
     e.preventDefault();
     var c = document.getElementById('veil'); c.style.display = 'block';
     var ctx = c.getContext('2d'); c.width = window.innerWidth; c.height = window.innerHeight;

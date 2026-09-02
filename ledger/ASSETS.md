@@ -23,8 +23,21 @@ All paths are relative to the repo root.
 |---|---|---|
 | `tape-strip.png` | `--tex-tape` — every `.tape` and `.collage .strip` | *Two White Tapes* / *Tape Overlay 2 Thicc* |
 | `tape-cross.png` | `--tex-tape-x` — `<span class="tape x">` corner holds | *Cross Duct Tape* / *AnotherCrossDuctTape* |
-| `stain-1.png` | `--tex-stain` — `<span class="stain" style="left:60%;top:20%">` | *SomeStain1* |
-| `stain-ring.png` | `--tex-stain-ring` — `<span class="stain ring">` | (coffee ring) |
+| `stain-1.png` | `--tex-stain` — `<span class="stain">`; also feeds `.leaf::after` | coffee splatter (transparent) |
+| `stain-ring.png` | `--tex-stain-ring` — `<span class="stain ring">` | coffee ring (transparent) |
+| `stain-2.png` … `stain-6.png` | drop more and I'll rotate them per leaf | the extra washes / drips / splatters you sent |
+| `black-drip.png` | dark drip overlay for `data-stock="black"` leaves | black photocopy drip |
+
+## References (study, not assets)  →  `img/ref/` or anywhere named `Reference_…`
+
+These shape the visual system; they don't get dropped into the page.
+- *Bill Cipher journal page* — the Journal-3 register: charcoal + red hand-lettering over faded type, blood spatter, cipher glyphs down the margin. → the **scrawl leaves**.
+- *SCP-style "СВОДКА / Мамалыга"* — formal field-report layout: org sigil, typed header, a photo column down the right, a red round seal, footer warning. → **p.61 and any DRE/SERP document leaf**.
+- *aged newspaper "LONDON AND COUNTY BANKING COMPANY"* + wine/blood spatter → **the money clippings (p.89, p.90, p.358 front page)**.
+- *"how much of your body is your body"* (Kruger-style, black redaction boxes on a body) → **redaction + the Mislaid register**.
+- *"DO I EXIST? / DO YOU EXIST?"* (repeated handwriting on tape + eye photo on black) → **collage-on-black + the Unusual Friend thread**.
+- *"MY MUSE WAS A MONSTER / I WAS A PUPPET"* → **the `data-stock="wrong"` leaves**.
+- *occult collage (all-seeing eye, Tree of Life, "DOGME ET RITUEL")* → **the-word / Carcosa register, deep in the pile**.
 
 Transparent PNGs for anything that sits *on* the paper (tape, stains, tears).
 
