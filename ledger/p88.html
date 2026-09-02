@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ p.88</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .flow{width:100%;height:auto;margin:10px 0}
+  .flow text{font-family:'Caveat',cursive}
+  .node{fill:none;stroke:#2a2016;stroke-width:2}
+  .arc{fill:none;stroke:#2a2016;stroke-width:1.6}
+  .arc.q{stroke-dasharray:4 3}
+  .amt{fill:#7c2b1c}
+  .lbl{fill:#2a2016}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the pile</a>
+
+<article class="leaf tilt-r">
+  <span class="pagenum">p. 88</span>
+  <span class="tape tl"></span><span class="pin tc"></span>
+
+  <h1>the flow &mdash; first pass</h1>
+  <p class="kicker">middle. drawn on the back of a rates notice. I still thought I could hold it in my head.</p>
+
+  <div class="hw">
+    <span class="lbl">PHOTO: Max<b>the real hand-drawn version, biro, arrows doubling back, three amounts scribbled and crossed</b></span>
+  </div>
+
+  <svg class="flow" viewBox="0 0 760 380">
+    <g class="node">
+      <rect x="20" y="168" width="120" height="46" rx="3"/>
+      <rect x="230" y="40" width="118" height="44" rx="3"/>
+      <rect x="230" y="150" width="118" height="44" rx="3"/>
+      <rect x="230" y="262" width="118" height="44" rx="3"/>
+      <rect x="440" y="90" width="128" height="44" rx="3"/>
+      <rect x="440" y="210" width="128" height="44" rx="3"/>
+      <rect x="628" y="150" width="112" height="44" rx="3"/>
+    </g>
+    <g class="arc">
+      <path d="M140 182 C 190 150 195 66 228 62"/>
+      <path d="M140 190 C 190 190 195 172 228 172"/>
+      <path d="M140 200 C 190 250 195 282 228 284"/>
+      <path class="q" d="M348 62 C 400 70 405 108 438 110"/>
+      <path d="M348 172 C 400 150 405 120 438 118"/>
+      <path d="M348 172 C 400 200 405 224 438 230"/>
+      <path class="q" d="M348 284 C 400 270 405 244 438 240"/>
+      <path d="M568 112 C 600 130 604 158 626 164"/>
+      <path d="M568 232 C 600 210 604 184 626 178"/>
+      <path class="q" d="M740 172 C 720 330 360 340 300 306"/>
+    </g>
+    <g class="lbl" font-size="17">
+      <text x="34" y="196">the DRE</text>
+      <text x="244" y="66">NeuroStat</text>
+      <text x="244" y="176">Aegis Corp</text>
+      <text x="238" y="288">Meridian Hand</text>
+      <text x="452" y="116">Halcyon&#8209;Vantage</text>
+      <text x="452" y="236">Caselight Systems</text>
+      <text x="636" y="176">&mdash; ? &mdash;</text>
+    </g>
+    <g class="amt" font-size="15">
+      <text x="150" y="150">grant</text>
+      <text x="150" y="236">"consultancy"</text>
+      <text x="360" y="44">$ <tspan class="redn">▮▮▮</tspan> k</text>
+      <text x="360" y="322">back as equipment</text>
+      <text x="574" y="150">holds all three</text>
+    </g>
+  </svg>
+
+  <p>It goes out as a grant, comes back as a consultancy fee, leaves again as
+  equipment nobody unpacks. Every box I draw turns out to have two more boxes
+  inside it. Meridian Hand collapsed the year a founder went into a lake.
+  Halcyon&#8209;Vantage is listed as the largest holder of all three shells and
+  of six thousand things that are not shells. Caselight is the case software the
+  DRE used to run the archive, and I am fairly sure the archive was never the
+  point of the software. <!-- TEXT: Max --></p>
+
+  <p class="hand red">I blacked the top figure out on purpose. It is redrawn on
+  the next pass. Tap the next pass, then come back.</p>
+
+  <div class="xrefs">
+    <span class="lead">he cross-refs</span>
+    <a class="xref" data-p="p89">second pass &mdash; p.89</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p90">p.90</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p150">p.150</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p256">p.256</a>
+  </div>
+
+  <span class="margin r blue" id="ret" hidden>added later, in pencil: the figure was 148. it is 148 on every pass. I keep blacking it out because writing it down twice felt like agreeing to it.</span>
+</article>
+
+<div class="indexcard">
+  <span class="clip"></span>
+  <label>the index</label>
+  <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
+  <div class="slips"></div>
+</div>
+
+<script src="ledger.js"></script>
+<script src="cipher.js"></script>
+<script>
+LG.initPage('p88');
+if(LG.hasSeen('p89')){
+  document.querySelectorAll('.redn').forEach(function(t){ t.textContent='148'; t.removeAttribute('class'); });
+  var r=document.getElementById('ret'); if(r) r.hidden=false;
+  LG.addFound('the money');
+}
+</script>
+</body>
+</html>

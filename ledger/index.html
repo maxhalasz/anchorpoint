@@ -7,70 +7,59 @@
 <title>△</title>
 <link rel="stylesheet" href="ledger.css">
 </head>
-<body class="desk">
+<body>
+<a class="backlink" href="../notcrazy.html">&larr; back</a>
 
-  <div class="props">
-    <div class="prop polaroid" style="top:9%;left:5%">
-      <!-- IMG: Max — img/photo-porch.png -->
-      <div class="void"></div>
-    </div>
-    <div class="prop cassette" style="bottom:11%;right:6%"></div>
+<article class="leaf tilt">
+  <span class="pagenum">p. 9</span>
+  <span class="tape tl"></span><span class="tape br"></span>
+
+  <h1>&mdash;</h1>
+  <p class="kicker">early. before I kept them in order. before there was an order.</p>
+
+  <p class="hand pencil">If you are reading my handwriting then the front let you
+  through, which means you are the kind of person it was built to let through.
+  I am not going to explain that. <!-- TEXT: Max --></p>
+
+  <p>These are pages out of something much larger. I send the ones I can. I do
+  not send them whole and I do not send them in sequence, because sequence is
+  the first thing they go looking for. Number them if it helps you. It does not
+  help me anymore. <!-- TEXT: Max --></p>
+
+  <div class="hw tall">
+    <span class="lbl">PHOTO: Max<b>a full handwritten page, pencil, early hand &mdash; loose, still arguing with himself</b></span>
   </div>
 
-  <div class="deskwrap">
-    <div class="book" id="book">
-      <div class="band"></div>
-      <div class="plate">THE LEDGER<small>keep it moving &mdash; do not keep it</small></div>
-    </div>
-    <div class="desk-hint">open it</div>
+  <p class="correction">
+    <s>The psychiatrist is almost certainly right about all of this.</s>
+    <span class="fix">I was thirty-four when I wrote that line. Different pen now. He was not right.</span>
+  </p>
+
+  <p>There is a mark. I keep it on another page. I did not understand yet that
+  the mark and the door were the same fact. <!-- TEXT: Max --></p>
+
+  <div class="xrefs">
+    <span class="lead">he points onward</span>
+    <a class="xref" data-p="p44">the mark &mdash; p.44</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p88">the money &mdash; p.88</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p130">the names &mdash; p.130</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p5">p.5</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p177">p.177</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p212">p.212</a>
   </div>
 
-  <div class="contents" id="contents">
-    <h1>&mdash; contents &mdash;</h1>
-    <a class="tab" href="money.html"><span class="n">I</span><span class="t">The Money</span><span class="d">drawn by hand</span></a>
-    <a class="tab" href="names.html"><span class="n">II</span><span class="t">The Names</span><span class="d">1991</span></a>
-    <a class="tab" href="dreams.html"><span class="n">III</span><span class="t">The Dreams</span><span class="d">getting sharper</span></a>
-    <a class="tab" href="word.html"><span class="n">IV</span><span class="t">The Word</span><span class="d">recurring</span></a>
-    <a class="tab" href="door.html"><span class="n">V</span><span class="t">The Door</span><span class="d">behind it, paper</span></a>
-    <a class="tab locked" data-lock="network" data-href="network.html"><span class="n">VI</span><span class="t">The Network</span><span class="seal">SEALED</span></a>
-    <a class="tab locked" data-lock="doctor" data-href="doctor.html"><span class="n">VII</span><span class="t">The Doctor</span><span class="seal">SEALED</span></a>
-  </div>
+  <span class="margin r">use the card. it is his index, not mine. it answers in his voice.</span>
+</article>
 
-  <div class="term">
-    <div class="card">
-      <label>the desk</label>
-      <div class="line"><input id="tinput" type="text" autocomplete="off" spellcheck="false" placeholder="a name, a word&hellip;"></div>
-      <div class="slips" id="tslips"></div>
-    </div>
-  </div>
+<div class="indexcard">
+  <span class="clip"></span>
+  <label>the index</label>
+  <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
+  <div class="slips"></div>
+</div>
 
 <script src="ledger.js"></script>
 <script src="cipher.js"></script>
-<script>
-(function(){
-  var book = document.getElementById('book');
-  var deskwrap = document.querySelector('.deskwrap');
-  var contents = document.getElementById('contents');
-  var opened = false;
-  try{ opened = localStorage.getItem('lg_opened') === '1'; }catch(e){}
-
-  function reveal(){
-    deskwrap.style.display = 'none';
-    contents.classList.add('show');
-  }
-  if(opened){
-    reveal();
-  }else{
-    book.addEventListener('click', function(){
-      if(book.classList.contains('open')) return;
-      book.classList.add('open');
-      try{ localStorage.setItem('lg_opened','1'); }catch(e){}
-      setTimeout(reveal, 480);
-    });
-  }
-  LG.paintIndex();
-  LG.wireTerm(document.getElementById('tinput'), document.getElementById('tslips'));
-})();
-</script>
+<script>LG.initPage('p9');</script>
 </body>
 </html>

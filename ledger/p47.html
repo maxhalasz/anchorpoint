@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ p.47</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .gate{display:flex;gap:8px;align-items:center;margin:14px 0;flex-wrap:wrap}
+  .gate input{font-family:'Special Elite';font-size:16px;padding:5px 8px;border:1px solid var(--paper-deep);background:var(--paper-hi);color:var(--ink)}
+  .gate button{font-family:'Special Elite';font-size:13px;padding:6px 14px;cursor:pointer;border:1px solid var(--paper-deep);background:var(--paper-hi);color:var(--ink)}
+  .no{color:var(--red);font-family:'Caveat',cursive;font-size:18px}
+  #more{display:none}#more.show{display:block}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the pile</a>
+
+<article class="leaf tilt">
+  <span class="pagenum">p. 47</span>
+  <span class="tape tl"></span><span class="tape tr"></span>
+
+  <h1>the door</h1>
+  <p class="kicker">middle-to-late. I had been at the records office fourteen months before I saw it.</p>
+
+  <div class="hw tall">
+    <span class="lbl">PHOTO: Max<b>a full page: the door sketched from three angles, plus a copy of the mark at eye height, plus a paratech compound label taped in</b></span>
+  </div>
+
+  <p>A maintenance door in a sub-level corridor, painted the same municipal green
+  as the wall, no handle plate. I had walked past it every working day. The
+  morning I finally saw it as a door there was a mark on it at eye height &mdash;
+  the mark from p.44 &mdash; and I understood that nobody else in that building
+  had ever seen the door at all. <!-- TEXT: Max --></p>
+
+  <p>It was held by an ordinary lock and by a working. The DRE filed this class
+  of thing under one word. It does not make anything invisible. It reaches into
+  the part of you that builds the picture and tells that part there is nothing
+  there to build &mdash; so you fill the gap with wall, with pipework, with
+  whatever is dull enough, and you walk on. Eyes will not settle on it. People
+  lose the layout of a room, an object, a way in, and do not notice they have
+  lost anything. <!-- TEXT: Max --></p>
+
+  <p class="hand">The division milked it. A liquid off it that scrubs your sense
+  of direction. A gas off it, for cities &mdash; brush it on a doorway and the
+  public will route around a building that is standing in plain sight. <!-- TEXT: Max --></p>
+
+  <p>I get through it because of what went into me when I was eight. Whatever
+  the working leans on to do its work, mine is already broken in that exact
+  place. It has nothing to push against.</p>
+
+  <p>The word for it is <span class="redact" id="ans">████████</span>. Behind it: paper, floor to ceiling.</p>
+
+  <span class="margin r">it is written on the door. and one line in <a class="xref" data-p="p130">the names</a> resolves to it, if you have his key.</span>
+
+  <div class="gate">
+    <input id="in" type="text" autocomplete="off" spellcheck="false" placeholder="name the working">
+    <button id="try">say it</button>
+    <span id="msg" class="no"></span>
+  </div>
+
+  <div id="more">
+    <hr class="rule">
+    <p class="type-red">The lock gives. The working does not resist me. It never has.</p>
+    <div class="xrefs">
+      <span class="lead">now open</span>
+      <a class="xref" data-p="p256">the network &mdash; p.256</a> &nbsp;&middot;&nbsp;
+      <a class="xref" data-p="p61">p.61</a> &nbsp;&middot;&nbsp;
+      <a class="xref" data-p="p244">p.244</a>
+    </div>
+  </div>
+</article>
+
+<div class="indexcard">
+  <span class="clip"></span>
+  <label>the index</label>
+  <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
+  <div class="slips"></div>
+</div>
+
+<script src="ledger.js"></script>
+<script src="cipher.js"></script>
+<script>
+LG.initPage('p47');
+(function(){
+  function go(){
+    var v = LG.normalize(document.getElementById('in').value); if(!v) return;
+    if(v === LG.DOOR_ANSWER){
+      var a = document.getElementById('ans'); a.textContent = LG.DOOR_ANSWER.toUpperCase(); a.classList.add('solved');
+      document.getElementById('msg').textContent = '';
+      document.getElementById('more').classList.add('show');
+      document.querySelector('.gate').style.display = 'none';
+      LG.unlock('p256'); LG.addFound('mislaid');
+      LG.wireXrefs(document.getElementById('more'));
+    }else{
+      document.getElementById('msg').textContent = 'the door stays shut.';
+    }
+  }
+  document.getElementById('try').addEventListener('click', go);
+  document.getElementById('in').addEventListener('keydown', function(e){ if(e.key==='Enter') go(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ p.44</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .field{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:12px;margin:16px 0}
+  .mk{color:var(--ink);opacity:.78;display:flex;align-items:center;justify-content:center;padding:5px 0}
+  .mk.bad{cursor:pointer}.mk.bad.got{color:var(--red);opacity:1}
+  .count{font-family:'IM Fell English SC',serif;letter-spacing:2px;color:var(--red)}
+  #odd{display:none;margin-top:14px}#odd.show{display:block}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the pile</a>
+
+<article class="leaf">
+  <span class="pagenum">p. 44</span>
+  <span class="tape tr"></span><span class="tape bl"></span>
+
+  <h1>the mark</h1>
+  <p class="kicker">middle. I had started carrying a marker to trace it before it moved on me.</p>
+
+  <div class="hw">
+    <span class="lbl">PHOTO: Max<b>a page of the same mark drawn forty times, different sizes, a few circled hard</b></span>
+  </div>
+
+  <p>It is in the margins of the file, in the archive tilework, on the back of
+  the loan forms. Always the same. Almost. Some of them face the wrong way, and
+  once you have seen one facing the wrong way you cannot stop seeing them.
+  <!-- TEXT: Max --></p>
+
+  <p class="hand red">count the ones that are backwards on this page. tap each. &nbsp; <span class="count" id="c">0 / 3</span></p>
+  <div class="field" id="field"></div>
+
+  <div id="odd" class="hw" style="min-height:0;padding:14px">
+    <span class="lbl" style="letter-spacing:0"><b>it is a mouth. it has always been a mouth. <!-- TEXT: Max --></b></span>
+  </div>
+
+  <div class="xrefs">
+    <span class="lead">he cross-refs</span>
+    <a class="xref" data-p="p130">the names &mdash; p.130</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p212">p.212</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p73">p.73</a>
+  </div>
+
+  <span class="margin r blue" id="ret" hidden>added later: the one on p.47, at eye height on the door &mdash; that one is not backwards. that one is looking at you.</span>
+</article>
+
+<div class="indexcard">
+  <span class="clip"></span>
+  <label>the index</label>
+  <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
+  <div class="slips"></div>
+</div>
+
+<script src="ledger.js"></script>
+<script src="cipher.js"></script>
+<script>
+LG.initPage('p44');
+(function(){
+  var SYM = '<svg viewBox="0 0 24 30" width="19" height="24"><g stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"><path d="M12 4 V 22"/><path d="M12 22 C 12 28 19 28 19 22"/></g><circle cx="12" cy="4" r="2" fill="currentColor"/></svg>';
+  var field = document.getElementById('field'), bad = {}, N = 56;
+  while(Object.keys(bad).length < 3) bad[(Math.random()*N)|0] = 1;
+  for(var i=0;i<N;i++){ var d=document.createElement('div'); d.className='mk'+(bad[i]?' bad':''); d.innerHTML=SYM;
+    if(bad[i]) d.firstChild.style.transform='scaleX(-1)'; field.appendChild(d); }
+  var got=0;
+  field.addEventListener('click',function(e){
+    var m=e.target.closest('.mk.bad'); if(!m||m.classList.contains('got')) return;
+    m.classList.add('got'); got++; document.getElementById('c').textContent=got+' / 3';
+    if(got===3){ document.getElementById('odd').classList.add('show'); LG.addFound('the word'); }
+  });
+  if(LG.hasSeen('p47')) document.getElementById('ret').hidden = false;   // returning branch
+})();
+</script>
+</body>
+</html>

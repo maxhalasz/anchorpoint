@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ p.131</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px;max-width:220px;margin:10px 0}
+  .grid .c{text-align:center}
+  .grid .c .pt{font-family:'IM Fell English SC',serif;color:var(--ink-soft);font-size:12px;margin-top:3px}
+  .two{display:flex;gap:30px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the pile</a>
+
+<article class="leaf">
+  <span class="pagenum">p. 131</span>
+  <span class="pin tc"></span>
+
+  <h1>the key, as far as I have it</h1>
+  <p class="kicker">middle. my reconstruction, not his. I am not certain of the bottom block.</p>
+
+  <div class="hw">
+    <span class="lbl">PHOTO: Max<b>a worked page: the grid drawn out, arrows, several attempts crossed through, a corner in a second colour</b></span>
+  </div>
+
+  <p>One stroke. One ball. Ball at the foot &mdash; top block, the first sixteen.
+  Ball at the head &mdash; the second block. A word opens with the little ring,
+  the <span class="hand" style="font-size:16px">o</span>. <!-- TEXT: Max --></p>
+
+  <p>Position in the block is the short marks across the stroke. Nothing &mdash;
+  first. A mark high on the stroke &mdash; one along. A mark low &mdash; two.
+  Both marks &mdash; three. One axis walks across, the other walks down, and the
+  two axes trade sides when the ball moves to the head. So a bare stroke with a
+  ball at the foot is the very first letter and nothing else. <!-- TEXT: Max --></p>
+
+  <div class="two">
+    <div><div class="hand" style="font-size:14px">top block</div><div class="grid" id="top"></div></div>
+    <div><div class="hand" style="font-size:14px">second block</div><div class="grid" id="bot"></div></div>
+  </div>
+
+  <p class="correction">
+    <s>The doubled ball is just emphasis.</s>
+    <span class="fix">No. Doubled ball is a vowel mark &mdash; the two dots. Hooked ball is the cedilla. Struck ball is the little roof. I keep getting these wrong.</span>
+  </p>
+
+  <div class="xrefs">
+    <span class="lead">he cross-refs</span>
+    <a class="xref" data-p="p130">the names &mdash; p.130</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p47">the door &mdash; p.47</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p244">p.244</a>
+  </div>
+
+  <span class="margin r blue">this is mine and it is shaky. if you want it clean, write and ask him for it.</span>
+</article>
+
+<div class="indexcard">
+  <span class="clip"></span>
+  <label>the index</label>
+  <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
+  <div class="slips"></div>
+</div>
+
+<script src="ledger.js"></script>
+<script src="cipher.js"></script>
+<script>
+LG.initPage('p131');
+(function(){
+  var A='abcdefghijklmnop'.split(''), B='qrstuvwxyz'.split('');
+  var t=document.getElementById('top'), b=document.getElementById('bot');
+  A.forEach(function(c){ t.insertAdjacentHTML('beforeend','<div class="c">'+CIPHER.wash(c)+'<div class="pt">'+c.toUpperCase()+'</div></div>'); });
+  B.forEach(function(c){ b.insertAdjacentHTML('beforeend','<div class="c">'+CIPHER.wash(c)+'<div class="pt">'+c.toUpperCase()+'</div></div>'); });
+})();
+</script>
+</body>
+</html>

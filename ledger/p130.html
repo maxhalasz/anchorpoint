@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>△ p.130</title>
+<link rel="stylesheet" href="ledger.css">
+<style>
+  .nrow{margin:14px 0;padding-bottom:12px;border-bottom:1px dotted var(--rule)}
+  .nrow .nm{font-size:15px}
+  .nrow .ci{margin-top:5px}
+  .nrow .pt{font-family:'IM Fell English SC',serif;letter-spacing:6px;color:var(--ink-soft);display:none;margin-top:4px}
+  body.resolved .nrow .pt{display:block}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html">&larr; the pile</a>
+
+<article class="leaf tilt-r">
+  <span class="pagenum">p. 130</span>
+  <span class="tape tr"></span>
+
+  <h1>the names</h1>
+  <p class="kicker">middle. everyone from the closed network, and what they answered to by '91.</p>
+
+  <div class="hw">
+    <span class="lbl">PHOTO: Max<b>a page of names in two columns, the cipher line under each drawn small and careful</b></span>
+  </div>
+
+  <p>I keep the list because I am the only one left who can read it and the only
+  one left who would. The line under each name is in his hand, in the cipher.
+  It is not hard once you have the key. I am not putting the key on this page.
+  <!-- TEXT: Max --></p>
+
+  <div class="nrow"><div class="nm">R. &mdash; &ldquo;the courier&rdquo;</div>
+    <div class="ci" data-w="never asked"></div><div class="pt">NEVER ASKED</div></div>
+  <div class="nrow"><div class="nm">A. K. &mdash; &ldquo;patient zero&rdquo;</div>
+    <div class="ci" data-w="closed the net"></div><div class="pt">CLOSED THE NET</div></div>
+  <div class="nrow"><div class="nm">&mdash; &mdash; &ldquo;the quiet one&rdquo;</div>
+    <div class="ci" data-w="mislaid"></div><div class="pt">MISLAID</div></div>
+  <div class="nrow"><div class="nm">M. H. &mdash; on loan from staff</div>
+    <div class="ci" data-w="watched aegis"></div><div class="pt">WATCHED AEGIS</div></div>
+
+  <div class="xrefs">
+    <span class="lead">he cross-refs</span>
+    <a class="xref" data-p="p131">his notes on the key &mdash; p.131</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p47">p.47</a> &nbsp;&middot;&nbsp;
+    <a class="xref" data-p="p177">p.177</a>
+  </div>
+
+  <span class="margin r">he calls the key &ldquo;goodnight sally.&rdquo; ask the index for that, then p.131 opens.</span>
+  <span class="margin l blue" id="ret" hidden>later: one of these three is a door. it is the quiet one.</span>
+</article>
+
+<div class="indexcard">
+  <span class="clip"></span>
+  <label>the index</label>
+  <div class="line"><input type="text" autocomplete="off" spellcheck="false" placeholder="a word&hellip;"></div>
+  <div class="slips"></div>
+</div>
+
+<script src="ledger.js"></script>
+<script src="cipher.js"></script>
+<script>
+LG.initPage('p130');
+document.querySelectorAll('.ci').forEach(function(el){
+  el.innerHTML = '<span class="cipherline">' + CIPHER.washWord(el.getAttribute('data-w')) + '</span>';
+});
+if(LG.hasSeen('p131')){ document.body.classList.add('resolved'); var r=document.getElementById('ret'); if(r) r.hidden=false; }
+</script>
+</body>
+</html>
