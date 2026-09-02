@@ -49,6 +49,9 @@ window.LG = (function () {
     p288: { f: 'p288.html' },
     p301: { f: 'p301.html', sealed: function () { return !isUnlocked('p301'); },
             open_when: 'he opens this one by letter' },
+    p358: { f: 'p358.html',
+            sealed: function () { return !(hasSeen('p5') && hasSeen('p130')); },
+            open_when: 'you have read the shelter page and the names' },
     p377: { f: 'p377.html',
             sealed: function () { return !(hasSeen('p256') && hasSeen('p301')); },
             open_when: 'you have read the network and the doctor' }
@@ -109,7 +112,8 @@ window.LG = (function () {
     'the key': 'p131', 'wash': 'p131', 'the cipher': 'p131',
     'the test': 'p188', 'the experiment': 'p188',
     'the doctor': 'p301', 'pephal': 'p301', 'ryan pephal': 'p301',
-    'trauma': 'p5'
+    'trauma': 'p5', 'the shelter': 'p5', 'sally house': 'p5', 'sally': 'p5',
+    'the fire': 'p358', 'the orphanage': 'p358', 'goodnight sally': 'p358'
   };
 
   function wireSearch(input, slips) {
@@ -149,6 +153,7 @@ window.LG = (function () {
       }
     });
     wireXrefs(document);
+    if (window.HAND) try { HAND.render(document.body); } catch (e) {}
     var input = document.querySelector('.indexcard input'), slips = document.querySelector('.indexcard .slips');
     if (input && slips) wireSearch(input, slips);
     paintPulled(document.querySelector('.indexcard .pulled'));

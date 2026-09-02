@@ -6,24 +6,30 @@
 <meta name="robots" content="noindex,nofollow">
 <title> </title>
 <style>
-  html,body{margin:0;height:100%;overflow:hidden;background:#0a0a0a}
-  #stage{position:fixed;inset:0}
+  html,body{margin:0;height:100%;overflow:hidden;background:#070707}
+  #wrap{position:fixed;inset:0;overflow:hidden}
+  #stack{position:absolute;left:0;top:0;width:100%;will-change:transform}
   .m{
-    position:absolute;left:0;top:0;width:min(28em,72vw);
-    font:12.5px/1.42 "Courier New",Courier,monospace;color:#8d8d8d;
-    text-shadow:0 0 9px #000;white-space:pre-wrap;will-change:transform;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:20px;line-height:1.75;color:#9c9c9c;
+    padding:9px 7vw;max-width:none;text-shadow:0 0 10px #000;
   }
-  .m a{color:inherit;text-decoration:none}
+  .m a{color:#b7b7b7;text-decoration:none}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:5;
+    box-shadow:inset 0 0 260px rgba(0,0,0,.9), inset 0 0 90px rgba(0,0,0,.6)}
+  #flick{position:fixed;inset:0;pointer-events:none;z-index:6;background:#000;opacity:0}
   #veil{position:fixed;inset:0;display:none;z-index:50}
-  #hint{position:fixed;left:0;right:0;bottom:8px;text-align:center;color:#2f2f2f;font:11px monospace;z-index:40}
+  #hint{position:fixed;left:0;right:0;bottom:8px;text-align:center;color:#242424;font:12px Arial,sans-serif;z-index:8}
 </style>
 </head>
 <body>
-  <div id="stage"></div>
+  <div id="wrap"><div id="stack"></div></div>
+  <div id="vig"></div>
+  <div id="flick"></div>
   <canvas id="veil"></canvas>
   <div id="hint">&nbsp;</div>
 
-  <!-- forward: click "say it back", or your own message. no timer. -->
+  <!-- forward: click "say it back", or your own message -->
 <script>
 (function(){
   var LS; try{ LS = window.localStorage; }catch(e){ LS = null; }
@@ -80,7 +86,11 @@
 "please send someone to 404 Elm Street. Don't knock, just break the door down.",
 "is anyone there",
 "i hate who i am",
-"i don't know what to do with my life anymore"
+"i don't know what to do with my life anymore",
+"the hallway is longer at night. i measured it. i am not making this up.",
+"i keep my shoes on in bed now in case i have to leave fast. leave where. i dont know.",
+"when did the streetlight outside stop turning off at dawn",
+"my dog will not go in the spare room anymore and i have started to agree with him"
   ];
 
   var ANOM = [
@@ -92,69 +102,60 @@
   var DOOR = "if you can still read this, say it back — here";   // TEXT: Max
   var mine = LS && LS.getItem('ap_lastMessage');
 
-  var stage = document.getElementById('stage');
-  var W = window.innerWidth, H = window.innerHeight;
+  // one flat list, everything stacked, random order
+  var list = [];
+  for (var r = 0; r < 5; r++) POOL.forEach(function (t) { list.push({ t: t }); });
+  ANOM.forEach(function (t, i) { for (var k = 0; k < (i < 3 ? 4 : 1); k++) list.push({ t: t }); });
+  if (mine) for (var q = 0; q < 3; q++) list.push({ t: mine, link: true });
+  for (var d = 0; d < 12; d++) list.push({ t: DOOR, link: true });
+  for (var i = list.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var x = list[i]; list[i] = list[j]; list[j] = x; }
 
-  // build the population
-  var items = [];
-  for (var r = 0; r < 6; r++) POOL.forEach(function (t) { items.push({ t: t }); });
-  ANOM.forEach(function (t, i) { for (var k = 0; k < (i < 3 ? 5 : 1); k++) items.push({ t: t }); });
-  if (mine) for (var q = 0; q < 3; q++) items.push({ t: mine, link: true });
-  for (var d = 0; d < 10; d++) items.push({ t: DOOR, link: true });
-  for (var i = items.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var x = items[i]; items[i] = items[j]; items[j] = x; }
-
-  var FIELD_W = W * 1.6, FIELD_H = H * 3.2;
-  var nodes = items.map(function (it) {
-    var el = document.createElement(it.link ? 'a' : 'div');
+  var stack = document.getElementById('stack');
+  function render(item){
+    var el = document.createElement(item.link ? 'a' : 'div');
     el.className = 'm';
-    if (it.link) el.href = 'notcrazy.html';
-    el.textContent = it.t;
-    el.style.opacity = (0.45 + Math.random() * 0.4).toFixed(2);
-    stage.appendChild(el);
-    var mode = Math.random();
-    var o = {
-      el: el,
-      x: Math.random() * FIELD_W - (FIELD_W - W) / 2,
-      y: Math.random() * FIELD_H - (FIELD_H - H) / 2,
-      vx: 0, vy: 0
-    };
-    if (mode < 0.45) {            // slow drift, any direction
-      o.vx = (Math.random() - 0.5) * 10; o.vy = (Math.random() - 0.5) * 10;
-    } else if (mode < 0.8) {      // rising
-      o.vy = -(14 + Math.random() * 34); o.vx = (Math.random() - 0.5) * 4;
-    } else {                      // crossing
-      o.vx = (Math.random() < 0.5 ? -1 : 1) * (18 + Math.random() * 30); o.vy = (Math.random() - 0.5) * 4;
-    }
-    return o;
-  });
+    if (item.link) el.href = 'notcrazy.html';
+    el.textContent = item.t;
+    return el;
+  }
+  // two identical copies for a seamless upward loop
+  var half = document.createElement('div');
+  list.forEach(function(it){ half.appendChild(render(it)); });
+  stack.appendChild(half);
+  var half2 = half.cloneNode(true);
+  stack.appendChild(half2);
 
-  var last = performance.now();
-  (function tick(now) {
+  var H = half.offsetHeight;
+  var speed = 34;                       // px per second, upward
+  var y = 0, last = performance.now();
+  (function crawl(now){
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
-    for (var i = 0; i < nodes.length; i++) {
-      var o = nodes[i];
-      o.x += o.vx * dt; o.y += o.vy * dt;
-      if (o.y < -(FIELD_H - H) / 2 - 60) o.y = (FIELD_H + H) / 2;
-      if (o.y > (FIELD_H + H) / 2 + 60) o.y = -(FIELD_H - H) / 2;
-      if (o.x < -(FIELD_W - W) / 2 - 400) o.x = (FIELD_W + W) / 2;
-      if (o.x > (FIELD_W + W) / 2 + 40) o.x = -(FIELD_W - W) / 2 - 380;
-      o.el.style.transform = 'translate(' + o.x.toFixed(1) + 'px,' + o.y.toFixed(1) + 'px)';
-    }
-    requestAnimationFrame(tick);
+    y -= speed * dt;
+    if (y <= -H) y += H;
+    stack.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+    requestAnimationFrame(crawl);
   })(last);
 
-  setTimeout(function () { document.getElementById('hint').textContent = 'say it back'; }, 20000);
+  // occasional whole-screen flicker
+  var flick = document.getElementById('flick');
+  setInterval(function(){
+    if (Math.random() < 0.4){
+      flick.style.transition = 'none'; flick.style.opacity = (0.25 + Math.random()*0.4);
+      setTimeout(function(){ flick.style.transition = 'opacity .18s'; flick.style.opacity = 0; }, 45 + Math.random()*70);
+    }
+  }, 2600);
 
-  // clicking a link: quick static wipe, then go
-  stage.addEventListener('click', function (e) {
+  setTimeout(function(){ document.getElementById('hint').textContent = 'say it back'; }, 18000);
+
+  document.getElementById('wrap').addEventListener('click', function(e){
     var a = e.target.closest('a.m'); if (!a) return;
     e.preventDefault();
     var c = document.getElementById('veil'); c.style.display = 'block';
-    var ctx = c.getContext('2d'); c.width = W; c.height = H;
+    var ctx = c.getContext('2d'); c.width = window.innerWidth; c.height = window.innerHeight;
     var end = performance.now() + 900;
-    (function draw(t) {
+    (function draw(t){
       var img = ctx.createImageData(c.width, c.height), p = img.data;
-      for (var i = 0; i < p.length; i += 4) { var v = (Math.random() * 255) | 0; p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255; }
+      for (var i = 0; i < p.length; i += 4){ var v = (Math.random()*255)|0; p[i]=p[i+1]=p[i+2]=v; p[i+3]=255; }
       ctx.putImageData(img, 0, 0);
       if (t < end) requestAnimationFrame(draw); else location.href = 'notcrazy.html';
     })(performance.now());

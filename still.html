@@ -4,86 +4,109 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title> </title>
+<title>Redirecting&hellip;</title>
 <style>
-  html{background:#000}
-  body{margin:0;background:#000;color:#111;font-family:"Times New Roman",Times,serif;
-    min-height:1400vh;position:relative;overflow-x:hidden}
-  body[data-bg="light"]{background:#fff}
-  body[data-bg="light"],html:has(body[data-bg="light"]){background:#fff}
+  html,body{margin:0;background:#f3f1ec}
+  body{font:14px/1.5 "Courier New",Courier,monospace;color:#111}
 
-  /* the thing you might miss if you blink */
-  .flash{position:fixed;left:50%;top:46vh;transform:translate(-50%,-50%);
-    font-size:19px;letter-spacing:.4px;text-align:center;white-space:nowrap;text-decoration:none}
-  body[data-bg="dark"]  .flash{color:#6a6a6a}
-  body[data-bg="light"] .flash{color:#9a9a9a}
-  .flash::selection,.buried::selection,.tiny::selection{background:#b71c1c;color:#fff}
+  /* --- the part that looks fine --- */
+  .top{min-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:30px 18px;background:#fbfaf7;border-bottom:1px solid #ddd}
+  .top h1{font:400 21px/1.3 Georgia,serif;margin:0 0 14px;color:#333}
+  .top p{margin:6px 0;color:#555;font-size:13px}
+  .spin{width:26px;height:26px;border:3px solid #ccc;border-top-color:#777;border-radius:50%;
+    margin:18px 0;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .top a{color:#0b57d0}
 
-  /* one way forward: drag-select the void */
-  .buried{position:absolute;left:50%;top:92vh;transform:translateX(-50%);
-    font-size:14px;letter-spacing:2px;text-decoration:none}
-  body[data-bg="dark"]  .buried{color:#000}
-  body[data-bg="light"] .buried{color:#fff}
+  /* --- the part where it stops working --- */
+  .log{padding:20px 16px 200px;white-space:pre-wrap;word-break:break-word;color:#2a2a2a}
+  .log .l{opacity:.72}
+  .log .l.bad{color:#7a2a2a}
+  .log .l.raw{color:#8a8a8a}
+  .log .l.hit{opacity:1;color:#0a6a2a;font-weight:bold}
+  .log .l.hit a{color:#0a6a2a;text-decoration:none;border-bottom:1px solid #0a6a2a}
 
-  /* remote corners — invisible at 100%, legible only if you zoom in hard */
-  .tiny{position:absolute;font-size:1.6px;line-height:1.9;letter-spacing:0;white-space:pre}
-  body[data-bg="dark"]  .tiny{color:#141414}
-  body[data-bg="light"] .tiny{color:#f0f0f0}
-  .tiny.a{right:3px;top:38vh;text-align:right}
-  .tiny.b{left:3px;top:520vh}
-  .tiny.c{right:6px;bottom:2px;text-align:right}
+  /* blink: the destination, for about a second, before the page gives up */
+  #blink{position:fixed;inset:0;background:#f3f1ec;display:flex;align-items:center;justify-content:center;
+    font:400 40px Georgia,serif;color:#222;z-index:10}
+
+  #buried{color:#f3f1ec}
+  #buried::selection{background:#b71c1c;color:#fff}
+  .log .l::selection{background:#b71c1c;color:#fff}
 </style>
 </head>
 <body>
 
-  <!-- TEXT: Max — TOTAL REWORK of the still-page line. tiny, corner, zoom to read.
-       three placements below; keep one or split across them. -->
-  <div class="tiny a">rework me &mdash; corner A</div>
-  <div class="tiny b">rework me &mdash; corner B (far down the page)</div>
-  <div class="tiny c">rework me &mdash; corner C</div>
+  <div id="blink">feed</div>
 
-  <a class="flash" id="flash" href="feed.html"></a>
-  <a class="buried" href="feed.html">keep going</a>
+  <div class="top">
+    <h1 id="head">Redirecting you to the next page&hellip;</h1>
+    <div class="spin"></div>
+    <p>If you are not taken there automatically, <a href="/safe" id="click">click here</a>.</p>
+    <p id="sub">This should only take a moment.</p>
+  </div>
 
-  <!-- EXCERPT: Max — a passage from an important book goes here, in the source only.
-       players find it by inspecting the page. leave it commented, or put it in the
-       hidden node below and encode it however you like. -->
+  <div class="log" id="log"></div>
+
+  <span id="buried">if it will not take you on its own: feed.html</span>
+
+  <!-- redirect target keeps coming back 000. if you are stuck, the page you want is feed.html -->
+  <!-- EXCERPT: Max — a passage from an important book goes here, source only; encode it however you like -->
   <div hidden id="excerpt" data-note="EXCERPT: Max"></div>
 
-  <!-- someone has been here before you. the page did not break. -->
 <script>
 (function(){
-  var LS; try{ LS=window.localStorage; LS.setItem('__s','1'); LS.removeItem('__s'); }catch(e){ LS=null; }
+  var LS; try{ LS=window.localStorage; }catch(e){ LS=null; }
+  var visits = 1;
+  if(LS){ visits = (parseInt(LS.getItem('st_visits'),10)||0)+1; LS.setItem('st_visits', String(visits)); }
 
-  var FRAG_DARK  = "REWORK — dark-bg half";   // TEXT: Max
-  var FRAG_LIGHT = "REWORK — light-bg half";  // TEXT: Max
+  // blink the destination, then let the "broken redirect" take over
+  setTimeout(function(){ var b=document.getElementById('blink'); if(b) b.parentNode.removeChild(b); }, 1050);
 
-  var dark = Math.random() < 0.5;
-  document.body.setAttribute('data-bg', dark ? 'dark' : 'light');
-  document.documentElement.style.background = dark ? '#000' : '#fff';
-
-  var visits = 1, seenD = false, seenL = false;
-  if(LS){
-    visits = (parseInt(LS.getItem('st_visits'),10) || 0) + 1;
-    LS.setItem('st_visits', String(visits));
-    seenD = LS.getItem('st_seenDark') === '1';
-    seenL = LS.getItem('st_seenLight') === '1';
-    LS.setItem(dark ? 'st_seenDark' : 'st_seenLight', '1');
-    seenD = seenD || dark; seenL = seenL || !dark;
+  // build a long retry log you can actually scroll through
+  var log = document.getElementById('log');
+  var N = 640, t = 1;
+  var lines = [];
+  var hitAt = 90 + ((Math.random()*400)|0);        // the one line that actually resolves
+  if(visits >= 4) hitAt = 6;                         // kept coming back -> it "completes" near the top
+  for(var i=0;i<N;i++){
+    t += 1 + ((Math.random()*6)|0);
+    var hh = String(((t/3600)|0)).padStart(2,'0');
+    var mm = String((((t/60)|0)%60)).padStart(2,'0');
+    var ss = String(t%60).padStart(2,'0');
+    var ts = '[' + hh + ':' + mm + ':' + ss + '] ';
+    if(i === hitAt){
+      lines.push({c:'hit', h: ts + 'GET  next  →  200 OK   ▸ <a href="feed.html">follow</a>'});
+    }else if(i === 4){
+      lines.push({c:'bad', t: ts + 'meta refresh fired → target returned 000. falling back to manual.'});
+    }else if(i % 57 === 0){
+      lines.push({c:'raw', t: '&lt;meta http-equiv="refresh" content="0; url=/safe"&gt;   (ignored: /safe → 000)'});
+    }else if(i % 23 === 0){
+      lines.push({c:'bad', t: ts + 'retrying… (attempt ' + (i) + ')'});
+    }else{
+      var r = Math.random();
+      var msg = r < .5 ? 'GET  next  →  000  (no response)'
+             : r < .8 ? 'GET  next  →  000  (connection reset)'
+             : 'GET  next  →  000  (timed out)';
+      lines.push({c:'', t: ts + msg});
+    }
   }
+  var html = lines.map(function(o){
+    return '<div class="l ' + o.c + '">' + (o.h != null ? o.h : o.t) + '</div>';
+  }).join('');
+  log.innerHTML = html;
 
-  var flash = document.getElementById('flash');
-  var assembled = (seenD && seenL) || visits >= 4;
-
-  if(assembled){
-    flash.textContent = FRAG_DARK + " " + FRAG_LIGHT;
-    flash.style.color = dark ? '#c8c8c8' : '#333';
-    flash.style.whiteSpace = 'normal';
-    flash.style.maxWidth = '80vw';
-  }else{
-    flash.textContent = dark ? FRAG_DARK : FRAG_LIGHT;
-    setTimeout(function(){ if(flash && flash.parentNode) flash.parentNode.removeChild(flash); }, 1150);
-  }
+  // the spinner text never resolves
+  var tries = 0;
+  setInterval(function(){
+    tries++;
+    document.getElementById('sub').textContent = 'This should only take a moment. (attempt ' + tries + ')';
+  }, 1400);
+  document.getElementById('click').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('sub').textContent = '/safe returned 000. see the log below.';
+  });
 })();
 </script>
 </body>

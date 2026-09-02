@@ -34,7 +34,7 @@
   wrote that down because it is what he said, not because I believe the second
   half of it. <!-- TEXT: Max --></p>
 
-  <p class="mili" id="mili"></p>
+  <div class="mili-slot">MILIGLOSSAS: Max &mdash; one short line, pressed hard<br>&mdash; &ldquo;it is not surfacing, it is being brought&rdquo; &mdash;</div>
 
   <div class="xrefs">
     <span class="lead">he cross-refs</span>
@@ -54,12 +54,12 @@
 
 <script src="ledger.js"></script>
 <script src="cipher.js"></script>
+<script src="hand.js"></script>
 <script>
 LG.initPage('p213');
 var ok213 = !(LG.PAGES.p213.sealed && LG.PAGES.p213.sealed());
 document.getElementById(ok213 ? 'body' : 'sealed').hidden = false;
 LG.wireXrefs(document);
-if(ok213) document.getElementById('mili').innerHTML = CIPHER.miliText('it is not surfacing it is being brought');
 </script>
 </body>
 </html>

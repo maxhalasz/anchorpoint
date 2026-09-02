@@ -22,6 +22,16 @@
   --tape:rgba(214,192,138,.5);
   --seal:#6c1a11;
   --rule:#b39c6c;
+  --ink-green:#3c5237;
+  --ink-black:#1e1a14;
+  --ink-pencil:#463f31;
+
+  /* TEXTURE SLOTS — swap these for Max's real PNG scans (url("../img/xxx.png")).
+     Left as procedural noise for now. */
+  --tex-paper: var(--fibre-a);
+  --tex-desk:  var(--felt);
+  --tex-tape:  none;
+  --tex-stain: var(--stain);
 
   /* stacked grain: two frequencies of paper fibre */
   --fibre-a:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.40 0 0 0 0 0.31 0 0 0 0 0.17 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
@@ -39,7 +49,7 @@ body{
   font-family:'Special Elite','Courier New',monospace;
   background:
     radial-gradient(ellipse at 50% 26%, rgba(86,110,58,.10), transparent 55%),
-    var(--felt),
+    var(--tex-desk),
     repeating-linear-gradient(94deg, rgba(0,0,0,.06) 0 3px, transparent 3px 7px),
     linear-gradient(175deg, var(--desk-2), var(--desk) 55%, #030601);
   background-color:#040702;
@@ -59,9 +69,9 @@ a{color:var(--blue)}
     radial-gradient(circle at 88% 62%, rgba(110,74,30,.28), transparent 24%),
     radial-gradient(circle at 58% 94%, rgba(120,84,36,.22), transparent 18%),
     radial-gradient(circle at 40% 44%, rgba(96,64,26,.14), transparent 30%),
-    var(--stain),
+    var(--tex-stain),
     var(--fibre-b),
-    var(--fibre-a),
+    var(--tex-paper),
     linear-gradient(180deg, var(--paper-hi), var(--paper) 38%, var(--paper-lo));
   border:1px solid var(--paper-deep);
   box-shadow:
@@ -114,9 +124,16 @@ a{color:var(--blue)}
 .hw img{display:block;width:100%;filter:sepia(.22) contrast(.96)}
 
 /* ---------- ink registers ---------- */
-.hand{font-family:'Kalam','Caveat',cursive;font-weight:300;font-size:18px;line-height:1.6;color:var(--blue)}
+.hand{font-family:'Caveat',cursive;font-weight:500;font-size:22px;line-height:1.5;color:var(--blue);
+  font-feature-settings:'calt' 1;letter-spacing:.2px}
 .hand.red{color:var(--red)}
-.hand.pencil{color:#463f31}
+.hand.pencil{color:var(--ink-pencil)}
+.hand.green{color:var(--ink-green)}
+.hand.black{color:var(--ink-black)}
+.hand .g,.margin .g,.correction .fix .g{
+  display:inline-block;
+  transform:rotate(var(--r,0)) translateY(var(--y,0)) scale(var(--s,1));
+  font-weight:var(--w,inherit);opacity:var(--o,1)}
 .type-red{color:var(--red)}
 .circled{position:relative;display:inline-block;padding:0 4px}
 .circled::after{content:"";position:absolute;inset:-6px -9px;border:2px solid var(--red);
@@ -162,6 +179,13 @@ a{color:var(--blue)}
 .clip{position:absolute;top:-14px;left:40px;width:22px;height:54px;border:3px solid #8b8b8b;
   border-radius:11px;border-bottom-color:transparent;transform:rotate(8deg);
   box-shadow:0 2px 3px rgba(0,0,0,.35)}
+.staple{position:absolute;width:20px;height:9px;border:2px solid #7a7a7a;border-bottom:0;
+  box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.staple.tl{top:12px;left:14px;transform:rotate(-18deg)}
+.staple.tr{top:12px;right:14px;transform:rotate(14deg)}
+.wax{position:absolute;width:44px;height:44px;border-radius:48% 52% 55% 45%/50% 46% 54% 50%;
+  background:radial-gradient(circle at 38% 34%,#a2321f,#5c150c 72%);
+  box-shadow:0 2px 6px rgba(0,0,0,.5), inset 0 -4px 6px rgba(0,0,0,.4)}
 
 /* a taped-in clipping */
 .clipping{background:#efe9d6;border:1px solid #cabf9e;padding:12px 14px;margin:14px 0;position:relative;
@@ -189,6 +213,9 @@ a{color:var(--blue)}
 .gsp{display:inline-block;width:10px}
 .cipherline{line-height:1;margin:4px 0}
 .mili{color:var(--blue);line-height:1;letter-spacing:2px}
+.mili-slot{margin:14px 0;padding:22px 16px;border:1px dashed var(--red-soft);
+  color:var(--ink-soft);font:11px/1.6 'IM Fell English SC',serif;letter-spacing:2px;text-align:center;
+  background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(124,43,28,.05) 8px 16px)}
 
 /* ---------- back to the pile ---------- */
 .backlink{position:fixed;top:14px;left:16px;z-index:30;font-size:12px;letter-spacing:1px;
@@ -197,7 +224,7 @@ a{color:var(--blue)}
 
 /* ---------- the index card (search), clipped to the corner ---------- */
 .indexcard{position:fixed;right:14px;bottom:14px;z-index:40;width:270px;
-  background-color:var(--paper);background-image:var(--fibre-a);
+  background-color:var(--paper);background-image:var(--tex-paper);
   border:1px solid var(--paper-deep);padding:10px 12px;
   box-shadow:0 14px 34px rgba(0,0,0,.55);transform:rotate(1.4deg)}
 .indexcard .clip{top:-16px;left:auto;right:26px}
