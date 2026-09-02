@@ -8,49 +8,73 @@
 <style>
   html,body{margin:0;background:#000}
   body{
-    height:120000px;                 /* absolutely massive. this is the rest of your life. */
-    overflow-x:hidden;
-    position:relative;
-    color:#fff;
+    height:152000px;               /* this is the rest of your life */
+    overflow-x:hidden;position:relative;
+    color:#b4b4b4;
     font-family:"Courier New",Courier,monospace;
     cursor:default;
   }
-  /* no hint that there is anything to scroll */
   body::-webkit-scrollbar{width:0;height:0}
   body{scrollbar-width:none}
 
-  /* messages sit in the corners at ~2px — a few pale pixels unless you zoom in */
+  /* ~2px, a smudge of pale pixels unless you zoom in. hidden until scrolled to. */
   .spk{
-    position:absolute;
-    font-size:2px;line-height:2.4px;letter-spacing:0;white-space:pre;
-    color:#ffffff;user-select:text;
+    position:absolute;font-size:2px;line-height:2.6px;letter-spacing:0;white-space:pre;
+    color:#b4b4b4;opacity:0;transition:opacity 1.6s ease;
   }
-  .spk a{color:#fff;text-decoration:none}
-  .spk::selection,.spk a::selection{background:#b71c1c;color:#fff}
+  .spk.on{opacity:1}
+  .spk::selection{background:#b71c1c;color:#fff}
 
-  /* invisible until you drag-select the void */
-  .buried{position:absolute;top:60px;left:6px;font-size:13px;color:#000;letter-spacing:2px;text-decoration:none}
+  /* the word, faint, for anyone who drag-selects the void near the end */
+  .buried{position:absolute;top:150800px;left:8px;font-size:12px;color:#050505;letter-spacing:3px}
   .buried::selection{background:#b71c1c;color:#fff}
+
+  #done{position:fixed;inset:0;background:#000;color:#b4b4b4;display:none;
+    align-items:center;justify-content:center;font-size:13px;letter-spacing:3px}
 </style>
 </head>
 <body>
 
-  <!-- TEXT: Max — a few pale pixels in a corner at 100%; readable only zoomed -->
-  <span class="spk" style="top:14px;right:10px;text-align:right">Stuck in one body. Stuck in one mind.</span>
+  <!-- TEXT: Max — four separate lines, spread down the drop -->
+  <span class="spk" style="top:9000px;left:11%">Stuck in one body.</span>
+  <span class="spk" style="top:35000px;right:13%;text-align:right">Stuck in one mind.</span>
+  <span class="spk" style="top:67000px;left:9%">For the rest of your life.</span>
+  <span class="spk" style="top:100000px;right:10%;text-align:right">This is the rest of your life.</span>
+  <span class="spk" style="top:129000px;left:14%">No door on this side either.</span>
+  <span class="spk" style="top:147000px;left:50%;transform:translateX(-50%)">you keep doing it &mdash; the only thing here you still choose without choosing.</span>
 
-  <span class="spk" style="top:38000px;left:12px">For the rest of your life.
-This is the rest of your life.</span>
+  <span class="buried">blink</span>
 
-  <span class="spk" style="top:78000px;right:14px;text-align:right">no door on this side either.</span>
+  <div id="done">&hellip;</div>
 
-  <!-- the way out, at the very end of it -->
-  <span class="spk" style="top:119940px;left:50%;transform:translateX(-50%)"><a href="feed.html">— out —</a></span>
-
-  <!-- if you would rather not scroll the whole life: feed.html -->
-  <a class="buried" href="feed.html">keep going</a>
-
+  <!-- no handle, no link. one word, typed. you just did it. and again. -->
 <script>
+(function(){
   try{ var v=(parseInt(localStorage.getItem('st_visits'),10)||0)+1; localStorage.setItem('st_visits',String(v)); }catch(e){}
+
+  // messages fade in as they scroll into view
+  var seen = document.querySelectorAll('.spk');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('on'); });
+    }, { rootMargin: '0px 0px -20% 0px' });
+    seen.forEach(function(s){ io.observe(s); });
+  } else {
+    seen.forEach(function(s){ s.classList.add('on'); });
+  }
+
+  // type the word. no field. anywhere.
+  var TARGET = 'blink';   // TEXT: Max
+  var buf = '';
+  window.addEventListener('keydown', function(e){
+    if(e.key && e.key.length === 1) buf = (buf + e.key.toLowerCase()).slice(-12);
+    if(buf.indexOf(TARGET) !== -1){
+      var d = document.getElementById('done');
+      d.style.display = 'flex';
+      setTimeout(function(){ location.href = 'feed.html'; }, 650);
+    }
+  });
+})();
 </script>
 </body>
 </html>

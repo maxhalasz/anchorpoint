@@ -5,7 +5,7 @@
    the connective tissue around it (page numbers, cross-refs, redaction).
    ========================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&family=Kalam:wght@300;400;700&family=Caveat:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&family=Shadows+Into+Light+Two&family=Reenie+Beanie&family=Caveat:wght@500;700&display=swap');
 
 :root{
   --desk:#070d05;
@@ -90,26 +90,27 @@ a{color:var(--blue)}
   background-color:var(--paper);
   background-image:linear-gradient(180deg, var(--paper-hi), var(--paper) 40%, var(--paper-lo));
   border:1px solid var(--paper-deep);
-  /* light from top-left: short contact shadow, mid, long soft — plus a warm rim */
+  /* light from top-left. tight contact shadow + progressively softer/longer
+     cast shadow offset bottom-right + a faint warm bounce on the lit side */
   box-shadow:
-    0 1px 0 rgba(255,255,255,.28) inset,
-    0 2px 4px rgba(0,0,0,.35),
-    -6px 14px 26px rgba(0,0,0,.4),
-    -14px 40px 80px rgba(0,0,0,.55),
-    -22px 70px 130px rgba(0,0,0,.45),
-    18px 20px 60px rgba(255,234,196,.04);
+    0 1px 0 rgba(255,255,255,.3) inset,
+    0 2px 3px rgba(0,0,0,.45),
+    7px 10px 20px rgba(0,0,0,.42),
+    16px 34px 60px rgba(0,0,0,.5),
+    30px 66px 120px rgba(0,0,0,.42),
+    -14px -8px 40px rgba(255,236,198,.05);
 }
-/* under the text: the paper scan + fibre, gently */
+/* under the text: directional surface light + the paper scan + fibre */
 .leaf::before{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:
-    linear-gradient(120deg, rgba(255,246,222,.16), transparent 42%),   /* the lit edge */
+    linear-gradient(125deg, rgba(255,248,226,.2), transparent 36%, rgba(52,34,14,.12) 96%),
     var(--tex-paper),
     var(--fibre-b),
     var(--fibre-a);
   background-size:100% 100%, cover, auto, auto;
   background-repeat:no-repeat, no-repeat, repeat, repeat;
-  background-blend-mode:screen, soft-light, overlay, overlay;
+  background-blend-mode:soft-light, soft-light, overlay, overlay;
 }
 /* over everything, handwriting included: the aging */
 .leaf::after{
@@ -174,16 +175,18 @@ a{color:var(--blue)}
 .hw img{display:block;width:100%;filter:sepia(.22) contrast(.96)}
 
 /* ---------- ink registers ---------- */
-.hand{font-family:'Caveat',cursive;font-weight:500;font-size:22px;line-height:1.5;color:var(--blue);
-  font-feature-settings:'calt' 1;letter-spacing:.2px}
+.hand{font-family:'Shadows Into Light Two','Caveat',cursive;font-size:19px;line-height:1.62;color:var(--blue);
+  letter-spacing:.3px}
 .hand.red{color:var(--red)}
 .hand.pencil{color:var(--ink-pencil)}
 .hand.green{color:var(--ink-green)}
 .hand.black{color:var(--ink-black)}
+/* per-word drift wraps per-char jitter */
+.hand .w,.margin .w{display:inline-block;transform:translateY(var(--wy,0)) rotate(var(--wr,0))}
 .hand .g,.margin .g,.correction .fix .g{
   display:inline-block;
   transform:rotate(var(--r,0)) translateY(var(--y,0)) scale(var(--s,1));
-  font-weight:var(--w,inherit);opacity:var(--o,1)}
+  font-weight:var(--w,inherit);opacity:var(--o,1);letter-spacing:var(--ls,inherit)}
 .type-red{color:var(--red)}
 .circled{position:relative;display:inline-block;padding:0 4px}
 .circled::after{content:"";position:absolute;inset:-6px -9px;border:2px solid var(--red);
