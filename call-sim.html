@@ -111,8 +111,8 @@
     for(var k=0;k<3;k++){
       var s=tnow+k*6;
       g.gain.setValueAtTime(0.0001,s);
-      g.gain.linearRampToValueAtTime(0.18,s+0.05);
-      g.gain.setValueAtTime(0.18,s+2);
+      g.gain.linearRampToValueAtTime(0.55,s+0.05);
+      g.gain.setValueAtTime(0.55,s+2);
       g.gain.linearRampToValueAtTime(0.0001,s+2.05);
     }
     return function stop(){ try{o.stop();o2.stop();}catch(e){} };
@@ -120,22 +120,22 @@
   function roomTone(ac,master){
     var o1=ac.createOscillator(); o1.type='sine'; o1.frequency.value=55;
     var o2=ac.createOscillator(); o2.type='sine'; o2.frequency.value=55.7;
-    var od=ac.createGain(); od.gain.value=0.5; o1.connect(od); o2.connect(od);
+    var od=ac.createGain(); od.gain.value=0.8; o1.connect(od); o2.connect(od);
     var nb=ac.createBufferSource(), buf=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate), ch=buf.getChannelData(0);
-    for(var i=0;i<ch.length;i++) ch[i]=(Math.random()*2-1)*0.35;
+    for(var i=0;i<ch.length;i++) ch[i]=(Math.random()*2-1)*0.5;
     nb.buffer=buf; nb.loop=true;
     var bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=500; bp.Q.value=0.7;
-    var ng=ac.createGain(); ng.gain.value=0.10; nb.connect(bp); bp.connect(ng);
+    var ng=ac.createGain(); ng.gain.value=0.3; nb.connect(bp); bp.connect(ng);
     var p=ac.createOscillator(); p.type='sine'; p.frequency.value=0.5;
-    var pg=ac.createGain(); pg.gain.value=0.3; p.connect(pg);
+    var pg=ac.createGain(); pg.gain.value=0.45; p.connect(pg);
     var m=ac.createGain(); m.gain.value=0; od.connect(m); ng.connect(m); m.connect(master); pg.connect(m.gain);
     o1.start();o2.start();nb.start();p.start();
-    m.gain.linearRampToValueAtTime(0.2, ac.currentTime+1.2);
+    m.gain.linearRampToValueAtTime(0.65, ac.currentTime+1.2);
   }
   function startAudio(){
     try{
       var Ctx=window.AudioContext||window.webkitAudioContext, ac=new Ctx();
-      var master=ac.createGain(); master.gain.value=0.9; master.connect(ac.destination);
+      var master=ac.createGain(); master.gain.value=1.0; master.connect(ac.destination);
       audio={ac:ac,master:master,stopRing:ring(ac,master)};
     }catch(e){ audio=null; }
   }
@@ -166,10 +166,10 @@
     pad.classList.remove('live');
     nameEl.textContent='Call Ended';
     stateEl.textContent = t0 ? fmt(Math.floor((Date.now()-t0)/1000)) : '0:00';
-    setTimeout(function(){          // hard cut straight back — no fade
+    setTimeout(function(){          // hold on "Call Ended", then hard cut back — no fade
       if(history.length > 1) history.back();
       else location.href='index.html';
-    }, 700);
+    }, 3200);
   }
 
   endBtn.addEventListener('click', endCall);
