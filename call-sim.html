@@ -166,9 +166,14 @@
     pad.classList.remove('live');
     nameEl.textContent='Call Ended';
     stateEl.textContent = t0 ? fmt(Math.floor((Date.now()-t0)/1000)) : '0:00';
-    setTimeout(function(){          // hold on "Call Ended", then hard cut back — no fade
-      if(history.length > 1) history.back();
-      else location.href='index.html';
+    setTimeout(function(){          // hold on "Call Ended", quick black, then hard cut back
+      var k = document.createElement('div');
+      k.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999';
+      document.body.appendChild(k);
+      setTimeout(function(){
+        if(history.length > 1) history.back();
+        else location.href='index.html';
+      }, 160);
     }, 3200);
   }
 

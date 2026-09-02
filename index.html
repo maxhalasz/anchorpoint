@@ -24,6 +24,7 @@
     display:flex;align-items:center;gap:14px}
   .banner .mark{height:56px;width:auto;display:block}
   .banner h1{margin:0;font-size:30px;color:#2e5d3b;letter-spacing:1px}
+  .banner .tag{font-style:italic;font-size:14px;color:#4a7c59;margin-top:2px}
 
   table.layout{width:100%;border-collapse:collapse}
   td.side{width:196px;vertical-align:top;background:#e2ecdb;border-right:2px solid #2e5d3b;padding:14px 12px}
@@ -96,16 +97,21 @@
   body.pd .navlink.act:hover{background:#1c3a25}
   body.pd .btn.buy{background:#2e5d3b;border-color:#1c3a25;color:#fff}
 
+  #blink{position:fixed;inset:0;background:#000;z-index:100000}
   #eyes{position:fixed;inset:0;z-index:9999;background:#000;overflow:hidden}
   #eyes img{position:absolute;pointer-events:none}
   @keyframes eyeflick{from{opacity:var(--lo,.1)}to{opacity:var(--hi,.4)}}
 </style>
 </head>
 <body>
+  <div id="blink"></div>
 
   <div class="banner">
     <img class="mark" src="img/anchor.png" alt="">
-    <h1 id="siteName">AnchorPoint</h1>
+    <div>
+      <h1 id="siteName">AnchorPoint</h1>
+      <div class="tag">Some things arrive only if you write them down.</div>
+    </div>
   </div>
 
   <table class="layout"><tr>
@@ -115,7 +121,7 @@
       <a class="navlink act" href="#">Home</a>
       <a class="navlink" href="#support">Find Support</a>
       <a class="navlink" href="#" id="navDonate">Donate</a>
-      <a class="navlink" href="#" id="navTeam">Join the Team</a>
+      <a class="navlink" href="#team">Join the Team</a>
       <a class="navlink" href="#about">About</a>
     </div></div>
 
@@ -161,6 +167,13 @@
       <p id="thanksSlot"></p>
     </div></div>
 
+    <div class="box" id="team"><div class="bar">Be a part of the team</div><div class="in">
+      <p>We appreciate your interest and your goodwill, but here at AnchorPoint we are already
+      operating at maximum capacity. Check with one of the other organizations:</p>
+      <p><a href="https://www.nami.org" target="_blank" rel="noopener">National Alliance on Mental Illness (NAMI)</a> &rarr; www.nami.org<br>
+      <a href="https://www.cdc.gov" target="_blank" rel="noopener">Mental Health Resources | Mental Health | CDC</a> &rarr; www.cdc.gov</p>
+    </div></div>
+
     <div class="box"><div class="bar">Donations</div><div class="in">
       <p>AnchorPoint runs on very little. If this page has been worth something to you, you can
       give back through the following link. If it has not, keep your money. Not affiliated with
@@ -184,7 +197,7 @@
         <li>For people aged 15 to 29, suicide is one of the top causes of death.</li>
         <li>The typical delay between first symptoms and first treatment is about a decade.</li>
         <li>Most people improve with support &mdash; plain support, not necessarily treatment.</li>
-        <li>Reaching out once makes reaching out again easier.</li>
+        <li>Reaching out once makes reaching out again easier. Blink for one second and it might just be gone.</li>
       </ul>
     </div></div>
 
@@ -214,16 +227,6 @@
     </div>
   </div></div>
 
-  <div class="overlay" id="ovTeam"><div class="dialog">
-    <div class="tb"><span>AnchorPoint &mdash; volunteering</span><button data-close>&times;</button></div>
-    <div class="content">
-      <p>Thank you for wanting to help. AnchorPoint is one person, and it is at capacity right now.</p>
-      <p>These groups are not:</p>
-      <p><a href="https://www.nami.org/" target="_blank" rel="noopener">National Alliance on Mental Illness</a><br>
-      <a href="https://www.cdc.gov/mental-health/caring/index.html" target="_blank" rel="noopener">CDC &mdash; Mental Health</a></p>
-    </div>
-  </div></div>
-
   <div class="overlay" id="ovImg"><div class="dialog big">
     <div class="tb"><span id="imgTitle">Image</span><button data-close>&times;</button></div>
     <div class="content"><div class="bigimg" id="bigimg">image</div></div>
@@ -240,6 +243,12 @@
   var LS;
   try{ LS = window.localStorage; var t='__ap'; LS.setItem(t,'1'); LS.removeItem(t); }
   catch(e){ LS = null; }
+
+  // fast black flash on every load, so a real reload is unmistakable
+  setTimeout(function(){
+    var b = document.getElementById('blink');
+    if(b && b.parentNode) b.parentNode.removeChild(b);
+  }, 120);
 
   // hidden cadence: 7-10 normal loads, then 2 shown as "DreamScape", repeat forever
   function newGap(){ return 7 + Math.floor(Math.random()*4); }   // 7..10 inclusive
@@ -326,7 +335,6 @@
 
   document.getElementById('navDonate').addEventListener('click', function(e){ e.preventDefault(); openOv('ovDonate'); });
   document.getElementById('openDonate').addEventListener('click', function(){ openOv('ovDonate'); });
-  document.getElementById('navTeam').addEventListener('click', function(e){ e.preventDefault(); openOv('ovTeam'); });
   document.getElementById('notAlone').addEventListener('click', function(e){ e.preventDefault(); openOv('ovNext'); });
 
   document.querySelectorAll('#donateBody [data-pay]').forEach(function(b){
