@@ -10,89 +10,79 @@
     font-family:"Times New Roman",Times,serif;color:#e7dbd3;cursor:default}
 
   #room{position:fixed;inset:0;background:#040303;
-    animation:sway 27s ease-in-out infinite alternate;transition:filter 2.6s ease}
+    animation:sway 29s ease-in-out infinite alternate;transition:filter 2.6s ease}
   @keyframes sway{0%{transform:translate(-4px,2px) rotate(-.1deg)}100%{transform:translate(4px,-2px) rotate(.1deg)}}
 
-  /* deep dirty vignette */
-  .void{position:absolute;inset:0;background:radial-gradient(135% 100% at 50% 44%,#150f10 0%,#0a0708 42%,#020102 80%)}
+  /* deep vignette */
+  .void{position:absolute;inset:0;background:radial-gradient(135% 100% at 50% 44%,#160f10 0%,#0a0708 42%,#020102 80%)}
   .void::after{content:"";position:absolute;inset:0;
-    box-shadow:inset 0 0 42vw 18vw #000, inset 0 0 14vw 5vw #000;animation:vig 17s ease-in-out infinite}
+    box-shadow:inset 0 0 42vw 18vw #000, inset 0 0 14vw 5vw #000;animation:vig 18s ease-in-out infinite}
   @keyframes vig{0%,100%{opacity:.92}50%{opacity:1}}
   #room.narrowed .void::after{box-shadow:inset 0 0 50vw 30vw #000, inset 0 0 22vw 14vw #000}
 
-  /* a low dirty glow on a failing circuit */
-  .glow{position:absolute;left:50%;top:57%;width:58vw;height:56vh;transform:translate(-50%,-50%);
+  /* cracked-wall grime over everything */
+  .grime{position:absolute;inset:-12%;background:url("img/tex/ds-grime.jpg") center/cover no-repeat;
+    mix-blend-mode:overlay;opacity:.26;animation:grime 140s linear infinite}
+  @keyframes grime{from{transform:scale(1.05) translate(-2%,-1%)}to{transform:scale(1.14) translate(2%,1%)}}
+
+  /* failing warm glow */
+  .glow{position:absolute;left:50%;top:56%;width:58vw;height:56vh;transform:translate(-50%,-50%);
     background:radial-gradient(closest-side,rgba(255,190,120,.16),rgba(230,140,90,.05) 46%,transparent 72%);
     mix-blend-mode:screen;animation:buzz 7.3s linear infinite}
   @keyframes buzz{0%,4%,4.5%,33%,33.4%,68%,68.7%,100%{opacity:.9}
     4.2%{opacity:.22}33.2%{opacity:.48}68.4%{opacity:.12}80%{opacity:1}80.5%{opacity:.55}}
   #room.narrowed .glow{width:22vw;height:24vh;transition:width 3.2s ease,height 3.2s ease}
 
-  /* clouded, drifting murk over everything — real texture, not a gradient */
-  .murk{position:absolute;inset:-40%;mix-blend-mode:multiply;opacity:.55;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.06  0 0 0 0 0.05  0 0 0 0 0.05  0 0 0 1.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
-    background-size:900px 900px;animation:murk 120s linear infinite}
-  @keyframes murk{from{transform:translate(-6%,-3%) scale(1.05)}to{transform:translate(6%,3%) scale(1.12)}}
+  /* fog = blurred plaster, two layers drifting */
+  .murk{position:absolute;inset:-25%;background:url("img/tex/ds-murk.jpg") center/cover no-repeat;
+    filter:blur(9px) brightness(1.15);mix-blend-mode:screen;opacity:.42;animation:mk1 96s linear infinite}
+  .murk2{position:absolute;inset:-30%;background:url("img/tex/ds-murk2.jpg") center/cover no-repeat;
+    filter:blur(15px) brightness(1.1);mix-blend-mode:screen;opacity:.32;animation:mk2 138s linear infinite}
+  @keyframes mk1{from{transform:translate(-7%,-2%) scale(1.1)}to{transform:translate(7%,2%) scale(1.18)}}
+  @keyframes mk2{from{transform:translate(6%,3%) scale(1.15)}to{transform:translate(-6%,-3%) scale(1.22)}}
 
-  /* smoke that only shows in the glow */
-  .smoke{position:absolute;inset:-15%;mix-blend-mode:screen;opacity:.45;pointer-events:none}
+  /* soft volume between the layers */
+  .smoke{position:absolute;inset:-15%;mix-blend-mode:screen;opacity:.4;pointer-events:none}
   .smoke i{position:absolute;inset:0}
-  .smoke i:nth-child(1){background:radial-gradient(44% 40% at 50% 56%,rgba(200,188,182,.14),transparent 70%);animation:drift 61s linear infinite}
-  .smoke i:nth-child(2){background:radial-gradient(38% 48% at 44% 42%,rgba(188,180,180,.11),transparent 72%);animation:drift 88s linear infinite reverse}
-  .smoke i:nth-child(3){background:radial-gradient(52% 44% at 58% 62%,rgba(205,196,192,.09),transparent 74%);animation:drift 112s linear infinite}
+  .smoke i:nth-child(1){background:radial-gradient(44% 40% at 50% 56%,rgba(200,188,182,.14),transparent 70%);animation:drift 63s linear infinite}
+  .smoke i:nth-child(2){background:radial-gradient(38% 48% at 44% 42%,rgba(188,180,180,.1),transparent 72%);animation:drift 92s linear infinite reverse}
   @keyframes drift{from{transform:translate(-8%,2%)}to{transform:translate(8%,-2%)}}
 
-  /* the thing standing where the glow stops — a wound, warped by turbulence */
-  .figure{position:absolute;left:50%;top:50%;transform:translate(-50%,-54%);
-    width:150px;height:340px;pointer-events:none;
-    filter:url(#warp) blur(2.2px) contrast(1.14) brightness(.82)}
-  .figure b{position:absolute;inset:0;display:block;
-    background:
-      radial-gradient(52% 40% at 50% 16%,#2a1a1b 0 34%,transparent 72%),
-      radial-gradient(34% 26% at 40% 52%,rgba(120,74,66,.55),transparent 60%),
-      radial-gradient(30% 20% at 64% 66%,rgba(78,64,58,.5),transparent 62%),
-      radial-gradient(24% 30% at 52% 82%,rgba(60,40,38,.6),transparent 66%),
-      linear-gradient(180deg,#1a1113 0%,#2a1a1c 55%,#0c0809 100%);
-    border-radius:44% 44% 30% 30%/20% 20% 12% 12%;
-    animation:writhe 19s ease-in-out infinite alternate}
-  .figure b:nth-child(2){mix-blend-mode:screen;opacity:.3;animation:writhe 19s ease-in-out infinite alternate-reverse}
-  @keyframes writhe{0%{transform:skewX(-2deg) scale(1)}
-    50%{transform:skewX(1.6deg) scaleY(.985) translateX(4px)}
-    100%{transform:skewX(-1deg) scaleY(1.012)}}
+  /* the face in the fog — darkened, warped, mixed in */
+  .figure{position:absolute;left:50%;top:47%;width:46vmin;height:46vmin;transform:translate(-50%,-50%);
+    background:url("img/tex/ds-figure.png") center/contain no-repeat;
+    filter:url(#warp) blur(1.6px) brightness(.72) contrast(1.05);
+    mix-blend-mode:screen;opacity:.55;animation:breathe 21s ease-in-out infinite alternate}
+  @keyframes breathe{0%{transform:translate(-50%,-50%) scale(1) skewX(-.6deg)}
+    100%{transform:translate(-50%,-51%) scale(1.03) skewX(.5deg)}}
 
-  /* wet black floor catching the glow */
-  .wet{position:absolute;left:0;right:0;bottom:0;height:34vh;
-    background:linear-gradient(180deg,transparent,rgba(255,190,130,.05) 60%,rgba(255,200,150,.08));
-    mix-blend-mode:screen}
-  .wet::after{content:"";position:absolute;left:0;right:0;bottom:0;height:100%;
-    background:repeating-linear-gradient(0deg,rgba(0,0,0,.5) 0 2px,transparent 2px 5px);opacity:.25}
-
-  /* a suggestion of dark folds at the edges */
   .fold{position:absolute;top:0;bottom:0;width:15vw;pointer-events:none;z-index:2}
-  .fold.l{left:0;background:linear-gradient(90deg,#050303 0 16%,rgba(34,10,12,.42) 42%,transparent);
+  .fold.l{left:0;background:linear-gradient(90deg,#050303 0 16%,rgba(30,10,12,.4) 42%,transparent);
     box-shadow:inset 20px 0 55px rgba(0,0,0,.7)}
-  .fold.r{right:0;transform:scaleX(-1);background:linear-gradient(90deg,#050303 0 16%,rgba(34,10,12,.42) 42%,transparent);
+  .fold.r{right:0;transform:scaleX(-1);background:linear-gradient(90deg,#050303 0 16%,rgba(30,10,12,.4) 42%,transparent);
     box-shadow:inset 20px 0 55px rgba(0,0,0,.7)}
 
-  /* grain */
-  .grain{position:fixed;inset:-30%;z-index:6;pointer-events:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-  .grain.g1{opacity:.09;mix-blend-mode:overlay;animation:gr1 .4s steps(2) infinite}
-  .grain.g2{opacity:.06;mix-blend-mode:soft-light;background-size:240px 240px;animation:gr2 .85s steps(3) infinite}
-  @keyframes gr1{0%{transform:translate(0,0)}50%{transform:translate(-7px,5px)}100%{transform:translate(5px,-4px)}}
-  @keyframes gr2{0%{transform:translate(0,0)}33%{transform:translate(8px,-6px)}66%{transform:translate(-5px,7px)}100%{transform:translate(3px,3px)}}
+  /* film grain — real plate, stepped translate */
+  .grain{position:fixed;left:-100%;top:-100%;width:300%;height:300%;z-index:6;pointer-events:none;
+    background:url("img/tex/ds-grain.jpg");will-change:transform}
+  .grain.g1{opacity:.16;mix-blend-mode:overlay;background-size:300px 300px;animation:grain 1.1s steps(6) infinite}
+  .grain.g2{opacity:.09;mix-blend-mode:soft-light;background-size:520px 520px;animation:grain 2.3s steps(5) infinite reverse}
+  @keyframes grain{
+    0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-10%)}20%{transform:translate(-14%,5%)}
+    30%{transform:translate(7%,-24%)}40%{transform:translate(-5%,24%)}50%{transform:translate(-14%,10%)}
+    60%{transform:translate(14%,0)}70%{transform:translate(0,14%)}80%{transform:translate(3%,32%)}
+    90%{transform:translate(-9%,9%)}}
 
   #fx{position:fixed;inset:0;z-index:7;pointer-events:none}
 
-  .stage{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);z-index:8;
+  .stage{position:fixed;left:50%;top:35%;transform:translate(-50%,-50%);z-index:8;
     width:min(640px,84vw);text-align:center;pointer-events:none}
-  /* every line reads back-to-front */
   .line{font-size:23px;line-height:1.62;letter-spacing:.02em;color:#f3eae2;min-height:3.4em;
     transform:scaleX(-1);
-    text-shadow:-1.6px 0 rgba(255,20,70,.4),1.6px 0 rgba(30,170,255,.32),0 2px 7px rgba(0,0,0,.95);
+    text-shadow:-1.6px 0 rgba(255,20,70,.4),1.6px 0 rgba(30,170,255,.32),0 2px 8px rgba(0,0,0,.96);
     opacity:0;transition:opacity 1.5s ease;animation:ab 3.9s ease-in-out infinite}
-  @keyframes ab{0%,100%{text-shadow:-1.6px 0 rgba(255,20,70,.4),1.6px 0 rgba(30,170,255,.32),0 2px 7px rgba(0,0,0,.95)}
-    50%{text-shadow:-2.7px 0 rgba(255,20,70,.5),2.7px 0 rgba(30,170,255,.4),0 2px 7px rgba(0,0,0,.95)}}
+  @keyframes ab{0%,100%{text-shadow:-1.6px 0 rgba(255,20,70,.4),1.6px 0 rgba(30,170,255,.32),0 2px 8px rgba(0,0,0,.96)}
+    50%{text-shadow:-2.7px 0 rgba(255,20,70,.5),2.7px 0 rgba(30,170,255,.4),0 2px 8px rgba(0,0,0,.96)}}
   .line.on{opacity:.96}
 
   .ways{position:fixed;left:0;right:0;bottom:5vh;z-index:9;text-align:center;
@@ -110,17 +100,18 @@
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute"><filter id="warp">
-    <feTurbulence type="fractalNoise" baseFrequency="0.013 0.028" numOctaves="3" seed="11" result="t"/>
-    <feDisplacementMap in="SourceGraphic" in2="t" scale="26" xChannelSelector="R" yChannelSelector="G"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.026" numOctaves="3" seed="11" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="22" xChannelSelector="R" yChannelSelector="G"/>
   </filter></svg>
 
   <div id="room">
     <div class="void"></div>
+    <div class="grime"></div>
     <div class="glow"></div>
     <div class="murk"></div>
-    <div class="smoke"><i></i><i></i><i></i></div>
-    <div class="figure"><b></b><b></b></div>
-    <div class="wet"></div>
+    <div class="murk2"></div>
+    <div class="smoke"><i></i><i></i></div>
+    <div class="figure"></div>
     <div class="fold l"></div>
     <div class="fold r"></div>
   </div>
@@ -140,14 +131,13 @@
   the thin place. type it.</span>
 
 <!-- dreamscape. the way to notcrazy is sealed until you name the officer who signed the
-     1983 "Analysis and Assessment of Gateway Process". research puzzle. -->
+     1983 "Analysis and Assessment of Gateway Process". research puzzle. re-seals every visit. -->
 <script>
 (function(){
   var room = document.getElementById('room'),
       line = document.getElementById('line'),
       toward = document.getElementById('toward');
 
-  // ---- oblique text, all of it back-to-front. no lore. TEXT: Max ----
   var LINES = [
     "You come here on the nights the count skips.",
     "The room is the shape of a room you keep trying to describe to someone.",
@@ -171,7 +161,7 @@
   }
   setTimeout(function(){ idx = 0; show(0); setTimeout(cycle, 7800); }, 900);
 
-  // ---- the seal: name the officer. NOT persisted — it re-seals every visit. ----
+  // the seal. not persisted — re-seals every visit.
   var solved = false;
   function openThinPlace(){
     solved = true;
@@ -179,7 +169,6 @@
     toward.hidden = false;
     flash();
   }
-
   var buf = '';
   var KEYS = ['mcdonnell','mc donnell','wayne mcdonnell','w mcdonnell','wayne m mcdonnell'];
   window.addEventListener('keydown', function(e){
@@ -188,7 +177,6 @@
     for(var i=0;i<KEYS.length;i++){ if(buf.indexOf(KEYS[i]) !== -1){ openThinPlace(); return; } }
   });
 
-  // ---- fx canvas ----
   var fx = document.getElementById('fx'), fc = fx.getContext('2d');
   function sizeFx(){ fx.width = innerWidth; fx.height = innerHeight; }
   sizeFx(); addEventListener('resize', sizeFx);
@@ -218,7 +206,6 @@
   function schedule(){ setTimeout(tear, 5500 + Math.random()*13000); }
   schedule();
 
-  // ---- soft drone on first interaction ----
   var started = false;
   function drone(){
     if(started) return; started = true;
