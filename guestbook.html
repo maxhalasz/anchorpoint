@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Guestbook</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+  body{background:#eef3ea;color:#111;font-family:"Times New Roman",Times,serif;font-size:16px;
+    line-height:1.5;margin:0}
+  a{color:#0000ee}a:visited{color:#551a8b}
+  .wrap{max-width:640px;margin:0 auto;padding:26px 16px 70px}
+  h1{font-size:24px;color:#2e5d3b;margin:0 0 2px;letter-spacing:.5px}
+  .sub{font-size:12px;color:#555;font-family:Verdana,Arial,sans-serif;margin-bottom:16px}
+  .count{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#5c6b3a;margin-bottom:14px}
+
+  .sign{border:2px solid #2e5d3b;background:#fff;padding:12px 14px;margin:0 0 22px}
+  .sign .bar{font-family:Verdana,Arial,sans-serif;font-weight:bold;font-size:13px;color:#2e5d3b;margin-bottom:8px}
+  .sign label{display:block;font-family:Verdana,Arial,sans-serif;font-size:11px;color:#5c6b3a;margin:6px 0 2px}
+  .sign input,.sign textarea{width:100%;box-sizing:border-box;font-family:"Times New Roman",serif;
+    font-size:15px;border:1px solid #2e5d3b;background:#fdfdfb;padding:4px 5px}
+  .sign textarea{resize:vertical}
+  .sign button{margin-top:10px;font-family:Verdana,Arial,sans-serif;font-size:12px;padding:4px 16px;
+    background:#e2ecdb;border:2px solid #2e5d3b;color:#123;cursor:pointer}
+  .sign button:disabled{opacity:.5;cursor:default}
+  .said{font-family:Verdana,Arial,sans-serif;font-size:12px;color:#2e5d3b;margin-top:8px;min-height:1em}
+
+  .e{border-top:1px solid #bcd0b6;padding:11px 0}
+  .e:first-of-type{border-top:0}
+  .e .who{font-family:Verdana,Arial,sans-serif;font-size:12px;color:#2e5d3b}
+  .e .who .loc{color:#7a7a6a}
+  .e .when{font-family:Verdana,Arial,sans-serif;font-size:10px;color:#8a8a7a;float:right}
+  .e .m{margin-top:4px;white-space:pre-wrap}
+  .arch{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#8a8a7a;letter-spacing:.1em;
+    margin:24px 0 2px;border-bottom:1px solid #cbd8c4;padding-bottom:3px}
+
+  .foot{margin-top:28px;font-size:12px;color:#555;font-family:Verdana,Arial,sans-serif}
+  .foot a{color:#555}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Guestbook</h1>
+  <div class="sub">I put this here years ago and mostly forgot about it. Sign it if you
+  want to. I do read it. <!-- TEXT: Max --></div>
+  <div class="count" id="count">&nbsp;</div>
+
+  <div class="sign">
+    <div class="bar">Sign the guestbook</div>
+    <label for="n">Name</label>
+    <input id="n" maxlength="40" autocomplete="off" spellcheck="false">
+    <label for="loc">From (optional)</label>
+    <input id="loc" maxlength="40" autocomplete="off" spellcheck="false">
+    <label for="m">Message</label>
+    <textarea id="m" rows="4" maxlength="500"></textarea>
+    <button id="go">Sign</button>
+    <div class="said" id="said"></div>
+  </div>
+
+  <div id="live"></div>
+
+  <div class="arch">EARLIER ENTRIES &mdash; ARCHIVED</div>
+  <div id="arch"></div>
+
+  <div class="foot"><a href="index.html">&larr; AnchorPoint</a></div>
+</div>
+
+<!-- create-only /guestbook on firebase. entries are read live; the archive below is fixed. -->
+<script>
+(function(){
+  var LS; try{ LS = window.localStorage; }catch(e){ LS = null; }
+  var live = document.getElementById('live'),
+      archEl = document.getElementById('arch'),
+      countEl = document.getElementById('count'),
+      said = document.getElementById('said'),
+      go = document.getElementById('go');
+
+  // fixed archive — TEXT: Max
+  var ARCHIVE = [
+    { n:'Dana', loc:'Ohio', ts:'2014-03', m:'found this looking for a number my mother used to call. it is a good little site. thank you for keeping it up.' },
+    { n:'a night owl', loc:'', ts:'2016-11', m:'got me through a rough one around 3am. that is all. thanks.' },
+    { n:'K.', loc:'', ts:'2018-07', m:'who actually runs this? no judgement. just asking.' },
+    { n:'R.', loc:'', ts:'2019-02', m:'i wrote to the address. it never wrote back. i do not think that is a fault. i think that is the point of it.' },
+    { n:'Marisol', loc:'TX', ts:'2020-09', m:'the reading list sent me somewhere useful. leaving a note so it is not just me here.' }
+  ];
+
+  function esc(s){ return (s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+  function ymd(ts){
+    var d = new Date(ts); if(isNaN(d)) return String(ts);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function row(e, dateStr){
+    var el = document.createElement('div'); el.className = 'e';
+    var who = esc(e.n || 'anonymous');
+    var loc = e.loc ? ' <span class="loc">&mdash; ' + esc(e.loc) + '</span>' : '';
+    el.innerHTML = '<span class="when">' + esc(dateStr) + '</span>' +
+                   '<div class="who">' + who + loc + '</div>' +
+                   '<div class="m"></div>';
+    el.querySelector('.m').textContent = e.m || '';
+    return el;
+  }
+
+  ARCHIVE.forEach(function(e){ archEl.appendChild(row(e, e.ts)); });
+
+  // ---- live entries ----
+  var db = null;
+  try{ if(window.firebase && firebase.apps && firebase.apps.length) db = firebase.database(); }catch(e){}
+
+  if(db){
+    db.ref('guestbook').limitToLast(200).on('value', function(snap){
+      live.innerHTML = '';
+      var items = [];
+      snap.forEach(function(ch){ items.push(ch.val() || {}); });
+      items.reverse();
+      items.forEach(function(e){ live.appendChild(row(e, ymd(e.ts))); });
+      countEl.textContent = (items.length + ARCHIVE.length) + ' entries in the book.';
+    }, function(){
+      countEl.textContent = ARCHIVE.length + ' entries shown.';
+    });
+  }else{
+    countEl.textContent = ARCHIVE.length + ' entries shown.';
+  }
+
+  function cooldownLeft(){
+    if(!LS) return 0;
+    var t = parseInt(LS.getItem('gb_last'),10) || 0;
+    return Math.max(0, 20000 - (Date.now() - t));
+  }
+  function arm(){
+    var left = cooldownLeft();
+    if(left > 0){ go.disabled = true; setTimeout(arm, left + 50); }
+    else go.disabled = false;
+  }
+  arm();
+
+  go.addEventListener('click', function(){
+    if(go.disabled) return;
+    var n = document.getElementById('n').value.trim().slice(0,40);
+    var loc = document.getElementById('loc').value.trim().slice(0,40);
+    var m = document.getElementById('m').value.trim().slice(0,500);
+    if(!n || !m){ said.textContent = 'A name and a message, at least.'; return; }
+    if(!db){ said.textContent = 'The book is not taking entries right now.'; return; }
+    go.disabled = true;
+    db.ref('guestbook').push({ n:n, loc:loc, m:m, ts: firebase.database.ServerValue.TIMESTAMP })
+      .then(function(){
+        document.getElementById('m').value = '';
+        said.textContent = 'Signed. Thank you.';
+        if(LS) LS.setItem('gb_last', String(Date.now()));
+        arm();
+      })
+      .catch(function(){
+        said.textContent = 'That did not go through. Try again in a minute.';
+        arm();
+      });
+  });
+})();
+</script>
+</body>
+</html>
