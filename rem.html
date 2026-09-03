@@ -68,6 +68,73 @@
     setTimeout(function(){ location.href = 'dreamscape.html'; }, 1150);
   }
 
+  // ---- audio: a low rumble, with metal hits scattered through it ----
+  var ac = null, master = null, alive = true;
+  function startSound(){
+    if(ac) return;
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext; ac = new Ctx();
+      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+
+      // brown-ish noise for the rumble
+      var b = ac.createBuffer(1, ac.sampleRate*3, ac.sampleRate), d = b.getChannelData(0), last = 0;
+      for(var i=0;i<d.length;i++){ var w = (Math.random()*2-1); last = (last + 0.02*w) / 1.02; d[i] = last*3.2; }
+      var rn = ac.createBufferSource(); rn.buffer = b; rn.loop = true;
+      var rlp = ac.createBiquadFilter(); rlp.type='lowpass'; rlp.frequency.value=85; rlp.Q.value=0.6;
+      var rg = ac.createGain(); rg.gain.value=0.34;
+      rn.connect(rlp); rlp.connect(rg); rg.connect(master);
+      var sub1 = ac.createOscillator(); sub1.type='sine'; sub1.frequency.value=30;
+      var sub2 = ac.createOscillator(); sub2.type='sine'; sub2.frequency.value=41.3;
+      var subg = ac.createGain(); subg.gain.value=0.14; sub1.connect(subg); sub2.connect(subg); subg.connect(master);
+      var lfo = ac.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.06;
+      var lfg = ac.createGain(); lfg.gain.value=0.08; lfo.connect(lfg); lfg.connect(rg.gain);
+      rn.start(); sub1.start(); sub2.start(); lfo.start();
+      master.gain.linearRampToValueAtTime(0.5, ac.currentTime + 3);
+
+      metalLoop();
+      window.addEventListener('pagehide', function(){ try{ ac.close(); }catch(e){} });
+    }catch(e){ ac = null; }
+  }
+
+  function metalHit(){
+    if(!ac || !alive) return;
+    var t = ac.currentTime;
+    var out = ac.createGain(); out.gain.value = 0.06 + Math.random()*0.11;
+    var pan = ac.createStereoPanner ? ac.createStereoPanner() : null;
+    if(pan){ pan.pan.value = Math.random()*1.6 - 0.8; out.connect(pan); pan.connect(master); }
+    else out.connect(master);
+    var bp = ac.createBiquadFilter(); bp.type='bandpass';
+    bp.frequency.value = 500 + Math.random()*3200; bp.Q.value = 3 + Math.random()*7;
+    bp.connect(out);
+    // inharmonic partials — the "metal"
+    var base = 150 + Math.random()*760;
+    var ratios = [1, 2.71 + Math.random()*0.4, 5.1 + Math.random()*0.9, 8.4 + Math.random()*1.6, 12.7 + Math.random()*2];
+    for(var k=0;k<ratios.length;k++){
+      var o = ac.createOscillator(); o.type = (k%2 ? 'triangle' : 'sine');
+      o.frequency.value = base * ratios[k] * (0.998 + Math.random()*0.004);
+      var g = ac.createGain(); var dur = 0.25 + Math.random()*1.6;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.9 / (k+1.4), t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(bp); o.start(t); o.stop(t + dur + 0.05);
+    }
+    // strike transient
+    var nb = ac.createBuffer(1, (ac.sampleRate*0.06)|0, ac.sampleRate), nd = nb.getChannelData(0);
+    for(var j=0;j<nd.length;j++) nd[j] = (Math.random()*2-1) * (1 - j/nd.length);
+    var ns = ac.createBufferSource(); ns.buffer = nb;
+    var ng = ac.createGain(); ng.gain.value = 0.5;
+    ns.connect(ng); ng.connect(bp); ns.start(t);
+  }
+  function metalLoop(){
+    if(!alive) return;
+    metalHit();
+    setTimeout(metalLoop, 5000 + Math.random()*17000);
+  }
+  window.addEventListener('pagehide', function(){ alive = false; });
+  ['mousemove','pointerdown','touchstart','keydown'].forEach(function(ev){
+    window.addEventListener(ev, startSound, { once:true, passive:true });
+  });
+
   (function tick(now){
     if(!going){
       var dt = Math.max(8, now - lastT); lastT = now;
