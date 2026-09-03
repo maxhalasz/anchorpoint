@@ -1,90 +1,96 @@
 /* THE LEDGER — the Mano cipher (a repeating hand-puzzle).
 
-   The Author leaves runs of pointing hands in the margins. Each hand walks the
-   cursor one cell on a printed 5x6 letter grid; a closed fist takes the letter
-   under the cursor. The cursor starts on A and carries between notes on the
-   same page. Edges wrap.
+   Six pointing hands, no emoji (forced to text presentation).  Each letter is
+   ONE PAIR of hands: the first hand names a row, the second a column, on a 6x6
+   key grid whose letters are scrambled from a keyword.  No walk, no arrow that
+   points at the answer — a pair like  (right-hand, left-hand)  means nothing
+   without the grid.  Solvable by hand once the grid is printed on a page.
 
-       A B C D E        R = one cell right   ☞
-       F G H I J        L = one cell left    ☜
-       K L M N O        U = one cell up      ☝
-       P Q R S T        D = one cell down    ☟
-       U V W X Y        take the letter      ✊
-       Z . & ? -
+     rows / cols, in order:   U+261A U+261B U+261C U+261D U+261E U+261F
+       (black-left, black-right, white-left, white-up, white-right, white-down)
 
-   Solvable by hand with the grid printed on one page (MANO.gridHTML()).
-   Repeat it across pages: each margin run decodes to a fragment; the
-   fragments together give the word. Placement + what it spells: Max.  */
+     key grid, default keyword "THELEDGER":
+        row/col   ᴬ  ᴮ  ᶜ  ᴰ  ᴱ  ᶠ   <- the six hands
+          ᴬ       T  H  E  L  D  G
+          ᴮ       R  A  B  C  F  I
+          ᶜ       J  K  M  N  O  P
+          ᴰ       Q  S  U  V  W  X
+          ᴱ       Y  Z  0  1  2  3
+          ᶠ       4  5  6  7  8  9
+
+   MANO.setKey("<word>") rebuilds the grid.  Repeat the cipher across pages like
+   the Wash cipher — each margin note a fragment.  Placement, the keyword, and
+   what it spells: Max.  */
 var MANO = (function () {
-  var COLS = 5, ROWS = 6;
-  var GRID = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.&?-";        // GRID[r*COLS + c]
-  var R = '☞', L = '☜', U = '☝', D = '☟', FIST = '✊';
+  var H = ['☚', '☛', '☜', '☝', '☞', '☟']; // black L/R, white L/U/R/D
+  var VS = '︎';                          // text-presentation selector: never emoji
+  var N = 6;                                  // 6x6 = 36 cells
 
-  function wrap(n, size) { return ((n % size) + size) % size; }
-  function letterAt(r, c) { return GRID[wrap(r, ROWS) * COLS + wrap(c, COLS)]; }
-  function cellOf(ch) {
-    var i = GRID.indexOf(String(ch).toUpperCase());
-    return i < 0 ? null : { r: (i / COLS) | 0, c: i % COLS };
+  function buildGrid(keyword) {
+    var src = String(keyword).toUpperCase().replace(/[^A-Z0-9]/g, '') +
+              'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var seen = {}, s = '';
+    for (var i = 0; i < src.length && s.length < N * N; i++) {
+      if (!seen[src[i]]) { seen[src[i]] = 1; s += src[i]; }
+    }
+    return s;
   }
-  function shortest(target, cur, size) {          // signed cells, shorter way round
-    var f = wrap(target - cur, size);
-    return f <= size - f ? f : f - size;
-  }
+  var _grid = buildGrid('THELEDGER');
+  function setKey(keyword) { _grid = buildGrid(keyword); }
 
   function encode(text) {
-    var cur = { r: 0, c: 0 }, out = [];
+    var out = [];
     text = String(text).toUpperCase();
     for (var k = 0; k < text.length; k++) {
-      var t = cellOf(text[k]); if (!t) continue;
-      var dc = shortest(t.c, cur.c, COLS), dr = shortest(t.r, cur.r, ROWS), s = '';
-      for (var i = 0; i < Math.abs(dc); i++) s += (dc > 0 ? R : L);
-      for (var j = 0; j < Math.abs(dr); j++) s += (dr > 0 ? D : U);
-      out.push(s + FIST);
-      cur = t;
+      var i = _grid.indexOf(text[k]);
+      if (i < 0) continue;
+      out.push(H[(i / N) | 0] + VS + H[i % N] + VS);
     }
     return out.join('  ');
   }
-
-  function decode(str) {
-    var cur = { r: 0, c: 0 }, word = '';
-    str = String(str);
-    for (var k = 0; k < str.length; k++) {
-      var ch = str[k];
-      if (ch === R) cur.c++;
-      else if (ch === L) cur.c--;
-      else if (ch === U) cur.r--;
-      else if (ch === D) cur.r++;
-      else if (ch === FIST) word += letterAt(cur.r, cur.c);
+  function decode(run) {
+    var s = [];
+    var raw = String(run).split('');
+    for (var i = 0; i < raw.length; i++) if (H.indexOf(raw[i]) >= 0) s.push(raw[i]);
+    var word = '';
+    for (var k = 0; k + 1 < s.length; k += 2) {
+      word += _grid[H.indexOf(s[k]) * N + H.indexOf(s[k + 1])] || '';
     }
     return word;
   }
 
   function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
 
-  // inline markup for a margin note — glyphs jittered like a tired hand
+  // inline markup for a margin note — each glyph nudged like a tired hand
   function render(text) {
-    var g = encode(text), h = hash(String(text)), out = '<span class="mano">';
-    for (var i = 0; i < g.length; i++) {
-      if (g[i] === ' ') { out += '<span class="mano-gap"></span>'; continue; }
+    var enc = encode(text), out = '<span class="mano">', h = hash(String(text)), p = 0;
+    for (var i = 0; i < enc.length; i++) {
+      var ch = enc[i];
+      if (ch === VS) continue;
+      if (ch === ' ') { out += '<span class="mano-gap"></span>'; continue; }
       var rot = ((h + i * 53) % 15) - 7;
-      out += '<span style="display:inline-block;transform:rotate(' + rot + 'deg)">' + g[i] + '</span>';
+      out += '<span style="display:inline-block;transform:rotate(' + rot + 'deg)">' + ch + VS + '</span>';
+      if (++p % 2 === 0) out += '<span class="mano-pair"></span>';
     }
     return out + '</span>';
   }
 
-  // the key, for whichever page prints it
+  // the key grid, for whichever page prints it
   function gridHTML() {
-    var out = '<table class="mano-key"><tbody>';
-    for (var r = 0; r < ROWS; r++) {
-      out += '<tr>';
-      for (var c = 0; c < COLS; c++) out += '<td>' + GRID[r * COLS + c] + '</td>';
+    var out = '<table class="mano-key"><tbody><tr><td class="h"></td>';
+    for (var c = 0; c < N; c++) out += '<td class="h">' + H[c] + VS + '</td>';
+    out += '</tr>';
+    for (var r = 0; r < N; r++) {
+      out += '<tr><td class="h">' + H[r] + VS + '</td>';
+      for (var c2 = 0; c2 < N; c2++) out += '<td>' + _grid[r * N + c2] + '</td>';
       out += '</tr>';
     }
     return out + '</tbody></table>';
   }
 
   return { encode: encode, decode: decode, render: render, gridHTML: gridHTML,
-           GRID: GRID, GLYPHS: { R: R, L: L, U: U, D: D, FIST: FIST } };
+           setKey: setKey, grid: function () { return _grid; },
+           HANDS: H.map(function (g) { return g + VS; }) };   // display-safe (text, not emoji)
 })();
 if (typeof window !== 'undefined') window.MANO = MANO;
 if (typeof module !== 'undefined' && module.exports) module.exports = MANO;
