@@ -46,9 +46,13 @@
   .de.b{color:#303030}
   .de.c{color:#1e1e1e}
 
-  .anchor{display:block;width:88px;margin:36px 0 0;
+  .anchorbox{position:relative;display:inline-block;margin:36px 0 0}
+  .anchor{display:block;width:88px;
     filter:grayscale(1) invert(1) contrast(1.35) brightness(.32);
     opacity:.5;mix-blend-mode:screen;animation:jit 7s steps(1) infinite}
+  /* a tiny live area just to the right of the mark */
+  .anchorbox a{position:absolute;left:94px;top:50%;width:12px;height:12px;
+    transform:translateY(-50%);cursor:pointer}
 
   /* only legible if you drag over it */
   .under{color:#080808;font-size:13px;line-height:1.7;margin-top:64px;max-width:560px}
@@ -81,7 +85,7 @@
   <p class="de b">&#65316;&#65317;&#65313;&#65316; &#65317;&#65326;&#65316;</p>
   <p class="de c">&#65316;&#65317;&#65313;&#65316; &#65317;&#65326;&#65316;</p>
 
-  <a href="yousentthisone.html" style="display:block;width:88px" aria-label=""><img class="anchor" src="img/anchor.png" alt=""></a>
+  <span class="anchorbox"><img class="anchor" src="img/anchor.png" alt=""><a href="yousentthisone.html" aria-label=""></a></span>
 
   <div class="under">he files everything that reaches him and answers almost none of it.
   if you send him one thing, send the deputy&rsquo;s line from the scrap &mdash; his
