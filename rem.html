@@ -8,13 +8,14 @@
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#7a7a7a;
     font-family:"Courier New",Courier,monospace;cursor:default;touch-action:none}
-  #veil{position:fixed;inset:0;overflow:hidden;opacity:0;filter:blur(9px);
+  #veil{position:fixed;inset:0;overflow:hidden;opacity:0;filter:blur(6px);
     will-change:opacity,filter}
   #veil img{position:absolute;pointer-events:none}
-  #core{position:fixed;left:50%;top:50%;width:40vmin;height:40vmin;transform:translate(-50%,-50%) scale(.6);
-    background:radial-gradient(closest-side,rgba(150,150,160,.14),transparent 70%);
+  #core{position:fixed;left:50%;top:50%;width:52vmin;height:52vmin;
+    transform:translate(-50%,-50%) scale(.55);
+    background:radial-gradient(closest-side,rgba(150,152,164,.30),rgba(120,124,140,.08) 45%,transparent 72%);
     opacity:0;will-change:opacity,transform}
-  #flare{position:fixed;inset:0;background:#0b0b0d;opacity:0;pointer-events:none}
+  #flare{position:fixed;inset:0;background:#0b0b0d;opacity:0;pointer-events:none;transition:opacity 1.1s ease}
   .buried{position:fixed;left:4px;bottom:2px;color:#0a0a0a;font-size:10px;letter-spacing:1px}
   .buried::selection{background:#2a2a30;color:#000}
 </style>
@@ -23,20 +24,19 @@
   <div id="veil"></div>
   <div id="core"></div>
   <div id="flare"></div>
-  <span class="buried">keep them moving.</span>
+  <span class="buried">rapid eye movement. keep them going.</span>
 
-<!-- rapid eye movement. no scrolling here. move, and do not stop, and it takes you under. -->
+<!-- no scrolling. move the cursor and do not stop; it takes a few seconds of unbroken
+     movement to go under. stop and it drains back. -->
 <script>
 (function(){
   var veil = document.getElementById('veil'),
       core = document.getElementById('core'),
       flare = document.getElementById('flare');
 
-  // faint eye field, revealed by depth
   var im = new Image();
   im.onload = function(){
-    var vw = innerWidth, vh = innerHeight;
-    var n = Math.max(50, Math.min(180, Math.round(vw*vh/12000)));
+    var n = Math.max(50, Math.min(170, Math.round(innerWidth*innerHeight/13000)));
     for(var i=0;i<n;i++){
       var e = document.createElement('img');
       e.src = 'img/eyes.png';
@@ -44,48 +44,50 @@
       e.style.top = (Math.random()*100)+'%';
       e.style.width = (50 + Math.random()*200)+'px';
       e.style.transform = 'translate(-50%,-50%) rotate('+(Math.random()*360)+'deg)';
-      e.style.filter = 'brightness('+(0.05 + Math.random()*0.12).toFixed(3)+')';
-      e.style.opacity = (0.14 + Math.random()*0.3).toFixed(3);
+      e.style.filter = 'brightness('+(0.08 + Math.random()*0.16).toFixed(3)+')';
+      e.style.opacity = (0.28 + Math.random()*0.42).toFixed(3);
       veil.appendChild(e);
     }
   };
   im.src = 'img/eyes.png';
 
-  var depth = 0, lastX = null, lastY = null, lastT = performance.now(), going = false;
+  var depth = 0, movedDist = 0, lastX = null, lastY = null, lastT = performance.now(), going = false;
 
   function move(x, y){
-    var now = performance.now(), dt = Math.max(12, now - lastT); lastT = now;
-    if(lastX !== null){
-      var d = Math.sqrt((x-lastX)*(x-lastX) + (y-lastY)*(y-lastY));
-      depth += Math.min(0.004, (d / dt) * 0.002);   // needs a few seconds of not stopping
-    }
+    if(lastX !== null) movedDist += Math.sqrt((x-lastX)*(x-lastX) + (y-lastY)*(y-lastY));
     lastX = x; lastY = y;
   }
   window.addEventListener('mousemove', function(e){ move(e.clientX, e.clientY); }, {passive:true});
+  window.addEventListener('pointermove', function(e){ move(e.clientX, e.clientY); }, {passive:true});
   window.addEventListener('touchmove', function(e){ if(e.touches[0]) move(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
   window.addEventListener('touchstart', function(e){ if(e.touches[0]){ lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; } }, {passive:true});
 
   function leave(){
     going = true;
-    flare.style.transition = 'opacity 1.1s ease';
     flare.style.opacity = '1';
     setTimeout(function(){ location.href = 'dreamscape.html'; }, 1150);
   }
 
-  (function tick(){
+  (function tick(now){
     if(!going){
-      depth *= 0.99;                 // stop moving and it drains
-      if(depth < 0.0003) depth = 0;
-      depth = Math.min(1.05, depth);
-      var d = depth > 1 ? 1 : depth;
-      veil.style.opacity = d.toFixed(3);
-      veil.style.filter = 'blur(' + ((1-d)*9).toFixed(2) + 'px)';
-      core.style.opacity = (d*0.9).toFixed(3);
-      core.style.transform = 'translate(-50%,-50%) scale(' + (0.6 + d*0.7).toFixed(3) + ')';
-      if(depth >= 1) leave();
+      var dt = Math.max(8, now - lastT); lastT = now;
+      var speed = movedDist / dt;               // px per ms this frame
+      movedDist = 0;
+      // fast, unbroken movement climbs; anything less drains
+      depth += Math.min(0.020, speed * 0.010) - 0.010;
+      if(depth < 0) depth = 0;
+      if(depth > 1) depth = 1;
+
+      var d = depth;
+      veil.style.opacity = Math.min(1, d * 1.7).toFixed(3);
+      veil.style.filter  = 'blur(' + ((1 - d) * 6).toFixed(2) + 'px)';
+      core.style.opacity = Math.min(0.95, d * 1.6).toFixed(3);
+      core.style.transform = 'translate(-50%,-50%) scale(' + (0.55 + d * 0.85).toFixed(3) + ')';
+
+      if(d >= 1) leave();
     }
     requestAnimationFrame(tick);
-  })();
+  })(performance.now());
 })();
 </script>
 </body>
