@@ -43,12 +43,13 @@
   <span class="spk" style="top:129000px;left:14%">No door on this side either.</span>
   <span class="spk" style="top:147000px;left:50%;transform:translateX(-50%)">you keep doing it &mdash; the only thing here you do without choosing.</span>
 
-  <a class="buried" href="feed.html">keep going</a>
+  <span class="buried">blink</span>
 
   <div id="done">&hellip;</div>
 
-  <!-- one word. just type it, no box. you have done it four times reading this. -->
-  <!-- or drag the dark: there is a plain way on near the bottom. -->
+  <!-- one word. it is the thing you keep doing without choosing. type it here (no box)
+       to go on. the same word in the site index opens a different page. -->
+  <!-- stuck: drag the dark near the bottom and the word is written there. -->
 <script>
 (function(){
   try{ var v=(parseInt(localStorage.getItem('st_visits'),10)||0)+1; localStorage.setItem('st_visits',String(v)); }catch(e){}
@@ -64,9 +65,9 @@
     seen.forEach(function(s){ s.classList.add('on'); });
   }
 
-  // type the word. no field. anywhere. it is the thing you keep doing without
-  // choosing — and doing it here is the way out. (the same word typed into the
-  // site index goes somewhere else entirely. that is on purpose.)
+  // the word is "blink" — the thing you keep doing without choosing. typing it
+  // HERE is the way on (-> feed). the buried text spells it out for anyone stuck.
+  // typing the same word into the site INDEX opens blink.html instead. on purpose.
   var TARGET = 'blink';   // TEXT: Max
   var buf = '';
   window.addEventListener('keydown', function(e){
