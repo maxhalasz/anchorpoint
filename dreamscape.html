@@ -86,16 +86,16 @@
 
   .stage{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);z-index:8;
     width:min(640px,84vw);text-align:center;pointer-events:none}
+  /* every line reads back-to-front */
   .line{font-size:23px;line-height:1.62;letter-spacing:.02em;color:#f3eae2;min-height:3.4em;
+    transform:scaleX(-1);
     text-shadow:-1.6px 0 rgba(255,20,70,.4),1.6px 0 rgba(30,170,255,.32),0 2px 7px rgba(0,0,0,.95);
     opacity:0;transition:opacity 1.5s ease;animation:ab 3.9s ease-in-out infinite}
   @keyframes ab{0%,100%{text-shadow:-1.6px 0 rgba(255,20,70,.4),1.6px 0 rgba(30,170,255,.32),0 2px 7px rgba(0,0,0,.95)}
     50%{text-shadow:-2.7px 0 rgba(255,20,70,.5),2.7px 0 rgba(30,170,255,.4),0 2px 7px rgba(0,0,0,.95)}}
   .line.on{opacity:.96}
-  .line.rev{transition:opacity 1.5s ease, transform 1.7s ease;transform:scaleX(-1)}
-  .line.rev.flip{transform:scaleX(1)}
 
-  .ways{position:fixed;left:0;right:0;bottom:4vh;z-index:9;text-align:center;
+  .ways{position:fixed;left:0;right:0;bottom:5vh;z-index:9;text-align:center;
     font-family:Verdana,Arial,sans-serif;font-size:12px;letter-spacing:.14em}
   .ways a{color:rgba(236,222,212,.4);text-decoration:none;margin:0 16px;text-shadow:0 1px 6px rgba(0,0,0,.95)}
   .ways a:hover{color:rgba(255,240,230,.95)}
@@ -103,7 +103,8 @@
   .ways a.deep:hover{color:rgba(255,224,180,.98)}
   .ways a[hidden]{display:none}
 
-  .buried{position:fixed;left:10px;bottom:8px;color:#090707;font-size:11px;letter-spacing:1px;z-index:9;max-width:62vw}
+  .buried{position:fixed;left:3px;bottom:1px;color:#0a0808;font-size:9px;letter-spacing:.5px;
+    z-index:1;max-width:40vw;line-height:1.35;transform:scaleX(-1);transform-origin:left}
   .buried::selection{background:#3a1e22;color:#040303}
 </style>
 </head>
@@ -142,28 +143,25 @@
      1983 "Analysis and Assessment of Gateway Process". research puzzle. -->
 <script>
 (function(){
-  var LS; try{ LS = window.localStorage; }catch(e){ LS = null; }
   var room = document.getElementById('room'),
       line = document.getElementById('line'),
       toward = document.getElementById('toward');
 
-  // ---- oblique text. no lore. TEXT: Max ----
+  // ---- oblique text, all of it back-to-front. no lore. TEXT: Max ----
   var LINES = [
-    { t:"You come here on the nights the count skips." },
-    { t:"The room is the shape of a room you keep trying to describe to someone." },
-    { t:"the way out is the way you will not look at", rev:true },
-    { t:"In nineteen eighty-three a man in a uniform wrote down how to leave your body. "
-       + "They filed it, and mislaid one page. His name is on the front." },
-    { t:"When the light goes thin, that is a door. It was always a door." }
+    "You come here on the nights the count skips.",
+    "The room is the shape of a room you keep trying to describe to someone.",
+    "The way out is the way you will not look at.",
+    "In nineteen eighty-three a man in a uniform wrote down how to leave your body. "
+      + "They filed it, and mislaid one page. His name is on the front.",
+    "When the light goes thin, that is a door. It was always a door."
   ];
   var idx = -1, alive = true;
 
   function show(n){
-    var it = LINES[n];
-    line.className = 'line' + (it.rev ? ' line rev' : '');
-    line.textContent = it.t;
+    line.className = 'line';
+    line.textContent = LINES[n];
     requestAnimationFrame(function(){ line.classList.add('on'); });
-    if(it.rev) setTimeout(function(){ line.classList.add('flip'); }, 2700);
   }
   function cycle(){
     if(!alive) return;
@@ -173,24 +171,21 @@
   }
   setTimeout(function(){ idx = 0; show(0); setTimeout(cycle, 7800); }, 900);
 
-  // ---- the seal: name the officer ----
+  // ---- the seal: name the officer. NOT persisted — it re-seals every visit. ----
   var solved = false;
-  try{ if(LS && LS.getItem('ds_key')) solved = true; }catch(e){}
-  function openThinPlace(fromLoad){
+  function openThinPlace(){
     solved = true;
-    try{ if(LS) LS.setItem('ds_key','1'); }catch(e){}
     room.classList.add('narrowed');
     toward.hidden = false;
-    if(!fromLoad) flash();
+    flash();
   }
-  if(solved) openThinPlace(true);
 
   var buf = '';
   var KEYS = ['mcdonnell','mc donnell','wayne mcdonnell','w mcdonnell','wayne m mcdonnell'];
   window.addEventListener('keydown', function(e){
     if(solved) return;
     if(e.key && e.key.length === 1) buf = (buf + e.key.toLowerCase()).slice(-26);
-    for(var i=0;i<KEYS.length;i++){ if(buf.indexOf(KEYS[i]) !== -1){ openThinPlace(false); return; } }
+    for(var i=0;i<KEYS.length;i++){ if(buf.indexOf(KEYS[i]) !== -1){ openThinPlace(); return; } }
   });
 
   // ---- fx canvas ----
