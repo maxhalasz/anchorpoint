@@ -166,7 +166,7 @@
       <p>You do not need to have all the answers today. You do not need to fix everything now.
       Sometimes the first step to finding peace is not fighting the inner noise, but learning to
       sit down and talk with your own head. Make yourself at home. This place is yours.</p>
-      <p class="sig">&mdash; The Author</p>
+      <p class="sig">&mdash; <a href="about.html">The Author</a></p>
     </div></div>
 
     <div class="box" id="support"><div class="bar">Find support</div><div class="in">
@@ -349,8 +349,6 @@
     }catch(e){ /* the page does nothing visible either way */ }
   }
 
-  // TEXT: Max — the phrase that "arrives": echoes the tagline / the Find Support prompt
-  var KEY_PHRASE = 'some things arrive only if you write them down';
   function normalize(s){ return s.toLowerCase().replace(/[^a-z ]+/g,'').replace(/\s+/g,' ').trim(); }
 
   function recordSent(text){
@@ -379,31 +377,19 @@
     submitMessage(text);
     msg.value = '';
     var slot = document.getElementById('thanksSlot');
+    slot.innerHTML = '';
 
-    // the line never replies. it only files. certain words get filed under a name.
-    if(n === KEY_PHRASE){
-      flag('phrase');
-      slot.innerHTML = '<span class="thanks">Then you already know where this goes.</span>';
-      var na = document.getElementById('notAlone');
-      na.style.color = '#0000ee'; na.style.textDecoration = 'underline';
-    }else if(/\bvael\b|\bval juane\b|\bvaeljuane\b|væl/.test(n)){   // the Choir trigger, spelled at
+    // the line does not reply. it files. the ONLY exception is someone asking
+    // for help tonight — that one gets a real number and nothing else.
+    if(n === 'help' || n === 'i need help' || n === 'need help' || /\bsuicid|\bkill myself\b|\bhurt myself\b/.test(n)){
+      flag('help');
+      slot.innerHTML = '<span class="thanks">If it is tonight and it is bad: <a href="https://988lifeline.org/" target="_blank" rel="noopener">988lifeline.org</a>, or your local emergency number.</span>';
+    }else if(/\bvael\b|\bval juane\b|\bvaeljuane\b|væl/.test(n)){   // väl.juˈeɪn — the Choir trigger (deserto canon)
       flag('choir');
       document.body.style.transition = 'filter .06s'; document.body.style.filter = 'invert(1)';
       setTimeout(function(){ document.body.style.filter = 'none'; }, 90);
-      if(!document.getElementById('eyes')){ var p = new Image(); p.onload = eyesTakeover; p.src = 'img/eyes.png'; }
-      slot.innerHTML = '<span class="thanks">&nbsp;</span>';
-    }else if(/\bmislaid\b|\bmalcolm\b|\bthe ledger\b|\bnyarlathotep\b|\bcarcosa\b|\bthe choir\b/.test(n)){
-      flag('early');
-      slot.innerHTML = '<span class="thanks">That is not a word people bring to a hotline. Where did you get it?</span>';
-    }else if(n === 'blink'){
-      flag('blink');
-      slot.innerHTML = '<span class="thanks">You just did.</span>';
-    }else if(n === 'help' || n === 'i need help' || n === 'need help'){
-      flag('help');
-      slot.innerHTML = '<span class="thanks">If it is tonight and it is bad: <a href="https://988lifeline.org/" target="_blank" rel="noopener">988lifeline.org</a> or your local emergency number. This page is not that. It only listens.</span>';
-    }else{
-      slot.innerHTML = '<span class="thanks">Thank you for trusting us with this.</span>';
     }
+    // everything else: no acknowledgement. it was still filed.
   });
 
   function openOv(id){ document.getElementById(id).classList.add('on'); }
@@ -443,31 +429,16 @@
   });
 
   // ---- the site index: certain words open pages that are not on the menu ----
-  // words are earned elsewhere (a page, a puzzle, the email). TEXT/keys: Max
+  // words are earned elsewhere (a page, a puzzle, the email). a real page just
+  // opens. everything else is filed with no acknowledgement. TEXT/keys: Max
   var AP_INDEX = {
     'blink': 'blink.html',
     'blue':  'safeword.html',
-    'the lake': 'the-lake.html',
-    'the town': 'the-lake.html',
     'stillwater': 'stillwater.html',
     'about': 'about.html',
     'about me': 'about.html',
     'you sent this one': 'you-sent-this-one.html',
     'yousentthisone': 'you-sent-this-one.html'
-  };
-  var AP_INDEX_COLD = {          // recognised, but no page — it just gets filed
-    'mislaid':      'Where did you hear that word.',
-    'the ledger':   'Not from here.',
-    'ledger':       'Not from here.',
-    'malcolm':      'No one by that name works this line.',
-    'malcolm shaw': 'No one by that name works this line.',
-    'the author':   'He does not take the front desk.',
-    'nyarlathotep': 'No.',
-    'carcosa':      'No.',
-    'the choir':    'No.',
-    'aklo':         'No.',
-    'the door':     'There is a door in the other thing, not this one.',
-    'the network':  'You are already in it.'
   };
   var idxIn = document.getElementById('idxIn'),
       idxGo = document.getElementById('idxGo'),
@@ -476,9 +447,8 @@
     var q = normalize(idxIn.value);
     if(!q) return;
     if(AP_INDEX[q]){ location.href = AP_INDEX[q]; return; }
-    if(AP_INDEX_COLD[q]){ idxR.textContent = AP_INDEX_COLD[q]; submitMessage('[index] ' + q); idxIn.value = ''; return; }
-    idxR.textContent = 'There is no page by that name.';
-    submitMessage('[index] ' + q);
+    submitMessage('[index] ' + q);           // filed. the visitor is told nothing.
+    idxR.textContent = (q === 'nyarlathotep') ? 'No.' : '';
     idxIn.value = '';
   }
   idxGo.addEventListener('click', idxSubmit);
