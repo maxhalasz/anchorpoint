@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>&#65324;&#65313;&#65323;&#65317;</title>
+<style>
+  html,body{margin:0;background:#040606;color:#3d4744;
+    font-family:"Courier New",Courier,monospace;font-size:15px;line-height:1.9;
+    overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.5;
+    background-image:
+      repeating-linear-gradient(0deg,#0000 0 1px,#0000004d 1px 2px),
+      repeating-linear-gradient(90deg,#0000 0 1px,#00000038 1px 2px)}
+  body::after{content:"";position:fixed;left:0;right:0;height:2px;background:rgba(120,160,170,.045);
+    z-index:6;pointer-events:none;animation:drift 11s linear infinite}
+  @keyframes drift{from{top:-4%}to{top:104%}}
+
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:96px 22px 200px}
+
+  .quote{color:#55635f;letter-spacing:.05em;margin:0 0 10px}
+  .quote .a{color:#6c7b76}
+  .cue{color:#1f2624;font-size:11px;letter-spacing:.5em;margin:0 0 60px}
+
+  /* the glass skin */
+  .glass{position:relative;height:1px;margin:0 0 2px;
+    background:linear-gradient(90deg,transparent 2%,rgba(150,185,190,.28) 50%,transparent 98%);
+    box-shadow:0 -14px 26px -14px rgba(120,160,165,.10),0 10px 30px -10px rgba(0,0,0,.7);
+    transition:filter .9s ease, opacity .9s ease;opacity:.5}
+  .glass.stir{animation:stir 1.15s ease-out}
+  @keyframes stir{0%{transform:scaleX(1) skewX(0)}
+    18%{transform:scaleX(1.012) skewX(.5deg)}
+    42%{transform:scaleX(.994) skewX(-.35deg)}
+    70%{transform:scaleX(1.004) skewX(.15deg)}
+    100%{transform:none}}
+
+  .mirror{color:#2a3230;opacity:.16;transform:scaleY(-1);filter:blur(1px);
+    letter-spacing:.05em;margin:0 0 40px;pointer-events:none;user-select:none}
+
+  /* what the still water gives back */
+  .deep{opacity:0;filter:blur(10px);transform:translateY(26px);
+    pointer-events:none;color:#5a6a65;will-change:opacity,filter,transform}
+  .deep .h{color:#31413c;font-size:12px;letter-spacing:.28em;margin-bottom:16px}
+  .deep ul{list-style:none;margin:0;padding:0}
+  .deep li{margin:3px 0;animation:sway 7s ease-in-out infinite}
+  .deep li:nth-child(2){animation-delay:-1.4s}
+  .deep li:nth-child(3){animation-delay:-3.1s}
+  .deep li:nth-child(4){animation-delay:-4.7s}
+  .deep li:nth-child(5){animation-delay:-2.2s}
+  .deep li.none{color:#38443f;font-style:italic}
+  @keyframes sway{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+  .deep .way{display:block;margin-top:36px;color:#55665f}
+  .deep .way a{color:#8fb0a6;text-decoration:none;font-size:17px;padding:0 4px;
+    border-bottom:1px solid #3a4a45}
+  .deep .way a:hover{color:#c4e0d6}
+
+  .buried{position:fixed;left:8px;bottom:8px;color:#060909;font-size:12px;letter-spacing:2px}
+  .buried::selection{background:#3a5a54;color:#040606}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="quote">Listen to the silence of <span class="a">the lake</span>. It does not
+    ripple; it does not flow. It hides the corpses beneath a glass skin. <!-- TEXT: Max --></p>
+    <p class="cue">do as it does</p>
+
+    <div class="glass" id="glass"></div>
+    <p class="mirror">Listen to the silence of the lake.</p>
+
+    <div class="deep" id="deep">
+      <div class="h">in the order they come up &mdash;</div>
+      <ul>
+        <li>ann.</li>
+        <li>the man who ran the depot.</li>
+        <li>somebody&rsquo;s father, third pew, left side.</li>
+        <li>a girl who had a red coat.</li>
+        <li class="none">&mdash; and the rest, which will not surface.</li>
+      </ul>
+      <span class="way">the county kept one page of them.
+        <a href="stillwater.html">&rarr;</a></span>
+    </div>
+  </div>
+
+  <span class="buried">it does not ripple. it does not flow. neither do you.</span>
+
+<!-- hold still. the water clears when you do. moving sends it back down. -->
+<script>
+(function(){
+  var glass = document.getElementById('glass');
+  var deep  = document.getElementById('deep');
+  var HOLD  = 8000;                 // ms of stillness for a full reveal
+  var last  = performance.now();
+  var stirT = 0;
+
+  function bump(){
+    last = performance.now();
+    if(performance.now() - stirT > 900){       // don't spam the animation
+      stirT = performance.now();
+      glass.classList.remove('stir'); void glass.offsetWidth; glass.classList.add('stir');
+    }
+  }
+  ['mousemove','pointermove','wheel','scroll','keydown','touchmove','touchstart','mousedown']
+    .forEach(function(ev){ window.addEventListener(ev, bump, {passive:true}); });
+
+  function ease(t){ return t*t*(3-2*t); }       // smoothstep
+
+  (function tick(now){
+    var p = ease(Math.max(0, Math.min(1, (now - last) / HOLD)));
+    deep.style.opacity   = p.toFixed(3);
+    deep.style.filter    = 'blur(' + ((1-p)*10).toFixed(2) + 'px)';
+    deep.style.transform = 'translateY(' + ((1-p)*26).toFixed(1) + 'px)';
+    deep.style.pointerEvents = p > 0.92 ? 'auto' : 'none';
+    glass.style.opacity  = (0.5 + p*0.5).toFixed(3);
+    glass.style.filter   = 'brightness(' + (1 + p*0.7).toFixed(2) + ')';
+    requestAnimationFrame(tick);
+  })(performance.now());
+})();
+</script>
+</body>
+</html>

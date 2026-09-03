@@ -11,42 +11,70 @@
 <style>
   body{background:#231f18;margin:0;color:#20180f;
     font-family:Georgia,"Times New Roman",Times,serif;font-size:15px;line-height:1.5;
-    background-image:radial-gradient(120% 80% at 50% 0%,#2c2820 0%,#1a1712 70%)}
-  .frame{max-width:860px;margin:0 auto;padding:34px 14px 70px}
+    background-image:radial-gradient(120% 80% at 50% 0%,#2c2820 0%,#171410 72%)}
+  .frame{max-width:880px;margin:0 auto;padding:34px 14px 70px}
 
   /* ---- the sheet ---- */
-  .sheet{position:relative;background:#efe6cd;padding:26px 30px 40px;
+  .sheet{position:relative;background:#efe6cd;padding:20px 30px 34px;
     transform:rotate(-.5deg);
     box-shadow:0 2px 4px rgba(0,0,0,.5),0 18px 50px rgba(0,0,0,.55),0 40px 90px rgba(0,0,0,.4);
     background-image:
       radial-gradient(60% 45% at 12% 8%,rgba(150,110,60,.13),transparent 60%),
       radial-gradient(50% 40% at 92% 82%,rgba(120,90,50,.16),transparent 60%),
       radial-gradient(30% 22% at 78% 14%,rgba(90,70,40,.10),transparent 60%),
-      linear-gradient(90deg,transparent 49.4%,rgba(80,60,35,.10) 49.9%,rgba(255,255,255,.35) 50.2%,transparent 50.7%),
+      radial-gradient(18% 14% at 30% 62%,rgba(95,70,38,.12),transparent 62%),
+      radial-gradient(12% 10% at 62% 45%,rgba(95,70,38,.10),transparent 64%),
+      radial-gradient(10% 8% at 46% 88%,rgba(95,70,38,.13),transparent 62%),
+      linear-gradient(92deg,transparent 49.2%,rgba(70,52,30,.12) 49.8%,rgba(255,255,255,.4) 50.3%,transparent 51%),
+      linear-gradient(1deg,transparent 45.4%,rgba(70,52,30,.10) 46%,rgba(255,255,255,.3) 46.5%,transparent 47.2%),
+      radial-gradient(140% 120% at 50% 50%,transparent 62%,rgba(90,66,34,.16) 100%),
       repeating-linear-gradient(0deg,rgba(70,55,30,.028) 0 1px,transparent 1px 3px);
     filter:sepia(.16) contrast(1.05)}
+  .sheet::before{content:"";position:absolute;inset:0;pointer-events:none;
+    /* crop / registration marks at the corners */
+    background:
+      linear-gradient(#241c10,#241c10) 10px 0/1px 12px no-repeat,
+      linear-gradient(#241c10,#241c10) 0 10px/12px 1px no-repeat,
+      linear-gradient(#241c10,#241c10) calc(100% - 10px) 0/1px 12px no-repeat,
+      linear-gradient(#241c10,#241c10) 100% 10px/12px 1px no-repeat,
+      linear-gradient(#241c10,#241c10) 10px 100%/1px 12px no-repeat,
+      linear-gradient(#241c10,#241c10) 0 calc(100% - 10px)/12px 1px no-repeat,
+      linear-gradient(#241c10,#241c10) calc(100% - 10px) 100%/1px 12px no-repeat,
+      linear-gradient(#241c10,#241c10) 100% calc(100% - 10px)/12px 1px no-repeat;
+    opacity:.5}
   .sheet::after{content:"";position:absolute;inset:0;pointer-events:none;
     background:
-      radial-gradient(38px 30px at 84% 92%,rgba(60,40,20,.16),rgba(60,40,20,.05) 62%,transparent 68%),
-      radial-gradient(34px 30px at 87% 90%,transparent 55%,rgba(60,40,20,.14) 60%,transparent 66%);
+      radial-gradient(38px 30px at 84% 93%,rgba(60,40,20,.17),rgba(60,40,20,.05) 62%,transparent 70%),
+      radial-gradient(34px 30px at 87% 91%,transparent 55%,rgba(60,40,20,.15) 60%,transparent 66%);
     mix-blend-mode:multiply}
 
+  /* ---- running head ---- */
+  .folio{display:flex;justify-content:space-between;align-items:center;
+    font-family:"IM Fell English SC",Georgia,serif;font-size:9.5px;letter-spacing:.22em;
+    color:#5a4a2c;border-bottom:1px solid #241c10;padding-bottom:3px;margin-bottom:8px}
+
   /* ---- masthead ---- */
-  .flag{text-align:center;border-bottom:3px double #241c10;padding-bottom:6px}
+  .flag{position:relative;text-align:center;border-bottom:3px double #241c10;padding-bottom:6px}
   .flag h1{font-family:"IM Fell English SC","IM Fell English",Georgia,serif;
-    font-weight:400;font-size:min(9vw,52px);letter-spacing:.06em;margin:0;color:#1c150c}
-  .flag .est{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.28em;
+    font-weight:400;font-size:min(8.6vw,50px);letter-spacing:.05em;margin:0;color:#1c150c;
+    text-shadow:.4px .4px 0 rgba(23,15,7,.35)}
+  .flag .est{font-family:"IM Fell English SC",Georgia,serif;font-size:10.5px;letter-spacing:.26em;
     color:#4a3b22;margin-top:3px}
+  .ear{position:absolute;right:0;top:0;width:104px;border:1px solid #241c10;
+    font-family:"IM Fell English SC",Georgia,serif;font-size:8.4px;letter-spacing:.08em;
+    line-height:1.5;color:#3a2e1c;padding:3px 4px;text-align:center}
+  .ear b{display:block;letter-spacing:.2em;border-bottom:1px solid #a99a72;margin-bottom:2px}
   .rag{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;
-    font-family:"IM Fell English SC",Georgia,serif;font-size:10.5px;letter-spacing:.12em;
+    font-family:"IM Fell English SC",Georgia,serif;font-size:10px;letter-spacing:.12em;
     color:#4a3b22;border-bottom:1px solid #241c10;padding:4px 0 6px;margin-bottom:14px}
 
   /* ---- headline block ---- */
-  .kicker{font-family:"IM Fell English SC",Georgia,serif;font-size:12px;letter-spacing:.34em;
-    color:#5c4a2c;text-align:center;margin:6px 0 4px}
+  .kicker{font-family:"IM Fell English SC",Georgia,serif;font-size:11.5px;letter-spacing:.36em;
+    color:#5c4a2c;text-align:center;margin:8px 0 4px}
   h2.hed{font-family:"IM Fell English","IM Fell English SC",Georgia,serif;font-weight:400;
-    font-size:min(7.4vw,40px);line-height:1.12;text-align:center;margin:0 0 8px;color:#170f07}
-  .deck{font-style:italic;text-align:center;color:#3a2e1c;max-width:44ch;margin:0 auto 12px;
+    font-size:min(9vw,46px);line-height:1.08;text-align:center;margin:0 0 8px;color:#140d06;
+    letter-spacing:.01em;text-shadow:.5px .5px 0 rgba(20,13,6,.25)}
+  .deck{font-style:italic;text-align:center;color:#3a2e1c;max-width:46ch;margin:0 auto 12px;
     font-size:15px;line-height:1.42}
   .byl{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.2em;
     text-align:center;color:#4a3b22;border-top:1px solid #b7a97f;border-bottom:1px solid #b7a97f;
@@ -58,26 +86,36 @@
   .cols p{margin:0 0 9px}
   .cols p.lead::first-letter{float:left;font-family:"IM Fell English SC",Georgia,serif;
     font-size:44px;line-height:.82;padding:2px 6px 0 0;color:#170f07}
+  .end::after{content:" \25AA"}
   .dl{font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.14em;font-size:12px}
 
-  figure.cut{break-inside:avoid;margin:0 0 12px;border:1px solid #7d6f4c}
-  .cut .img{height:150px;
-    background:
-      repeating-radial-gradient(circle at 30% 40%,#6b6455 0 1.4px,transparent 1.4px 3px),
-      repeating-radial-gradient(circle at 70% 65%,#585144 0 1.2px,transparent 1.2px 2.6px),
-      linear-gradient(160deg,#8b8473 0%,#5f5a4c 100%);
-    background-color:#7a7362}
-  .cut figcaption{font-size:10.5px;line-height:1.35;color:#3a2e1c;padding:5px 7px;
+  figure.cut{break-inside:avoid;margin:0 0 12px;border:1px solid #6f6244;
+    box-shadow:0 1px 0 rgba(255,255,255,.25)}
+  .cut .img{height:150px;background-color:#7a7362;
+    background-image:
+      repeating-linear-gradient(15deg,rgba(20,16,10,.22) 0 1px,transparent 1px 3px),
+      repeating-linear-gradient(75deg,rgba(20,16,10,.16) 0 1px,transparent 1px 3px),
+      repeating-radial-gradient(circle at 32% 40%,#6b6455 0 1.3px,transparent 1.3px 3px),
+      repeating-radial-gradient(circle at 68% 66%,#565040 0 1.1px,transparent 1.1px 2.6px),
+      linear-gradient(160deg,#8b8473 0%,#585343 100%)}
+  .cut figcaption{font-size:10px;line-height:1.35;color:#3a2e1c;padding:5px 7px;
     font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.03em}
 
   .notice{break-inside:avoid;border:1px solid #241c10;padding:7px 8px;margin:0 0 12px;
-    text-align:center;font-size:10.5px;line-height:1.4;color:#2c2213}
+    text-align:center;font-size:10.5px;line-height:1.42;color:#2c2213}
   .notice .t{font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.16em;font-size:11px;
     display:block;margin-bottom:3px}
   .notice.ad .big{font-family:"IM Fell English SC",Georgia,serif;font-size:15px;letter-spacing:.06em;display:block}
+  a.want{display:block;color:inherit;text-decoration:none;cursor:pointer}
+  a.want .notice{transition:border-color .15s,background .15s}
+  a.want:hover .notice{border-color:#7a2a1c;background:rgba(122,42,28,.05)}
 
   .jump{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.16em;
     color:#4a3b22;margin-top:4px}
+
+  .colophon{border-top:1px solid #a99a72;margin-top:16px;padding-top:6px;
+    font-family:"IM Fell English SC",Georgia,serif;font-size:8.6px;letter-spacing:.1em;
+    color:#5a4a2c;text-align:center;line-height:1.6}
 
   /* ---- his marks ---- */
   .circ{position:relative}
@@ -85,13 +123,15 @@
     border-radius:58% 42% 55% 45%/48% 56% 44% 52%;transform:rotate(-2.2deg);
     mix-blend-mode:multiply;opacity:.72;pointer-events:none}
 
-  .wash{position:absolute;left:-4px;top:1120px;width:120px;color:#33405c;transform:rotate(4deg);
+  .wash{position:absolute;left:-6px;top:1160px;width:118px;color:#33405c;transform:rotate(4deg);
     line-height:1;pointer-events:none}
   .wash .glyph{width:15px;height:20px}
-  .wash .cap{display:block;font-family:Georgia,serif;font-size:8px;color:#7a2a2a;margin-top:4px;letter-spacing:.18em}
+
+  #static{position:fixed;inset:0;display:none;z-index:80}
 
   @media(max-width:640px){
     .cols{column-count:1}
+    .ear{position:static;width:auto;margin:8px 0 0}
     .wash{position:static;width:auto;transform:none;margin:14px 0}
   }
 
@@ -104,9 +144,19 @@
 <div class="frame">
   <div class="sheet">
 
+    <div class="folio">
+      <span>STILLWATER, HARMON COUNTY</span>
+      <span>&#9733;</span>
+      <span>PAGE ONE</span>
+    </div>
+
     <div class="flag">
       <h1>The Stillwater Clarion</h1>
       <div class="est">Harmon County &middot; Established 1891 &middot; Published Wednesdays</div>
+      <div class="ear">
+        <b>TODAY</b>
+        Fair, colder.<br>High 31, low 9.<br>Lake ice unsafe.
+      </div>
     </div>
     <div class="rag">
       <span>VOL. CIII &nbsp; NO. 19</span>
@@ -115,9 +165,9 @@
     </div>
 
     <div class="kicker">FIFTEEN YEARS ON</div>
-    <h2 class="hed">The Town That Emptied in a Year No One Will Number</h2>
-    <div class="deck">Between the fall of 1977 and the fall of 1978, Stillwater lost nine
-    of every ten residents. The county kept no full account of it. Most of the people
+    <h2 class="hed">Stillwater&rsquo;s Missing Year</h2>
+    <div class="deck">Between the fall of 1977 and the fall of 1978 the village lost nine
+    of every ten residents. The county kept no full account of it, and most of the people
     still here will not put a number on the year, or a name to who is gone.</div>
     <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
 
@@ -213,21 +263,50 @@
       the north side of Lake Street are the laundromat, the post office, and Pyle&rsquo;s.
       <!-- TEXT: Max --></p>
 
-      <p>&ldquo;You keep waiting for somebody to come and ask about it properly,&rdquo;
-      Verna Kohl said. &ldquo;Nobody ever has. After a while you understand nobody is
-      going to. And then some days you cannot remember what it was you meant to tell
-      them.&rdquo; <!-- TEXT: Max --></p>
+      <p class="end">&ldquo;You keep waiting for somebody to come and ask about it
+      properly,&rdquo; Verna Kohl said. &ldquo;Nobody ever has. After a while you
+      understand nobody is going to. And then some days you cannot remember what it
+      was you meant to tell them.&rdquo; <!-- TEXT: Max --></p>
 
       <p class="jump">See STILLWATER, Page 6A</p>
+
+      <a class="want" id="toFeed" href="feed.html">
+        <div class="notice">
+          <span class="t">INFORMATION WANTED</span>
+          Concerning the household at 4 Beaufort Ave., Stillwater, and the people who
+          lived in it. Names not required. Any recollection at all. This notice will run
+          until it is answered. &mdash; leave word at this paper
+        </div>
+      </a>
 
       <div class="notice">
         <span class="t">FIRST LUTHERAN CHURCH</span>
         Service 2nd &amp; 4th Sundays, 9 a.m. &middot; Osgood Bldg. &middot; All are welcome.
       </div>
 
+      <div class="notice">
+        <span class="t">INSIDE TODAY</span>
+        Deaths &amp; Cards of Thanks &hellip; 4A<br>
+        Township Board minutes &hellip; 5A<br>
+        Church Notes &hellip; 5A<br>
+        Classified &amp; Legals &hellip; 8A<br>
+        Weather &amp; Lake Report &hellip; 2A
+      </div>
+
+      <div class="notice ad">
+        <span class="big">THE CLARION</span>
+        Delivered in the county, $6 the year.<br>Payable in advance &middot; MELrose 4&#8209;2100
+      </div>
+
     </div><!-- /cols -->
 
-    <div class="wash" id="wash"><span class="cap">pencil &mdash; not printed</span></div>
+    <div class="colophon">
+      Published Wednesdays at the Osgood Building, Stillwater &middot; Founded 1891 by A. R. Pym
+      &middot; Entered as second-class matter at the Stillwater post office &middot;
+      Subscriptions $6 the year, payable in advance
+    </div>
+
+    <div class="wash" id="wash"></div>
 
   </div>
 
@@ -237,13 +316,30 @@
   </div>
 </div>
 
-<!-- a transcription. the marks are his. the pencil line is not printed and not english. -->
+<canvas id="static"></canvas>
+
+<!-- a transcription. the marks are his. the pencil in the margin is not printed and not english.
+     the notice seeking word of no. 4 beaufort goes where word is left. -->
 <script src="ledger/cipher.js"></script>
 <script>
   if(window.CIPHER){
     var w = document.getElementById('wash');
     w.insertAdjacentHTML('afterbegin', CIPHER.washWord('mislaid'));   // his word for it. TEXT: Max
   }
+
+  // the "information wanted" notice -> the wall of what people can still say
+  document.getElementById('toFeed').addEventListener('click', function(e){
+    e.preventDefault();
+    var c = document.getElementById('static'); c.style.display = 'block';
+    var x = c.getContext('2d'); c.width = innerWidth; c.height = innerHeight;
+    var stop = performance.now() + 780;
+    (function f(t){
+      var im = x.createImageData(c.width, c.height), d = im.data;
+      for(var i=0;i<d.length;i+=4){ var v=(Math.random()*255)|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
+      x.putImageData(im,0,0);
+      if(t < stop) requestAnimationFrame(f); else location.href = 'feed.html';
+    })(performance.now());
+  });
 </script>
 </body>
 </html>
