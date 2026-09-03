@@ -353,19 +353,54 @@
   var KEY_PHRASE = 'some things arrive only if you write them down';
   function normalize(s){ return s.toLowerCase().replace(/[^a-z ]+/g,'').replace(/\s+/g,' ').trim(); }
 
+  function recordSent(text){
+    if(!LS) return;
+    LS.setItem('ap_lastMessage', text);
+    var arr;
+    try{ arr = JSON.parse(LS.getItem('ap_sent') || '[]'); }catch(e){ arr = []; }
+    arr.push({ t: text, ts: Date.now() });
+    if(arr.length > 40) arr = arr.slice(-40);
+    LS.setItem('ap_sent', JSON.stringify(arr));
+  }
+  function flag(name){
+    if(!LS) return;
+    var f;
+    try{ f = JSON.parse(LS.getItem('ap_flags') || '{}'); }catch(e){ f = {}; }
+    f[name] = Date.now();
+    LS.setItem('ap_flags', JSON.stringify(f));
+  }
+
   var msg = document.getElementById('msg');
   document.getElementById('sendBtn').addEventListener('click', function(){
     var text = msg.value.trim();
     if(!text) return;
-    if(LS) LS.setItem('ap_lastMessage', text);
+    var n = normalize(text);
+    recordSent(text);
     submitMessage(text);
-    var matched = normalize(text) === KEY_PHRASE;
     msg.value = '';
     var slot = document.getElementById('thanksSlot');
-    if(matched){
+
+    // the line never replies. it only files. certain words get filed under a name.
+    if(n === KEY_PHRASE){
+      flag('phrase');
       slot.innerHTML = '<span class="thanks">Then you already know where this goes.</span>';
       var na = document.getElementById('notAlone');
       na.style.color = '#0000ee'; na.style.textDecoration = 'underline';
+    }else if(/\bvael\b|\bval juane\b|\bvaeljuane\b|væl/.test(n)){   // the Choir trigger, spelled at
+      flag('choir');
+      document.body.style.transition = 'filter .06s'; document.body.style.filter = 'invert(1)';
+      setTimeout(function(){ document.body.style.filter = 'none'; }, 90);
+      if(!document.getElementById('eyes')){ var p = new Image(); p.onload = eyesTakeover; p.src = 'img/eyes.png'; }
+      slot.innerHTML = '<span class="thanks">&nbsp;</span>';
+    }else if(/\bmislaid\b|\bmalcolm\b|\bthe ledger\b|\bnyarlathotep\b|\bcarcosa\b|\bthe choir\b/.test(n)){
+      flag('early');
+      slot.innerHTML = '<span class="thanks">That is not a word people bring to a hotline. Where did you get it?</span>';
+    }else if(n === 'blink'){
+      flag('blink');
+      slot.innerHTML = '<span class="thanks">You just did.</span>';
+    }else if(n === 'help' || n === 'i need help' || n === 'need help'){
+      flag('help');
+      slot.innerHTML = '<span class="thanks">If it is tonight and it is bad: <a href="https://988lifeline.org/" target="_blank" rel="noopener">988lifeline.org</a> or your local emergency number. This page is not that. It only listens.</span>';
     }else{
       slot.innerHTML = '<span class="thanks">Thank you for trusting us with this.</span>';
     }
@@ -411,7 +446,12 @@
   // words are earned elsewhere (a page, a puzzle, the email). TEXT/keys: Max
   var AP_INDEX = {
     'blink': 'blink.html',
-    'blue':  'safeword.html'
+    'blue':  'safeword.html',
+    'the lake': 'the-lake.html',
+    'the town': 'the-lake.html',
+    'stillwater': 'stillwater.html',
+    'you sent this one': 'you-sent-this-one.html',
+    'yousentthisone': 'you-sent-this-one.html'
   };
   var AP_INDEX_COLD = {          // recognised, but no page — it just gets filed
     'mislaid':      'Where did you hear that word.',

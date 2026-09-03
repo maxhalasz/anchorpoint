@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>&mdash;</title>
+<style>
+  body{background:#0d0d0d;color:#b7b7b7;font-family:"Courier New",Courier,monospace;
+    font-size:14px;line-height:1.7;margin:0}
+  .wrap{max-width:640px;margin:0 auto;padding:44px 18px 90px}
+  h1{font-family:"Times New Roman",serif;font-size:20px;color:#cfcfcf;font-weight:normal;margin:0 0 4px}
+  .lead{color:#7a7a7a;margin-bottom:20px}
+  .rec{border-left:2px solid #333;padding:6px 0 6px 12px;margin:12px 0}
+  .rec .ts{color:#5a5a5a;font-size:11px}
+  .rec .t{color:#c7c7c7;white-space:pre-wrap}
+  .rec.anom .t{color:#c98b83}
+  .rec.mine .t{color:#e7e3d6}
+  .none{color:#5a5a5a;font-style:italic}
+  a{color:#8f8f8f}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>you sent this one</h1>
+  <div class="lead">Nothing here was answered. Nothing here was deleted. This is
+  what the box did with what you gave it. <!-- TEXT: Max --></div>
+
+  <div id="list"></div>
+
+  <p style="margin-top:34px"><a href="index.html">&larr; AnchorPoint</a></p>
+</div>
+
+<!-- the record only grows. it never replies. -->
+<script>
+(function(){
+  var list = document.getElementById('list');
+  var sent = [], flags = {};
+  try{ sent = JSON.parse(localStorage.getItem('ap_sent') || '[]'); }catch(e){}
+  try{ flags = JSON.parse(localStorage.getItem('ap_flags') || '{}'); }catch(e){}
+
+  function stamp(ts){
+    var d = new Date(ts || Date.now());
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0')
+         + '  ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+  function rec(cls, ts, text){
+    var el = document.createElement('div');
+    el.className = 'rec ' + cls;
+    el.innerHTML = '<div class="ts">filed ' + stamp(ts) + '</div><div class="t"></div>';
+    el.querySelector('.t').textContent = text;
+    list.appendChild(el);
+  }
+
+  // always on file — TEXT: Max
+  rec('anom', 0, "It listed my exact IP address. How did you get that.");
+  rec('anom', 0, "you sent this one. it is still here.");
+
+  // filed under a name because of what you typed on the front page — TEXT: Max
+  if(flags.early)  rec('anom', flags.early,  "You used a word that is not in the leaflet. That has been noted against this session.");
+  if(flags.choir)  rec('anom', flags.choir,  "—");
+  if(flags.blink)  rec('anom', flags.blink,  "You have started counting. That is on file now too.");
+  if(flags.phrase) rec('anom', flags.phrase, "It arrived. You wrote it down and it arrived.");
+
+  if(!sent.length){
+    var n = document.createElement('div'); n.className = 'none';
+    n.textContent = 'You have not sent anything from this browser.';
+    list.appendChild(n);
+  } else {
+    for(var i=sent.length-1;i>=0;i--) rec('mine', sent[i].ts, sent[i].t);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>&mdash;</title>
+<style>
+  body{background:#3a3730;color:#e7e2d4;font-family:"Times New Roman",Times,serif;margin:0;
+    font-size:16px;line-height:1.5}
+  .wrap{max-width:680px;margin:0 auto;padding:34px 14px 80px}
+  .sheet{position:relative;background:#efe7d0;color:#242017;padding:30px 34px;
+    box-shadow:0 10px 40px rgba(0,0,0,.55);filter:grayscale(.25) contrast(1.03)}
+  .masthead{font-family:"IM Fell English SC","Times New Roman",serif;font-size:23px;letter-spacing:3px;
+    text-align:center;border-bottom:3px double #201c14;padding-bottom:5px}
+  .dateline{display:flex;justify-content:space-between;font-family:Verdana,Arial,sans-serif;
+    font-size:9px;letter-spacing:1px;color:#5a5240;border-bottom:1px solid #201c14;padding:3px 0;margin-bottom:14px}
+  h2{font-family:"IM Fell English SC","Times New Roman",serif;font-size:21px;line-height:1.18;margin:6px 0 10px}
+  .byline{font-style:italic;color:#5a5240;font-size:13px;margin-bottom:12px}
+  .cols{column-count:2;column-gap:22px;font-size:13px;line-height:1.55;text-align:justify}
+  .cut{break-inside:avoid;background:#e2d8bd;border:1px solid #c2b593;padding:7px;margin:0 0 10px;
+    text-align:center;font-family:Verdana,Arial,sans-serif;font-size:9px;color:#5a5240}
+  .cut .void{height:110px;background:repeating-linear-gradient(45deg,#d6cbac 0 8px,#ccbf9c 8px 16px);margin-bottom:4px}
+  .circ{position:relative;display:inline-block}
+  .circ::after{content:"";position:absolute;inset:-4px -7px;border:2px solid #8a2b18;
+    border-radius:60% 45% 58% 42%/52% 58% 44% 52%;transform:rotate(-2deg);pointer-events:none}
+  .wash{position:absolute;right:-2px;top:120px;width:130px;color:#33405c;transform:rotate(-5deg);line-height:1}
+  .wash .glyph{width:15px;height:20px}
+  .wash .cap{display:block;font-family:Verdana,Arial,sans-serif;font-size:8px;color:#7a2a2a;margin-top:3px;letter-spacing:1px}
+  @media(max-width:560px){ .cols{column-count:1} .wash{position:static;width:auto;margin:12px 0;transform:none} }
+  .foot{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#cabfa0;margin-top:24px}
+  .foot a{color:#cabfa0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sheet">
+    <div class="masthead">THE COUNTY LEDGER-ADVERTISER</div>
+    <div class="dateline"><span>PLACE: Max</span><span>DATE: Max &mdash; a retrospective feature, some years after</span><span>PRICE: Max</span></div>
+
+    <h2>THE TOWN THAT EMPTIED IN A YEAR NOBODY WILL NUMBER</h2>
+    <div class="byline">A lakeside settlement lost most of its people in the late seventies. The people who remain do not agree on when, and the county cannot say why. &mdash; BYLINE / BODY: Max</div>
+
+    <div class="cols">
+      <div class="cut"><div class="void"></div>Main Street, <span class="circ">Stillwater</span>, 1974. Population then was near eight hundred.</div>
+
+      <p>Write this as a real regional paper would: a reporter drives out, finds
+      a small town by a lake with maybe sixty residents, most of them elderly,
+      and tries to establish what happened. <!-- TEXT: Max --></p>
+
+      <p>Key facts to fold in: the population fell from roughly eight hundred to
+      under a hundred across about twelve months at the end of the 1970s; county
+      records for that period are <span class="circ">incomplete</span>; and
+      although a great many people are said to have left or gone missing in that
+      window, the sheriff's office of the day recorded almost no missing-person
+      reports &mdash; because, in the words of one retired deputy, <span class="circ">no
+      one came forward</span> to say anyone was gone. <!-- TEXT: Max --></p>
+
+      <p>Include a resident quote that is vague and wrong-footed &mdash; someone
+      who cannot picture the neighbours they say they had, who describes looking
+      at an old class photograph and finding the faces "hard to hold." Include a
+      line that the water in the lake has never given anything back.
+      <!-- TEXT: Max --></p>
+
+      <p>Close on the reporter finding no proof of anything, only a town that
+      does not want the year counted, and a note that the paper's own morgue is
+      missing that year's editions. <!-- TEXT: Max --></p>
+    </div>
+
+    <div class="wash" id="wash"><span class="cap">&mdash; pencil, not printed &mdash;</span></div>
+  </div>
+
+  <div class="foot">
+    A transcription. The original clipping is elsewhere.
+    &nbsp;&middot;&nbsp; <a href="index.html">AnchorPoint</a>
+  </div>
+</div>
+
+<!-- dead end. the name on the caption is a page. the deputy's phrase is worth sending to the line. -->
+<script src="ledger/cipher.js"></script>
+<script>
+  if(window.CIPHER){
+    var w = document.getElementById('wash');
+    w.insertAdjacentHTML('afterbegin', CIPHER.washWord('the working'));  // TEXT: Max — Shaw's note to himself
+  }
+</script>
+</body>
+</html>
