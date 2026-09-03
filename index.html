@@ -299,7 +299,7 @@
   if(Math.random() < 0.01){
     var probe = new Image();
     probe.onload = eyesTakeover;
-    probe.src = 'img/eyes.png';
+    probe.src = 'img/eyes2.png';
   }
 
   // 1 in 100: the tab icon becomes an eye
@@ -307,7 +307,7 @@
   function setFaviconEye(){
     var lk = document.querySelector('link[rel="icon"]');
     if(!lk){ lk = document.createElement('link'); lk.rel = 'icon'; document.head.appendChild(lk); }
-    lk.href = 'img/eyes.png';
+    lk.href = 'img/eyes2.png';
   }
 
   // 1 in 100: one of the picture squares opens to nothing
@@ -322,7 +322,7 @@
     n = Math.max(120, Math.min(360, n));
     for(var i = 0; i < n; i++){
       var e = document.createElement('img');
-      e.src = 'img/eyes.png';
+      e.src = 'img/eyes2.png';
       var base = 0.22 + Math.random() * 0.38;         // settled opacity, dimmer
       e.style.position = 'absolute';
       e.style.left = (Math.random() * 100) + '%';
@@ -356,7 +356,7 @@
     location.reload();
   }
   window.AP = {
-    eyes:   function(){ if(document.getElementById('eyes')) return; var im=new Image(); im.onload=eyesTakeover; im.onerror=function(){ console.warn('img/eyes.png missing'); }; im.src='img/eyes.png'; },
+    eyes:   function(){ if(document.getElementById('eyes')) return; var im=new Image(); im.onload=eyesTakeover; im.onerror=function(){ console.warn('img/eyes2.png missing'); }; im.src='img/eyes2.png'; },
     palette:function(){ document.body.classList.toggle('pd'); },
     dream:  function(){ try{ localStorage.setItem('ap_gap','7'); localStorage.setItem('ap_pos','7'); }catch(e){} location.reload(); },
     fav:    function(){ setFaviconEye(); },

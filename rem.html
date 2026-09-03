@@ -166,16 +166,20 @@
       var dt = Math.max(8, now - lastT); lastT = now;
       var speed = movedDist / dt;               // px per ms this frame
       movedDist = 0;
-      // fast, unbroken movement climbs; anything less drains
-      depth += Math.min(0.020, speed * 0.010) - 0.010;
+      // needs deliberate, unbroken movement — a dead-zone below a real drag,
+      // and it climbs slower now; anything less drains
+      var gain = Math.max(0, speed - 0.4) * 0.011;
+      depth += Math.min(0.017, gain) - 0.010;
       if(depth < 0) depth = 0;
       if(depth > 1) depth = 1;
 
       var d = depth;
-      veil.style.opacity = Math.min(1, d * 1.7).toFixed(3);
-      veil.style.filter  = 'blur(' + ((1 - d) * 6).toFixed(2) + 'px)';
-      core.style.opacity = Math.min(0.95, d * 1.6).toFixed(3);
-      core.style.transform = 'translate(-50%,-50%) scale(' + (0.55 + d * 0.85).toFixed(3) + ')';
+      // nothing surfaces until you have moved a while
+      var v = Math.max(0, d - 0.1) / 0.9;
+      veil.style.opacity = Math.min(1, v * 1.7).toFixed(3);
+      veil.style.filter  = 'blur(' + ((1 - v) * 6).toFixed(2) + 'px)';
+      core.style.opacity = Math.min(0.95, v * 1.6).toFixed(3);
+      core.style.transform = 'translate(-50%,-50%) scale(' + (0.55 + v * 0.85).toFixed(3) + ')';
 
       if(d >= 1) leave();
     }
