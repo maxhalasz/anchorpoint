@@ -384,10 +384,6 @@
     if(n === 'help' || n === 'i need help' || n === 'need help' || /\bsuicid|\bkill myself\b|\bhurt myself\b/.test(n)){
       flag('help');
       slot.innerHTML = '<span class="thanks">If it is tonight and it is bad: <a href="https://988lifeline.org/" target="_blank" rel="noopener">988lifeline.org</a>, or your local emergency number.</span>';
-    }else if(/\bvael\b|\bval juane\b|\bvaeljuane\b|væl/.test(n)){   // väl.juˈeɪn — the Choir trigger (deserto canon)
-      flag('choir');
-      document.body.style.transition = 'filter .06s'; document.body.style.filter = 'invert(1)';
-      setTimeout(function(){ document.body.style.filter = 'none'; }, 90);
     }
     // everything else: no acknowledgement. it was still filed.
   });
