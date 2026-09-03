@@ -44,6 +44,7 @@
     padding:5px 9px;margin:4px 0;text-decoration:none;
     font-family:Verdana,Arial,sans-serif;font-size:12px}
   .navlink:visited{color:#0000ee}
+  .navlink[hidden]{display:none}
   .navlink:hover{background:#2e5d3b;color:#ffffff}
   .navlink.act{background:#9c7a3a;border-color:#6f571f;color:#ffffff}
   .navlink.act:hover{background:#6f571f}
@@ -138,6 +139,7 @@
         <li><a href="https://www.cdc.gov/mental-health/caring/index.html" target="_blank" rel="noopener">CDC &mdash; Mental Health</a></li>
         <li><a href="quiet-hours.html"><i>The Quiet Hours</i> (offline)</a></li>
         <li><a href="reading.html">Reading list</a></li>
+        <li>Site map &mdash; <a href="#">when I have time</a></li>
       </ul>
     </div></div>
 
@@ -146,6 +148,10 @@
       <input id="idxIn" type="text" autocomplete="off" spellcheck="false" placeholder="page name">
       <button id="idxGo">open</button>
       <div class="r" id="idxR"></div>
+    </div></div>
+
+    <div class="box"><div class="bar">Today</div><div class="in">
+      <div class="note" id="mood">mood: &mdash;</div>
     </div></div>
 
     <div class="box"><div class="bar">Note</div><div class="in">
@@ -286,6 +292,31 @@
     probe.onload = eyesTakeover;
     probe.src = 'img/eyes.png';
   }
+
+  // sidebar "mood": almost always plain, rarely a word that is not
+  var MOODS = ['okay','tired','grateful','quiet','hopeful','steady','fine','slow','all right'];
+  var MOODS_OFF = ['watched','counting','behind glass','not alone in here','copied','listened to','one short'];
+  function setMood(off){
+    var m = document.getElementById('mood'); if(!m) return;
+    var pool = off ? MOODS_OFF : MOODS;
+    m.textContent = 'mood: ' + pool[Math.floor(Math.random() * pool.length)];
+    if(off) flag('mood');
+  }
+  setMood(Math.random() < 0.03);
+
+  // 1 in 100: the tab icon becomes an eye
+  if(Math.random() < 0.01) setFaviconEye();
+  function setFaviconEye(){
+    var lk = document.querySelector('link[rel="icon"]');
+    if(!lk){ lk = document.createElement('link'); lk.rel = 'icon'; document.head.appendChild(lk); }
+    lk.href = 'img/eyes.png';
+  }
+
+  // 1 in 100: one of the picture squares opens to nothing
+  if(Math.random() < 0.01){
+    var sn = document.querySelectorAll('.snap');
+    if(sn.length) sn[Math.floor(Math.random() * sn.length)].setAttribute('data-black', '1');
+  }
   function eyesTakeover(){
     var v = document.createElement('div');
     v.id = 'eyes';
@@ -330,6 +361,9 @@
     eyes:   function(){ if(document.getElementById('eyes')) return; var im=new Image(); im.onload=eyesTakeover; im.onerror=function(){ console.warn('img/eyes.png missing'); }; im.src='img/eyes.png'; },
     palette:function(){ document.body.classList.toggle('pd'); },
     dream:  function(){ try{ localStorage.setItem('ap_gap','7'); localStorage.setItem('ap_pos','7'); }catch(e){} location.reload(); },
+    mood:   function(){ setMood(true); },
+    fav:    function(){ setFaviconEye(); },
+    photo:  function(){ var s=document.querySelector('.snap'); if(s){ s.setAttribute('data-black','1'); s.click(); } },
     normal: fullReset,          // "back to normal" == a full wipe
     reset:  fullReset,
     state:  function(){ return { pos:pos, gap:gap, dreaming:dreaming }; }
@@ -339,7 +373,9 @@
     dp.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:200000;background:#111;color:#9f9;font:11px/1.6 monospace;padding:8px 10px;border:1px solid #3a3';
     dp.innerHTML = '<b>AP dev</b> &nbsp;pos ' + pos + '/' + gap + (dreaming ? ' <span style="color:#f99">DREAM</span>' : '') +
       '<br><button data-a="dream">dream</button> ' +
-      '<button data-a="eyes">eyes</button> <button data-a="palette">palette</button> <button data-a="reset">reset</button>';
+      '<button data-a="eyes">eyes</button> <button data-a="palette">palette</button>' +
+      '<br><button data-a="mood">mood</button> <button data-a="fav">favicon</button> ' +
+      '<button data-a="photo">photo</button> <button data-a="reset">reset</button>';
     dp.addEventListener('click', function(e){ var a = e.target.getAttribute('data-a'); if(a && window.AP[a]) window.AP[a](); });
     document.body.appendChild(dp);
   }
@@ -421,8 +457,12 @@
   document.querySelectorAll('.snap').forEach(function(s){
     s.addEventListener('click', function(){
       var cap = s.getAttribute('data-cap');
+      var black = s.hasAttribute('data-black');
       document.getElementById('imgTitle').textContent = 'Image — ' + cap;
-      document.getElementById('bigimg').textContent = cap;
+      var bi = document.getElementById('bigimg');
+      bi.textContent = black ? '' : cap;
+      bi.style.background = black ? '#000' : '';
+      bi.style.borderColor = black ? '#000' : '';
       openOv('ovImg');
     });
   });
