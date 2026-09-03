@@ -50,6 +50,16 @@
     justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.45)}
   .end svg{width:32px;height:32px;fill:#fff;transform:rotate(135deg)}
 
+  /* voicemail-transcript branch */
+  .vm{width:100%;max-width:440px;margin:26px auto 0;padding:0 30px;display:none}
+  .vm.show{display:block}
+  .vm .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.45);
+    text-transform:uppercase;margin-bottom:8px}
+  .vm .tx{font-size:16px;line-height:1.5;color:rgba(255,255,255,.82);white-space:pre-wrap;min-height:5em}
+  .vm .tx .frag{color:rgba(255,255,255,.5)}
+  .vm .caret{display:inline-block;width:2px;height:1.05em;background:rgba(255,255,255,.6);
+    vertical-align:-2px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
 </style>
 </head>
 <body>
@@ -68,6 +78,11 @@
     <div class="state" id="callState">calling&hellip;</div>
   </div>
   <div class="avatar">&#9742;</div>
+
+  <div class="vm" id="vm">
+    <div class="lbl">Transcription &mdash; beta</div>
+    <div class="tx" id="vmtx"></div>
+  </div>
 
   <div class="spacer"></div>
 
@@ -94,6 +109,8 @@
       pad=document.getElementById('pad'),
       endBtn=document.getElementById('endBtn');
   var t0=0, tick=null, audio=null, done=false;
+  var MODE = /[?&]n=quiet\b/.test(location.search) ? 'quiet' : 'main';
+  if(MODE==='quiet') nameEl.textContent = '(207) 555-0163';
 
   function clock(){
     var d=new Date();
@@ -149,6 +166,15 @@
 
   function begin(){
     startAudio();
+    if(MODE==='quiet'){
+      setTimeout(function(){
+        if(done) return;
+        answered();                       // stop ring, low room tone under it
+        stateEl.textContent='connected';
+        setTimeout(playRecording, 700);
+      }, 4200);
+      return;
+    }
     setTimeout(function(){
       if(done) return;
       answered();
@@ -159,13 +185,59 @@
       setTimeout(endCall, 10000);
     }, 6200);
   }
+
+  // TEXT: Max — the recording on the old Quiet Hours line
+  var VM_MAIN =
+    "You've reached a number that used to be the Quiet Hours. It isn't that " +
+    "now. I keep it connected because a few people go looking for it and I would " +
+    "rather they get this than a dead tone.\n\n" +
+    "I don't take calls here. I read what comes in writing. If you're asking " +
+    "about the Hours, put those three words at the top of it and I'll know which " +
+    "pile you're in.\n\n" +
+    "That's the whole message. It won't change.";
+  var VM_FRAG = "\n\n— if this is may: i still have your letter. i didn't know where to send it back.";
+
+  function playRecording(){
+    if(done) return;
+    var vm = document.getElementById('vm'), tx = document.getElementById('vmtx');
+    vm.classList.add('show');
+    stateEl.textContent = 'playing…';
+    var full = VM_MAIN, i = 0;
+    var caret = '<span class="caret"></span>';
+    (function type(){
+      if(done) return;
+      if(i <= full.length){
+        tx.innerHTML = full.slice(0, i).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}) + caret;
+        i++;
+        setTimeout(type, full[i-1] === ' ' ? 26 + Math.random()*40 : 22 + Math.random()*46);
+      }else{
+        setTimeout(function(){
+          var base = full;
+          var j = 0;
+          (function type2(){
+            if(done) return;
+            if(j <= VM_FRAG.length){
+              tx.innerHTML = base.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];})
+                + '<span class="frag">' + VM_FRAG.slice(0,j).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}) + '</span>' + caret;
+              j++;
+              setTimeout(type2, 40 + Math.random()*55);
+            }else{
+              tx.innerHTML = tx.innerHTML.replace(caret,'');
+              stateEl.textContent = 'end of message';
+              setTimeout(endCall, 3200);
+            }
+          })();
+        }, 1400);
+      }
+    })();
+  }
   function endCall(){
     if(done) return; done=true;
     if(tick){clearInterval(tick);tick=null;}
     stopAudio();
     pad.classList.remove('live');
     nameEl.textContent='Call Ended';
-    stateEl.textContent = t0 ? fmt(Math.floor((Date.now()-t0)/1000)) : '0:00';
+    stateEl.textContent = MODE==='quiet' ? '' : (t0 ? fmt(Math.floor((Date.now()-t0)/1000)) : '0:00');
     setTimeout(function(){          // hold on "Call Ended", quick black, then hard cut back
       var k = document.createElement('div');
       k.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999';

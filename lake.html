@@ -35,8 +35,9 @@
     70%{transform:scaleX(1.004) skewX(.15deg)}
     100%{transform:none}}
 
-  .mirror{color:#2a3230;opacity:.16;transform:scaleY(-1);filter:blur(1px);
-    letter-spacing:.05em;margin:0 0 40px;pointer-events:none;user-select:none}
+  .mirror{color:#2a3230;opacity:.12;transform:scaleY(-1);filter:blur(1px);
+    letter-spacing:.05em;margin:0 0 40px;pointer-events:none;user-select:none;
+    transition:opacity .7s ease}
 
   /* what the still water gives back */
   .deep{opacity:0;filter:blur(10px);transform:translateY(26px);
@@ -84,35 +85,69 @@
 
   <span class="buried">it does not ripple. it does not flow. neither do you.</span>
 
-<!-- hold still. the water clears when you do. moving sends it back down. -->
+<!-- hold still, below the skin, with the cursor in the page. the water clears when you do.
+     any movement sends it back down. once it has fully surfaced it stays up until reload. -->
 <script>
 (function(){
-  var glass = document.getElementById('glass');
-  var deep  = document.getElementById('deep');
-  var HOLD  = 8000;                 // ms of stillness for a full reveal
-  var last  = performance.now();
-  var stirT = 0;
+  var glass  = document.getElementById('glass');
+  var deep   = document.getElementById('deep');
+  var mirror = document.querySelector('.mirror');
+  var HOLD   = 13000;              // ms of stillness for a full reveal
+  var moved  = false;             // has the cursor moved at least once since load
+  var inside = true;              // is the pointer within the page
+  var curY   = -1;                // last known pointer Y
+  var holdStart = null;           // when the current qualifying still-hold began
+  var shown  = 0;                 // eased display value
+  var locked = false;             // once fully surfaced, stays until reload
+  var stirT  = 0;
 
-  function bump(){
-    last = performance.now();
-    if(performance.now() - stirT > 900){       // don't spam the animation
+  function glassTop(){ return glass.getBoundingClientRect().top; }
+  function qualifies(){ return moved && inside && curY > glassTop(); }
+
+  function stir(){
+    if(performance.now() - stirT > 850){
       stirT = performance.now();
       glass.classList.remove('stir'); void glass.offsetWidth; glass.classList.add('stir');
     }
   }
-  ['mousemove','pointermove','wheel','scroll','keydown','touchmove','touchstart','mousedown']
-    .forEach(function(ev){ window.addEventListener(ev, bump, {passive:true}); });
+  function disturb(){ moved = true; inside = true; holdStart = null; stir(); }
 
-  function ease(t){ return t*t*(3-2*t); }       // smoothstep
+  window.addEventListener('mousemove', function(e){ curY = e.clientY; disturb(); }, {passive:true});
+  window.addEventListener('touchstart', function(e){ if(e.touches[0]) curY = e.touches[0].clientY; disturb(); }, {passive:true});
+  window.addEventListener('touchmove',  function(e){ if(e.touches[0]) curY = e.touches[0].clientY; disturb(); }, {passive:true});
+  ['wheel','scroll','keydown','mousedown'].forEach(function(ev){
+    window.addEventListener(ev, disturb, {passive:true});
+  });
+  document.addEventListener('mouseleave', function(){ inside = false; holdStart = null; });
+  document.addEventListener('mouseenter', function(e){ inside = true; curY = e.clientY; });
+
+  function ease(t){ return t*t*(3-2*t); }
 
   (function tick(now){
-    var p = ease(Math.max(0, Math.min(1, (now - last) / HOLD)));
-    deep.style.opacity   = p.toFixed(3);
-    deep.style.filter    = 'blur(' + ((1-p)*10).toFixed(2) + 'px)';
-    deep.style.transform = 'translateY(' + ((1-p)*26).toFixed(1) + 'px)';
-    deep.style.pointerEvents = p > 0.92 ? 'auto' : 'none';
-    glass.style.opacity  = (0.5 + p*0.5).toFixed(3);
-    glass.style.filter   = 'brightness(' + (1 + p*0.7).toFixed(2) + ')';
+    var target;
+    if(locked){
+      target = 1;
+    }else if(qualifies()){
+      if(holdStart === null) holdStart = now;
+      target = ease(Math.min(1, (now - holdStart) / HOLD));
+      if(target >= 1) locked = true;
+    }else{
+      holdStart = null;
+      target = 0;
+    }
+    shown += (target - shown) * 0.06;
+    if(shown < 0.0005) shown = 0;
+
+    deep.style.opacity   = shown.toFixed(3);
+    deep.style.filter    = 'blur(' + ((1-shown)*10).toFixed(2) + 'px)';
+    deep.style.transform = 'translateY(' + ((1-shown)*26).toFixed(1) + 'px)';
+    deep.style.pointerEvents = (locked || shown > 0.9) ? 'auto' : 'none';
+
+    var inZone = qualifies() && !locked;
+    glass.style.opacity = (0.5 + Math.max(shown, inZone ? 0.25 : 0) * 0.5).toFixed(3);
+    glass.style.filter  = 'brightness(' + (1 + shown*0.7 + (inZone ? 0.35 : 0)).toFixed(2) + ')';
+    mirror.style.opacity = (0.12 + (inZone ? 0.14 : 0) + shown*0.10).toFixed(3);
+
     requestAnimationFrame(tick);
   })(performance.now());
 })();
