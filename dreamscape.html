@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>DreamScape</title>
+<style>
+  :root{--crim:#5c0a12;--crim2:#7e0f1c;--crim-dk:#25060a}
+  html,body{margin:0;height:100%;background:#0a0406;overflow:hidden;
+    font-family:"Times New Roman",Times,serif;color:#e7d8cf;cursor:default}
+  #room{position:fixed;inset:0;animation:sway 19s ease-in-out infinite alternate}
+  @keyframes sway{from{transform:translateX(-6px) rotate(-.15deg)}to{transform:translateX(6px) rotate(.15deg)}}
+
+  /* velvet curtains as walls */
+  .curtain{position:fixed;top:0;bottom:0;width:34vw;z-index:2;
+    background:
+      repeating-linear-gradient(90deg,
+        var(--crim-dk) 0 8px, var(--crim) 8px 22px, var(--crim2) 22px 30px, var(--crim) 30px 44px);
+    box-shadow:inset 0 0 90px 20px rgba(0,0,0,.75)}
+  .curtain.l{left:0;background-position:0 0}
+  .curtain.r{right:0;transform:scaleX(-1)}
+  .curtain::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(0,0,0,.5),transparent 40%,rgba(0,0,0,.35))}
+  .valance{position:fixed;left:0;right:0;top:0;height:15vh;z-index:3;
+    background:
+      repeating-linear-gradient(90deg,var(--crim-dk) 0 10px,var(--crim) 10px 26px,var(--crim2) 26px 34px,var(--crim) 34px 50px);
+    box-shadow:inset 0 -40px 60px -10px rgba(0,0,0,.8), 0 6px 24px rgba(0,0,0,.6)}
+
+  /* chevron floor, in perspective */
+  .floorwrap{position:fixed;left:0;right:0;bottom:0;height:46vh;z-index:1;overflow:hidden;
+    perspective:340px;perspective-origin:50% 0}
+  .floor{position:absolute;left:-40%;right:-40%;top:0;bottom:-60%;
+    transform:rotateX(66deg);transform-origin:50% 0;
+    background-color:#d7cab0;
+    background-image:
+      linear-gradient(135deg,#2e2016 25%,transparent 25%),
+      linear-gradient(225deg,#2e2016 25%,transparent 25%),
+      linear-gradient(315deg,#2e2016 25%,transparent 25%),
+      linear-gradient(45deg,#2e2016 25%,transparent 25%);
+    background-size:72px 72px;
+    background-position:-36px 0,-36px 0,0 0,0 0;
+    box-shadow:inset 0 60px 120px rgba(0,0,0,.55)}
+  .floor::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(0deg,rgba(255,235,200,.10),transparent 55%)}
+
+  /* warm pool of light on centre stage */
+  .pool{position:fixed;left:50%;top:52%;width:70vw;height:70vh;transform:translate(-50%,-50%);
+    z-index:2;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(255,206,140,.16),rgba(255,180,110,.06) 45%,transparent 72%);
+    mix-blend-mode:screen;animation:breathe 11s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:.85;transform:translate(-50%,-50%) scale(1)}
+    50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+
+  /* the one who is standing where the light stops */
+  .figure{position:fixed;left:50%;top:50%;transform:translate(-50%,-58%);z-index:2;
+    width:120px;height:290px;pointer-events:none;opacity:.5;
+    background:radial-gradient(60% 50% at 50% 22%,#1a1012 0 40%,transparent 72%),
+      linear-gradient(180deg,#140b0d 0%,#241417 60%,transparent 100%);
+    border-radius:46% 46% 30% 30%/22% 22% 8% 8%;
+    filter:blur(1.2px) contrast(1.1);
+    animation:hover 13s ease-in-out infinite alternate}
+  @keyframes hover{from{transform:translate(-50%,-58%) rotate(-1deg)}to{transform:translate(-50%,-56%) rotate(1deg)}}
+
+  /* fog */
+  .fog{position:fixed;inset:-20%;z-index:3;pointer-events:none;mix-blend-mode:screen;opacity:.5}
+  .fog.a{background:radial-gradient(40% 55% at 30% 60%,rgba(200,205,210,.22),transparent 70%);
+    animation:fdrift 41s linear infinite}
+  .fog.b{background:radial-gradient(50% 40% at 70% 45%,rgba(190,195,205,.18),transparent 72%);
+    animation:fdrift 63s linear infinite reverse}
+  .fog.c{background:radial-gradient(60% 50% at 50% 80%,rgba(210,210,215,.16),transparent 74%);
+    animation:fdrift 87s linear infinite}
+  @keyframes fdrift{from{transform:translateX(-12%)}to{transform:translateX(12%)}}
+
+  /* grain + flicker */
+  .grain{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:gflick .5s steps(2) infinite}
+  @keyframes gflick{0%{opacity:.05}50%{opacity:.08}100%{opacity:.055}}
+
+  #glitch{position:fixed;inset:0;z-index:7;pointer-events:none}
+
+  /* text in the pool */
+  .stage{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:8;
+    width:min(620px,82vw);text-align:center;pointer-events:none}
+  .line{font-size:23px;line-height:1.6;letter-spacing:.02em;color:#f6ece3;
+    text-shadow:0 2px 4px rgba(0,0,0,.95),0 0 24px rgba(0,0,0,.9);min-height:3.2em;
+    opacity:0;transition:opacity 1.4s ease}
+  .line.on{opacity:1}
+  .line.rev{transition:opacity 1.4s ease, transform 1.6s ease;transform:scaleX(-1)}
+  .line.rev.flip{transform:scaleX(1)}
+
+  .ways{position:fixed;left:0;right:0;bottom:4vh;z-index:9;text-align:center;
+    font-family:Verdana,Arial,sans-serif;font-size:12px;letter-spacing:.14em}
+  .ways a{color:rgba(240,225,215,.42);text-decoration:none;margin:0 16px;
+    text-shadow:0 1px 6px rgba(0,0,0,.95)}
+  .ways a:hover{color:rgba(255,240,230,.95)}
+  .ways a.deep{color:rgba(255,210,160,.4)}
+  .ways a.deep:hover{color:rgba(255,225,180,.98)}
+</style>
+</head>
+<body>
+  <div id="room">
+    <div class="floorwrap"><div class="floor"></div></div>
+    <div class="figure"></div>
+    <div class="pool"></div>
+    <div class="curtain l"></div>
+    <div class="curtain r"></div>
+    <div class="valance"></div>
+    <div class="fog a"></div><div class="fog b"></div><div class="fog c"></div>
+  </div>
+  <div class="grain"></div>
+  <canvas id="glitch"></canvas>
+
+  <div class="stage"><div class="line" id="line"></div></div>
+
+  <div class="ways">
+    <a href="index.html" id="wake">wake up</a>
+    <a href="notcrazy.html" class="deep" id="toward">walk toward where the light narrows</a>
+  </div>
+
+<!-- dreamscape. the nav item shows only while the front page is dreaming. two ways out:
+     wake (index) or walk toward it (notcrazy). nothing here explains itself. -->
+<script>
+(function(){
+  // ---- oblique text, letter-timed, cycling. no lore. TEXT: Max ----
+  var LINES = [
+    { t:"You keep coming back on the nights you do not count." },
+    { t:"The chairs are set the way they are in the house you could never describe to anyone." },
+    { t:"In the next room someone read a list out loud. Your name was in it, in the wrong voice." },
+    { t:"the way out is the way you never look at", rev:true },
+    { t:"Nothing in here wants anything from you. That is the part that keeps you up." },
+    { t:"When the light gets narrow, go toward it. It is only a door." }
+  ];
+  var line = document.getElementById('line'), idx = -1, alive = true;
+
+  function show(next){
+    var item = LINES[next];
+    line.className = 'line' + (item.rev ? ' line rev' : '');
+    line.textContent = item.t;
+    // fade in
+    requestAnimationFrame(function(){ line.classList.add('on'); });
+    if(item.rev){
+      setTimeout(function(){ line.classList.add('flip'); }, 2600);
+    }
+  }
+  function cycle(){
+    if(!alive) return;
+    line.classList.remove('on');
+    setTimeout(function(){
+      idx = (idx + 1) % LINES.length;
+      show(idx);
+    }, 1500);
+    setTimeout(cycle, 7200);
+  }
+  setTimeout(function(){ idx = 0; show(0); setTimeout(cycle, 7200); }, 900);
+
+  // ---- rare glitch ----
+  var g = document.getElementById('glitch'), gx = g.getContext('2d');
+  function sizeG(){ g.width = innerWidth; g.height = innerHeight; }
+  sizeG(); addEventListener('resize', sizeG);
+  function glitch(){
+    if(!alive) return;
+    var frames = 4 + (Math.random()*5|0);
+    document.body.style.filter = Math.random() < .5 ? 'invert(1) hue-rotate(180deg)' : 'contrast(1.6) saturate(0)';
+    (function f(n){
+      if(n <= 0){ document.body.style.filter = 'none'; gx.clearRect(0,0,g.width,g.height); schedule(); return; }
+      gx.clearRect(0,0,g.width,g.height);
+      for(var i=0;i<18;i++){
+        var y = Math.random()*g.height, h = 2 + Math.random()*26, dx = (Math.random()*60-30);
+        gx.fillStyle = 'rgba(' + (Math.random()<.5?'255,40,60':'20,20,25') + ',' + (0.05+Math.random()*0.2).toFixed(2) + ')';
+        gx.fillRect(dx, y, g.width, h);
+      }
+      requestAnimationFrame(function(){ f(n-1); });
+    })(frames);
+  }
+  function schedule(){ setTimeout(glitch, 6000 + Math.random()*11000); }
+  schedule();
+
+  // ---- soft drone on first interaction (autoplay-safe) ----
+  var started = false;
+  function drone(){
+    if(started) return; started = true;
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext, ac = new Ctx();
+      var m = ac.createGain(); m.gain.value = 0; m.connect(ac.destination);
+      var o1 = ac.createOscillator(); o1.type='sine'; o1.frequency.value=54;
+      var o2 = ac.createOscillator(); o2.type='sine'; o2.frequency.value=54.6;
+      var lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=180;
+      o1.connect(lp); o2.connect(lp); lp.connect(m);
+      var nb = ac.createBufferSource(), buf = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate), ch = buf.getChannelData(0);
+      for(var i=0;i<ch.length;i++) ch[i] = (Math.random()*2-1)*0.4;
+      nb.buffer = buf; nb.loop = true;
+      var bp = ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=380; bp.Q.value=0.6;
+      var ng = ac.createGain(); ng.gain.value=0.12; nb.connect(bp); bp.connect(ng); ng.connect(m);
+      o1.start(); o2.start(); nb.start();
+      m.gain.linearRampToValueAtTime(0.16, ac.currentTime + 3);
+      window.addEventListener('pagehide', function(){ try{ ac.close(); }catch(e){} });
+    }catch(e){}
+  }
+  ['pointerdown','keydown','mousemove'].forEach(function(ev){
+    window.addEventListener(ev, drone, { once:true, passive:true });
+  });
+
+  window.addEventListener('pagehide', function(){ alive = false; });
+})();
+</script>
+</body>
+</html>

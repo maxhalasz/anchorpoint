@@ -129,6 +129,7 @@
       <a class="navlink" href="#" id="navDonate">Donate</a>
       <a class="navlink" href="#team">Join the Team</a>
       <a class="navlink" href="about.html">About</a>
+      <a class="navlink" href="dreamscape.html" id="roomNav" hidden>The Room</a>
     </div></div>
 
     <div class="box"><div class="bar">Links</div><div class="in">
@@ -274,6 +275,7 @@
   var dreaming = (pos > gap);
   document.getElementById('siteName').textContent = dreaming ? 'DreamScape' : 'AnchorPoint';
   document.title = dreaming ? 'DreamScape' : 'AnchorPoint';
+  if(dreaming){ var rn = document.getElementById('roomNav'); if(rn) rn.hidden = false; }
 
   // 1 in 100: the site's amber accent quietly goes green
   if(Math.random() < 0.01) document.body.classList.add('pd');
@@ -437,6 +439,8 @@
     'reading': 'reading.html',
     'reading list': 'reading.html',
     'guestbook': 'guestbook.html',
+    'dreamscape': 'dreamscape.html',
+    'the room': 'dreamscape.html',
     'about': 'about.html',
     'about me': 'about.html',
     'you sent this one': 'yousentthisone.html',
