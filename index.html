@@ -267,14 +267,20 @@
   var visits = 0;
   if(LS){ visits = (parseInt(LS.getItem('ap_visits'),10) || 0) + 1; LS.setItem('ap_visits', String(visits)); }
 
-  // hidden cadence: 7-10 normal loads, then ONE shown as "DreamScape", repeat forever
-  function newGap(){ return 7 + Math.floor(Math.random()*4); }   // 7..10 inclusive
+  // once you have actually been through dreamscape.html this session, the dream
+  // comes round a little less often. session-only — a fresh tab is back to normal.
+  var dsSeen = false;
+  try{ dsSeen = !!sessionStorage.getItem('ds_seen'); }catch(e){}
+
+  // hidden cadence: N normal loads, then ONE shown as "DreamScape", repeat forever
+  function newGap(){ return dsSeen ? (10 + Math.floor(Math.random()*7)) : (7 + Math.floor(Math.random()*4)); }
   var pos = 0, gap = 0;
   if(LS){
     pos = parseInt(LS.getItem('ap_pos'),10) || 0;
     gap = parseInt(LS.getItem('ap_gap'),10);
   }
-  if(!(gap >= 7 && gap <= 10)) gap = newGap();
+  if(!(gap >= 7 && gap <= 16)) gap = newGap();
+  if(!dsSeen && gap > 10) gap = newGap();       // fresh session shrinks the cycle back
   pos += 1;
   if(pos > gap + 1){ gap = newGap(); pos = 1; }
   if(LS){ LS.setItem('ap_pos', String(pos)); LS.setItem('ap_gap', String(gap)); }

@@ -6,26 +6,50 @@
 <meta name="robots" content="noindex,nofollow">
 <title> </title>
 <style>
-  html,body{margin:0;height:100%;overflow:hidden;background:#000}
+  html,body{margin:0;height:100%;overflow:hidden;background:#050505}
   #wrap{position:fixed;inset:0;overflow:hidden}
+
   /* a fixed-width wall, far wider than a screen. at 100%-50% zoom you only see
      its middle; zoom the browser out and the whole width — and its edges —
-     come into view. */
+     come into view. that is the puzzle. */
   #wall{position:absolute;top:0;left:50%;width:4400px;margin-left:-2200px;will-change:transform}
-  .seg{position:relative;
-    font-family:Arial, Helvetica, sans-serif;font-size:19px;line-height:1.95;color:#9a9a9a;
-    text-align:justify;word-spacing:1px}
-  .seg .body{padding:0}
+  .seg{position:relative;font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1.95;
+    text-align:justify;word-spacing:1px;
+    text-shadow:-0.6px 0 rgba(255,40,60,.28), 0.6px 0 rgba(40,150,255,.22)}
+  .seg .m{color:#9a9a9a}
+  .seg .m.g{color:#8b9a86}
+  .seg .m.b{color:#a68d8d}
+  .seg .m.w{font-weight:700}
+  .seg .m.s{letter-spacing:1.4px}
+  .seg .m.f{filter:blur(.5px)}
+  .seg .sep{color:#3a3a3a}
+
   /* the way onward sits at the true edges of the wall */
   .edge{position:absolute;top:50%;transform:translateY(-50%);
-    font-family:Arial,Helvetica,sans-serif;font-size:17px;color:#8f8f8f;text-decoration:none;width:340px}
+    font-family:Arial,Helvetica,sans-serif;font-size:17px;color:#8f8f8f;text-decoration:none;width:340px;
+    text-shadow:0 0 1px #000}
   .edge.l{left:10px}
   .edge.r{right:10px;text-align:right}
+
+  /* analog texture, none of it over the left/right edges */
+  #grain{position:fixed;left:-100%;top:-100%;width:300%;height:300%;z-index:20;pointer-events:none;
+    background:url("img/tex/ds-grain.jpg");background-size:300px 300px;opacity:.09;
+    mix-blend-mode:overlay;animation:gr 1.15s steps(6) infinite}
+  @keyframes gr{0%,100%{transform:translate(0,0)}20%{transform:translate(-12%,6%)}
+    40%{transform:translate(6%,-14%)}60%{transform:translate(12%,4%)}80%{transform:translate(-4%,12%)}}
+  #scan{position:fixed;inset:0;z-index:21;pointer-events:none;opacity:.4;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px)}
+  #fade{position:fixed;inset:0;z-index:22;pointer-events:none;
+    background:linear-gradient(180deg,#050505 0%,transparent 11%,transparent 89%,#050505 100%)}
+
   #veil{position:fixed;inset:0;display:none;z-index:50}
 </style>
 </head>
 <body>
   <div id="wrap"><div id="wall"></div></div>
+  <div id="grain"></div>
+  <div id="scan"></div>
+  <div id="fade"></div>
   <canvas id="veil"></canvas>
 
   <!-- the way onward is only legible when you zoom the browser out. that is the puzzle. -->
@@ -95,19 +119,44 @@
 "It listed my exact IP address. How did you get that.",
 "The text box flashed three times before I started typing. Is someone else on this line.",
 "Why does the background go a lighter grey if I do not move my mouse for five minutes.",
-"you sent this one. it is still here."
+"you sent this one. it is still here.",
+"I found this IP pasted in a forum thread that got deleted five minutes later. If anyone reads this, I just want you to know that the heavy feeling in the chest actually turns into something you can carry. Sometime. Someday.",
+"My therapist told me to track my triggers in a journal. I filled three notebooks. Yesterday I read through them and realized the trigger is just being awake. I can’t tell her that because she’ll adjust my dosage again, and the last time she did that, they came back for a few days,. then they were gone.",
+"I’m so tired of being told to drink water and go for a walk. I walked six miles yesterday in the freezing rain until my toes went numb, and when I got back to my apartment, the silence inside was still louder than the fucking wind outside. I hate it here. I hate it inside my head.",
+"I haven't left my apartment in five days because every time I put my hand on the doorknob, I get a sudden, overwhelming feeling that the hallway outside isn't there anymore.",
+"I tried to cry earlier just to see if I could still do it. Nothing came out, but my eyes burned like salt had been rubbed into them. I don't feel human anymore.",
+"What's the thing with this website with Dreamscape? Dreamscope? It's freaking me out man fix that",
+"The leaves outside my apartment window doesn't move when the wind blows. The other trees move. That one just stands completely still.",
+"I’m scared to go to sleep because when I wake up, there’s about three seconds where I forget everything, and then it all rushes back into my chest at once like cold water. Those three seconds are the worst part of my day. I haven't had a good dream since I first got fucked up in the head and I haven't had a good day since. I feel like I am crawling beneath someone elses skin.",
+'I posted on r/mentalhealth last week asking for help with DPDR and someone messaged me saying "just go outside bro." People on the main net are a bunch of narcissistic idiots. They only think about themselves.',
+"If you tell a doctor you feel like you aren't real, they put you on a list. If you tell your friends, they stop inviting you to dinner. So here I am, telling some mute stranger on the other side of a screen. What a fucking low point.",
+"Where even is the chat? How am I supposed to get any answers?"
   ];
 
   var mine = LS && LS.getItem('ap_lastMessage');
   var EDGE_L = "you are only seeing the middle of it";            // TEXT: Max
-  var EDGE_R = "pull back and the shape shows → here";        // TEXT: Max
+  var EDGE_R = "pull back and the shape shows &rarr; here";       // TEXT: Max
 
   // every message the SAME number of times. no favourites.
   var lines = [];
   for (var r = 0; r < 3; r++) POOL.forEach(function (t) { lines.push(t); });
   if (mine) { lines.push(mine); lines.push(mine); }
   for (var i = lines.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var x = lines[i]; lines[i] = lines[j]; lines[j] = x; }
-  var runon = lines.join('    ') + '    ';
+
+  // stable per-message styling so the wall reads varied, not flat
+  function hash(s){ var h = 0; for (var i = 0; i < s.length; i++){ h = (h * 31 + s.charCodeAt(i)) | 0; } return Math.abs(h); }
+  function cls(s){
+    var h = hash(s), c = ['m'];
+    if (h % 9 === 0) c.push('g'); else if (h % 13 === 0) c.push('b');
+    if (h % 11 === 0) c.push('w');
+    if (h % 7 === 0) c.push('s');
+    if (h % 17 === 0) c.push('f');
+    return c.join(' ');
+  }
+  function styleFor(s){
+    var h = hash(s);
+    return 'opacity:' + (0.55 + (h % 46) / 100).toFixed(2) + ';font-size:' + (17 + (h % 6)) + 'px';
+  }
 
   var wall = document.getElementById('wall');
   var vh = window.innerHeight;
@@ -115,7 +164,16 @@
   function makeSeg(){
     var seg = document.createElement('div');
     seg.className = 'seg';
-    var body = document.createElement('span'); body.className = 'body'; body.textContent = runon;
+    var body = document.createElement('span'); body.className = 'body';
+    for (var i = 0; i < lines.length; i++){
+      var m = document.createElement('span');
+      m.className = cls(lines[i]);
+      m.setAttribute('style', styleFor(lines[i]));
+      m.textContent = lines[i];
+      body.appendChild(m);
+      var sep = document.createElement('span'); sep.className = 'sep'; sep.textContent = '    ·    ';
+      body.appendChild(sep);
+    }
     seg.appendChild(body);
     var l = document.createElement('a'); l.className = 'edge l'; l.href = 'notcrazy.html'; l.textContent = EDGE_L;
     var rr = document.createElement('a'); rr.className = 'edge r'; rr.href = 'notcrazy.html'; rr.innerHTML = EDGE_R;
@@ -125,7 +183,6 @@
 
   var first = makeSeg(); wall.appendChild(first);
   var H = first.getBoundingClientRect().height;
-  // enough copies that no top/bottom edge is ever visible, even zoomed far out
   var need = Math.ceil((vh * 8) / H) + 2;
   for (var k = 1; k < Math.max(3, need); k++) wall.appendChild(makeSeg());
 

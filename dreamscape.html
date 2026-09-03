@@ -158,6 +158,9 @@
      1983 "Analysis and Assessment of Gateway Process". research puzzle. re-seals every visit. -->
 <script>
 (function(){
+  // mark this session as having been through — the front page thins the dream out after
+  try{ sessionStorage.setItem('ds_seen','1'); }catch(e){}
+
   var room = document.getElementById('room'),
       line = document.getElementById('line'),
       toward = document.getElementById('toward');
