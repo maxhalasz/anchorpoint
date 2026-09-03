@@ -83,42 +83,50 @@
   }, 1700);
 
   // ---- audio: the static has a sound, and something in it that should not be there ----
-  var ac = null, master = null, live = true;
+  var ac = null, master = null, live = true, knockBuf = null;
   function startSound(){
     if(ac) return;
     try{
       var Ctx = window.AudioContext || window.webkitAudioContext; ac = new Ctx();
       master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
 
-      var b = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate), nd = b.getChannelData(0);
-      for(var i=0;i<nd.length;i++) nd[i] = (Math.random()*2-1);
-
-      // static bed
-      var sn = ac.createBufferSource(); sn.buffer = b; sn.loop = true;
-      var hp = ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=520;
-      var sg = ac.createGain(); sg.gain.value=0.13;
-      sn.connect(hp); hp.connect(sg); sg.connect(master); sn.start();
+      // static bed -> a filter it feeds
+      var hp = ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=440;
+      var sg = ac.createGain(); sg.gain.value=0.2;
+      hp.connect(sg); sg.connect(master);
+      function synthBed(){
+        var b = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate), nd = b.getChannelData(0);
+        for(var i=0;i<nd.length;i++) nd[i] = (Math.random()*2-1);
+        var sn = ac.createBufferSource(); sn.buffer = b; sn.loop = true; sn.connect(hp); sn.start();
+      }
+      fetch('aud/tv-static.mp3').then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(function(ab){ return ac.decodeAudioData(ab); })
+        .then(function(buf){ var s = ac.createBufferSource(); s.buffer = buf; s.loop = true; s.connect(hp); s.start(); })
+        .catch(synthBed);
+      fetch('aud/knock.mp3').then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(function(ab){ return ac.decodeAudioData(ab); })
+        .then(function(buf){ knockBuf = buf; }).catch(function(){ knockBuf = null; });
 
       // a mains-ish hum living inside it — quietly wrong
       var hum = ac.createOscillator(); hum.type='sine'; hum.frequency.value=59.94;
       var hum3 = ac.createOscillator(); hum3.type='sine'; hum3.frequency.value=180;
-      var hg = ac.createGain(); hg.gain.value=0.018; hum.connect(hg); hum3.connect(hg); hg.connect(master);
+      var hg = ac.createGain(); hg.gain.value=0.03; hum.connect(hg); hum3.connect(hg); hg.connect(master);
       hum.start(); hum3.start();
 
-      // sub throb, felt more than heard
-      var sub = ac.createOscillator(); sub.type='sine'; sub.frequency.value=33;
+      // sub throb
+      var sub = ac.createOscillator(); sub.type='sine'; sub.frequency.value=34;
       var subg = ac.createGain(); subg.gain.value=0; sub.connect(subg); subg.connect(master); sub.start();
       (function throb(){
         if(!live) return;
         var t = ac.currentTime;
         subg.gain.cancelScheduledValues(t);
         subg.gain.setValueAtTime(0.0001, t);
-        subg.gain.exponentialRampToValueAtTime(0.09, t + 0.25);
-        subg.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+        subg.gain.exponentialRampToValueAtTime(0.14, t + 0.25);
+        subg.gain.exponentialRampToValueAtTime(0.0001, t + 1.7);
         setTimeout(throb, 2200 + Math.random()*900);
       })();
 
-      master.gain.linearRampToValueAtTime(0.5, ac.currentTime + 2);
+      master.gain.linearRampToValueAtTime(0.7, ac.currentTime + 2);
       window.addEventListener('pagehide', function(){ try{ ac.close(); }catch(e){} });
       oddLoop();
     }catch(e){ ac = null; }
@@ -129,20 +137,28 @@
     if(!ac || !live) return;
     var t = ac.currentTime, pick = Math.random();
     var g = ac.createGain(); g.connect(master);
-    if(pick < 0.4){
-      // a knock
-      var nb = ac.createBuffer(1, (ac.sampleRate*0.07)|0, ac.sampleRate), q = nb.getChannelData(0);
-      for(var j=0;j<q.length;j++) q[j] = (Math.random()*2-1) * Math.pow(1 - j/q.length, 2);
-      var ns = ac.createBufferSource(); ns.buffer = nb;
-      var lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=320;
-      g.gain.value = 0.09;
-      ns.connect(lp); lp.connect(g); ns.start(t);
+    if(pick < 0.42){
+      // a knock — the real fall, dropped low
+      var lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 260 + Math.random()*160;
+      lp.connect(g);
+      if(knockBuf){
+        var s = ac.createBufferSource(); s.buffer = knockBuf;
+        s.playbackRate.value = 0.7 + Math.random()*0.15;   // slower/heavier
+        g.gain.value = 0.5;
+        s.connect(lp); s.start(t);
+      }else{
+        var nb = ac.createBuffer(1, (ac.sampleRate*0.09)|0, ac.sampleRate), q = nb.getChannelData(0);
+        for(var j=0;j<q.length;j++) q[j] = (Math.random()*2-1) * Math.pow(1 - j/q.length, 2);
+        var ns = ac.createBufferSource(); ns.buffer = nb;
+        g.gain.value = 0.14;
+        ns.connect(lp); ns.start(t);
+      }
     }else if(pick < 0.72){
       // a low presence that swells in and goes
       var a = ac.createOscillator(), c2 = ac.createOscillator();
       a.type='sine'; a.frequency.value=94; c2.type='sine'; c2.frequency.value=96.7;
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.05, t + 1.7);
+      g.gain.exponentialRampToValueAtTime(0.09, t + 1.7);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 4.2);
       a.connect(g); c2.connect(g); a.start(t); c2.start(t); a.stop(t+4.4); c2.stop(t+4.4);
     }else{
@@ -154,7 +170,7 @@
       bpf.frequency.setValueAtTime(300, t);
       bpf.frequency.exponentialRampToValueAtTime(2600, t + 1.4);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.06, t + 1.35);
+      g.gain.exponentialRampToValueAtTime(0.1, t + 1.35);
       g.gain.setValueAtTime(0.0001, t + 1.42);
       rb.connect(bpf); bpf.connect(g); rb.start(t); rb.stop(t + 1.5);
     }
@@ -162,7 +178,7 @@
   function oddLoop(){
     if(!live) return;
     odd();
-    setTimeout(oddLoop, 18000 + Math.random()*34000);
+    setTimeout(oddLoop, 14000 + Math.random()*26000);
   }
 
   window.addEventListener('pagehide', function(){ live = false; });
