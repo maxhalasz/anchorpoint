@@ -25,8 +25,8 @@
   .spk.on{opacity:1}
   .spk::selection{background:#b71c1c;color:#fff}
 
-  /* the word, faint, for anyone who drag-selects the void near the end */
-  .buried{position:absolute;top:150800px;left:8px;font-size:12px;color:#050505;letter-spacing:3px}
+  /* near the end, for anyone who drag-selects the void: a plain way on */
+  .buried{position:absolute;top:150800px;left:8px;font-size:12px;color:#060606;letter-spacing:2px;text-decoration:none}
   .buried::selection{background:#b71c1c;color:#fff}
 
   #done{position:fixed;inset:0;background:#000;color:#b4b4b4;display:none;
@@ -43,11 +43,12 @@
   <span class="spk" style="top:129000px;left:14%">No door on this side either.</span>
   <span class="spk" style="top:147000px;left:50%;transform:translateX(-50%)">you keep doing it &mdash; the only thing here you do without choosing.</span>
 
-  <span class="buried">blink</span>
+  <a class="buried" href="feed.html">keep going</a>
 
   <div id="done">&hellip;</div>
 
-  <!-- no handle, no link. one word, typed. you just did it. and again. -->
+  <!-- one word. just type it, no box. you have done it four times reading this. -->
+  <!-- or drag the dark: there is a plain way on near the bottom. -->
 <script>
 (function(){
   try{ var v=(parseInt(localStorage.getItem('st_visits'),10)||0)+1; localStorage.setItem('st_visits',String(v)); }catch(e){}
@@ -71,7 +72,7 @@
     if(buf.indexOf(TARGET) !== -1){
       var d = document.getElementById('done');
       d.style.display = 'flex';
-      setTimeout(function(){ location.href = 'feed.html'; }, 650);
+      setTimeout(function(){ location.href = 'blink.html'; }, 650);
     }
   });
 })();

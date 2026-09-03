@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>&nbsp;</title>
+<style>
+  html,body{margin:0;min-height:100%;background:#0a0a0a;color:#c7c7c7;
+    font-family:"Times New Roman",Times,serif;font-size:17px;line-height:1.75}
+  #eyes{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  #eyes img{position:absolute}
+  @keyframes eb{from{opacity:var(--lo,.06)}to{opacity:var(--hi,.14)}}
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:70px 20px 90px}
+  p{margin:0 0 16px}
+  .new{color:#d8d8d8}
+  .say{display:inline-block;margin-top:22px;color:#8f8f8f;text-decoration:none;
+    border-bottom:1px solid #333}
+  .say:hover{color:#c7c7c7}
+</style>
+</head>
+<body>
+  <div id="eyes"></div>
+  <div class="wrap">
+    <p>You typed it. Someone told you to, or you worked it out. Either way you
+    are paying the kind of attention this was built to find. <!-- TEXT: Max --></p>
+
+    <p>Here is what nobody warns you about being watched: you stop doing the
+    ordinary things on your own. You hold your breath without deciding to. You
+    forget to blink until it stings. The body waits for permission it is not
+    going to get. <!-- TEXT: Max --></p>
+
+    <p class="new">The ones in the doorway never do it at all. That is how you
+    tell them from a reflection. A reflection blinks when you blink. They hold
+    the eye open and they do not look away and they do not blink.
+    <!-- TEXT: Max --></p>
+
+    <p>If your eyes have started to sting for no reason, or you have caught
+    yourself counting, that is worth writing down. Then say it back.
+    <!-- TEXT: Max --></p>
+
+    <a class="say" href="notcrazy.html">say it back</a>
+  </div>
+
+<!-- from here: notcrazy.html . they do not blink. -->
+<script>
+(function(){
+  var host = document.getElementById('eyes');
+  var im = new Image();
+  im.onload = function(){
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var n = Math.max(60, Math.min(220, Math.round(vw*vh/9000)));
+    for(var i=0;i<n;i++){
+      var e = document.createElement('img');
+      e.src = 'img/eyes.png';
+      var base = 0.06 + Math.random()*0.09;
+      e.style.left = (Math.random()*100)+'%';
+      e.style.top = (Math.random()*100)+'%';
+      e.style.width = (60 + Math.random()*200)+'px';
+      e.style.transform = 'translate(-50%,-50%) rotate('+(Math.random()*360)+'deg)';
+      e.style.filter = 'brightness('+(0.04 + Math.random()*0.1).toFixed(3)+')';
+      e.style.opacity = base.toFixed(3);
+      e.style.setProperty('--lo', Math.max(0, base-0.03).toFixed(3));
+      e.style.setProperty('--hi', (base+0.03).toFixed(3));
+      e.style.animation = 'eb '+(3+Math.random()*4).toFixed(2)+'s ease-in-out '+(Math.random()*3).toFixed(2)+'s infinite alternate';
+      host.appendChild(e);
+    }
+  };
+  im.src = 'img/eyes.png';
+})();
+</script>
+</body>
+</html>

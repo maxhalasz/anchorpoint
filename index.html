@@ -51,6 +51,12 @@
   .side ul{margin:2px 0;padding-left:17px;font-family:Verdana,Arial,sans-serif;font-size:12px}
   .side li{margin:5px 0}
   .side .note{font-size:13px;font-family:"Times New Roman",Times,serif}
+  .side .idx input{width:100%;box-sizing:border-box;font-family:"Times New Roman",serif;font-size:14px;
+    padding:3px 4px;border:1px solid #2e5d3b;background:#fff;margin-bottom:4px}
+  .side .idx button{font-family:Verdana,Arial,sans-serif;font-size:11px;padding:2px 12px;
+    background:#e2ecdb;border:1px solid #2e5d3b;cursor:pointer}
+  .side .idx .lbl{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#5c6b3a;margin-bottom:4px}
+  .side .idx .r{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#7a2a2a;margin-top:5px;min-height:1em;line-height:1.4}
 
   .sig{font-style:italic}
   ul.stats{margin:4px 0 0;padding-left:26px}
@@ -129,9 +135,16 @@
       <ul>
         <li><a href="https://www.nami.org/" target="_blank" rel="noopener">Nat'l Alliance on Mental Illness</a></li>
         <li><a href="https://www.cdc.gov/mental-health/caring/index.html" target="_blank" rel="noopener">CDC &mdash; Mental Health</a></li>
-        <li><a href="#"><i>The Quiet Hours</i> (offline)</a></li>
+        <li><a href="quiet-hours.html"><i>The Quiet Hours</i> (offline)</a></li>
         <li><a href="#">Reading list</a></li>
       </ul>
+    </div></div>
+
+    <div class="box"><div class="bar">Index</div><div class="in idx">
+      <div class="lbl">jump to a page</div>
+      <input id="idxIn" type="text" autocomplete="off" spellcheck="false" placeholder="page name">
+      <button id="idxGo">open</button>
+      <div class="r" id="idxR"></div>
     </div></div>
 
     <div class="box"><div class="bar">Note</div><div class="in">
@@ -215,6 +228,7 @@
   </div>
   <!-- note to self: stop reading the messages before bed -->
   <!-- they only arrive if you write them down. write it in the box. -->
+  <!-- the index takes page names, not just the ones on the menu. the quiet hours knew a word. -->
 
   <div class="overlay" id="ovDonate"><div class="dialog">
     <div class="tb"><span>AnchorPoint &mdash; donations</span><button data-close>&times;</button></div>
@@ -392,6 +406,33 @@
       openOv('ovImg');
     });
   });
+
+  // ---- the site index: certain words open pages that are not on the menu ----
+  // words are earned elsewhere (a page, a puzzle, the email). TEXT/keys: Max
+  var AP_INDEX = {
+    'blink': 'blink.html',
+    'blue':  'safeword.html'
+  };
+  var AP_INDEX_COLD = {          // recognised, but no page — it just gets filed
+    'mislaid':      'Where did you hear that word.',
+    'the ledger':   'Not from here.',
+    'malcolm':      'No one by that name works this line.',
+    'nyarlathotep': 'No.'
+  };
+  var idxIn = document.getElementById('idxIn'),
+      idxGo = document.getElementById('idxGo'),
+      idxR  = document.getElementById('idxR');
+  function idxSubmit(){
+    var q = normalize(idxIn.value);
+    if(!q) return;
+    if(AP_INDEX[q]){ location.href = AP_INDEX[q]; return; }
+    if(AP_INDEX_COLD[q]){ idxR.textContent = AP_INDEX_COLD[q]; submitMessage('[index] ' + q); idxIn.value = ''; return; }
+    idxR.textContent = 'There is no page by that name.';
+    submitMessage('[index] ' + q);
+    idxIn.value = '';
+  }
+  idxGo.addEventListener('click', idxSubmit);
+  idxIn.addEventListener('keydown', function(e){ if(e.key === 'Enter') idxSubmit(); });
 })();
 </script>
 </body>
