@@ -5,52 +5,245 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>&mdash;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
 <style>
-  body{background:#e7ece2;color:#141414;font-family:"Times New Roman",Times,serif;font-size:17px;
-    line-height:1.7;margin:0}
-  .wrap{max-width:560px;margin:0 auto;padding:56px 18px 90px}
-  p{margin:0 0 15px}
-  .em{color:#3a3a3a}
-  .say{display:inline-block;margin-top:20px;font-family:Verdana,Arial,sans-serif;font-size:13px;
-    color:#2e5d3b;text-decoration:none;border-bottom:1px solid #2e5d3b}
-  .small{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#5c6b3a;margin-top:30px}
-  .small a{color:#5c6b3a}
+  body{background:#231f18;margin:0;color:#20180f;
+    font-family:Georgia,"Times New Roman",Times,serif;font-size:15px;line-height:1.5;
+    background-image:radial-gradient(120% 80% at 50% 0%,#2c2820 0%,#1a1712 70%)}
+  .frame{max-width:860px;margin:0 auto;padding:34px 14px 70px}
+
+  /* ---- the sheet ---- */
+  .sheet{position:relative;background:#efe6cd;padding:26px 30px 40px;
+    transform:rotate(-.5deg);
+    box-shadow:0 2px 4px rgba(0,0,0,.5),0 18px 50px rgba(0,0,0,.55),0 40px 90px rgba(0,0,0,.4);
+    background-image:
+      radial-gradient(60% 45% at 12% 8%,rgba(150,110,60,.13),transparent 60%),
+      radial-gradient(50% 40% at 92% 82%,rgba(120,90,50,.16),transparent 60%),
+      radial-gradient(30% 22% at 78% 14%,rgba(90,70,40,.10),transparent 60%),
+      linear-gradient(90deg,transparent 49.4%,rgba(80,60,35,.10) 49.9%,rgba(255,255,255,.35) 50.2%,transparent 50.7%),
+      repeating-linear-gradient(0deg,rgba(70,55,30,.028) 0 1px,transparent 1px 3px);
+    filter:sepia(.16) contrast(1.05)}
+  .sheet::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(38px 30px at 84% 92%,rgba(60,40,20,.16),rgba(60,40,20,.05) 62%,transparent 68%),
+      radial-gradient(34px 30px at 87% 90%,transparent 55%,rgba(60,40,20,.14) 60%,transparent 66%);
+    mix-blend-mode:multiply}
+
+  /* ---- masthead ---- */
+  .flag{text-align:center;border-bottom:3px double #241c10;padding-bottom:6px}
+  .flag h1{font-family:"IM Fell English SC","IM Fell English",Georgia,serif;
+    font-weight:400;font-size:min(9vw,52px);letter-spacing:.06em;margin:0;color:#1c150c}
+  .flag .est{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.28em;
+    color:#4a3b22;margin-top:3px}
+  .rag{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;
+    font-family:"IM Fell English SC",Georgia,serif;font-size:10.5px;letter-spacing:.12em;
+    color:#4a3b22;border-bottom:1px solid #241c10;padding:4px 0 6px;margin-bottom:14px}
+
+  /* ---- headline block ---- */
+  .kicker{font-family:"IM Fell English SC",Georgia,serif;font-size:12px;letter-spacing:.34em;
+    color:#5c4a2c;text-align:center;margin:6px 0 4px}
+  h2.hed{font-family:"IM Fell English","IM Fell English SC",Georgia,serif;font-weight:400;
+    font-size:min(7.4vw,40px);line-height:1.12;text-align:center;margin:0 0 8px;color:#170f07}
+  .deck{font-style:italic;text-align:center;color:#3a2e1c;max-width:44ch;margin:0 auto 12px;
+    font-size:15px;line-height:1.42}
+  .byl{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.2em;
+    text-align:center;color:#4a3b22;border-top:1px solid #b7a97f;border-bottom:1px solid #b7a97f;
+    padding:5px 0;margin:0 0 16px}
+
+  /* ---- columns ---- */
+  .cols{column-count:3;column-gap:20px;column-rule:1px solid #b7a97f;
+    text-align:justify;hyphens:auto;font-size:13.5px;line-height:1.52}
+  .cols p{margin:0 0 9px}
+  .cols p.lead::first-letter{float:left;font-family:"IM Fell English SC",Georgia,serif;
+    font-size:44px;line-height:.82;padding:2px 6px 0 0;color:#170f07}
+  .dl{font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.14em;font-size:12px}
+
+  figure.cut{break-inside:avoid;margin:0 0 12px;border:1px solid #7d6f4c}
+  .cut .img{height:150px;
+    background:
+      repeating-radial-gradient(circle at 30% 40%,#6b6455 0 1.4px,transparent 1.4px 3px),
+      repeating-radial-gradient(circle at 70% 65%,#585144 0 1.2px,transparent 1.2px 2.6px),
+      linear-gradient(160deg,#8b8473 0%,#5f5a4c 100%);
+    background-color:#7a7362}
+  .cut figcaption{font-size:10.5px;line-height:1.35;color:#3a2e1c;padding:5px 7px;
+    font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.03em}
+
+  .notice{break-inside:avoid;border:1px solid #241c10;padding:7px 8px;margin:0 0 12px;
+    text-align:center;font-size:10.5px;line-height:1.4;color:#2c2213}
+  .notice .t{font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.16em;font-size:11px;
+    display:block;margin-bottom:3px}
+  .notice.ad .big{font-family:"IM Fell English SC",Georgia,serif;font-size:15px;letter-spacing:.06em;display:block}
+
+  .jump{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.16em;
+    color:#4a3b22;margin-top:4px}
+
+  /* ---- his marks ---- */
+  .circ{position:relative}
+  .circ::after{content:"";position:absolute;inset:-5px -8px;border:2px solid #9e2b16;
+    border-radius:58% 42% 55% 45%/48% 56% 44% 52%;transform:rotate(-2.2deg);
+    mix-blend-mode:multiply;opacity:.72;pointer-events:none}
+
+  .wash{position:absolute;left:-4px;top:1120px;width:120px;color:#33405c;transform:rotate(4deg);
+    line-height:1;pointer-events:none}
+  .wash .glyph{width:15px;height:20px}
+  .wash .cap{display:block;font-family:Georgia,serif;font-size:8px;color:#7a2a2a;margin-top:4px;letter-spacing:.18em}
+
+  @media(max-width:640px){
+    .cols{column-count:1}
+    .wash{position:static;width:auto;transform:none;margin:14px 0}
+  }
+
+  .foot{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.12em;
+    color:#b6a988;margin-top:22px;text-align:center}
+  .foot a{color:#cabf9f}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <p>You found the name on the caption, or someone gave it to you. Either way
-  you have been reading closely, and this page is for people who read closely.
-  <!-- TEXT: Max --></p>
+<div class="frame">
+  <div class="sheet">
 
-  <p>I have never been to that town. I do not need to have been. I have a file
-  on a different place that fits the same shape, and the shape is the point.
-  <!-- TEXT: Max --></p>
+    <div class="flag">
+      <h1>The Stillwater Clarion</h1>
+      <div class="est">Harmon County &middot; Established 1891 &middot; Published Wednesdays</div>
+    </div>
+    <div class="rag">
+      <span>VOL. CIII &nbsp; NO. 19</span>
+      <span>STILLWATER &middot; <span class="dl">DATE: Max &mdash; a Wednesday, 1993</span></span>
+      <span>THIRTY-FIVE CENTS</span>
+    </div>
 
-  <p class="em">People near a certain kind of site stop being looked at. First
-  the eye slides off them in a room. Then the people who love them look straight
-  at them and see a coat over a chair, a shadow, the wall &mdash; whatever is dull
-  enough to fill the gap. By the time anyone would think to file a report there
-  is no one in the house who remembers there was someone to file about.
-  <!-- TEXT: Max --></p>
+    <div class="kicker">FIFTEEN YEARS ON</div>
+    <h2 class="hed">The Town That Emptied in a Year No One Will Number</h2>
+    <div class="deck">Between the fall of 1977 and the fall of 1978, Stillwater lost nine
+    of every ten residents. The county kept no full account of it. Most of the people
+    still here will not put a number on the year, or a name to who is gone.</div>
+    <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
 
-  <p class="em">The last thing to go wrong, in the two accounts I have that got
-  that far, is the mouth. It keeps coming in. New teeth behind the old ones,
-  rows of them, and the person stops being a face in the doorway and becomes
-  just the mouth in the doorway, and then they are gone and unremembered and
-  the water never gives anything back. <!-- TEXT: Max --></p>
+    <div class="cols">
 
-  <p>I tried to hold one of the names from that file in my head for an hour.
-  It went soft in my hands like a wet page. If you have had an hour like that
-  &mdash; a name, a face, a room that was the wrong size when you woke &mdash;
-  you are not losing your mind. You have been standing too close to something.
-  Write it down. Then say it back. <!-- TEXT: Max --></p>
+      <figure class="cut">
+        <div class="img"></div>
+        <figcaption>LAKE STREET, looking north from the Marne Hotel, undated, from the
+        Clarion files. Fourteen of the seventeen storefronts in this view stood vacant
+        by 1980. &mdash; Clarion file photo &nbsp;/&nbsp; IMG: Max</figcaption>
+      </figure>
 
-  <a class="say" href="notcrazy.html">say it back &rarr;</a>
+      <p class="lead"><span class="dl">STILLWATER</span> &mdash; The 1980 federal census
+      put the population of this village at <span class="circ">62</span>. Ten years
+      earlier it had been 811. The fall &mdash; better than ninety percent in a decade
+      &mdash; was the steepest of any incorporated place in the state, and nearly all
+      of it happened inside one twelve-month stretch that began, as close as anyone
+      here will say, in the autumn of 1977. <!-- TEXT: Max --></p>
 
-  <div class="small">The transcript is at <a href="the-lake.html">the lake</a>.
-  There is a note on it in a hand you cannot read yet.</div>
+      <p>There is no agreed account of what happened. The Halvorsen mine had closed in
+      1971, and that loss was real and well recorded: severance notices, a supper at
+      the Marne Hotel, letters back from families resettled in Duluth and the Cities.
+      What came six years later left no paper of that kind. People did not pack and
+      say goodbye. By the reckoning of those who stayed, the town simply woke a little
+      smaller each week through that year and did not remark on it. <!-- TEXT: Max --></p>
+
+      <p>&ldquo;Eleven years I sat that desk,&rdquo; said Harold Mesick, 71, the
+      resident sheriff&rsquo;s deputy for Stillwater until 1979. &ldquo;In the whole
+      of that year I did not take one missing-person report. Not one. Nobody came
+      in to <span class="circ">say a name</span>. You cannot file on a
+      person if there&rsquo;s nobody left who remembers to miss them.&rdquo;
+      <!-- TEXT: Max --></p>
+
+      <p>Harmon County&rsquo;s own records for the period are incomplete. County Clerk
+      Carl Wisz said the 1978 property-tax rolls carry <span class="circ">nineteen
+      parcels</span> paid current by owners the office has never matched to a resident,
+      living or dead. &ldquo;The money comes in. It still does, some years. We send the
+      notices to the addresses and once in a while somebody pays them. I have a drawer
+      of receipts signed in hands I cannot read.&rdquo; <!-- TEXT: Max --></p>
+
+      <div class="notice ad">
+        <span class="big">PYLE&rsquo;S HARDWARE</span>
+        Lake St. at Cass &middot; MELrose 4&#8209;2971<br>Paint &middot; Tackle &middot; Since 1912
+      </div>
+
+      <p>At First Lutheran, the Rev. Thomas Ault &mdash; who by the late 1980s drove in
+      from Two Harbors to hold a service every second Sunday &mdash; keeps the
+      membership book from those years on the vestry shelf. &ldquo;Two hundred and
+      forty communicants in 1976,&rdquo; he said, turning to the page. &ldquo;Two
+      hundred and forty in 1979. Not one name <span class="circ">crossed out</span>.
+      There was no one to cross them out, and no one to say they should be.&rdquo;
+      <!-- TEXT: Max --></p>
+
+      <p>The Clarion&rsquo;s own file has a hole in it. Frank Deller, 79, who edited and
+      largely set this paper from 1954 to 1983, went back some years ago to bind the
+      run for 1977 and 1978. &ldquo;Between about the middle of October and the
+      following September there is nothing in the morgue but the front-page flags,&rdquo;
+      he said. &ldquo;Eleven months of issues. I set most of those pages with my own
+      hands and I could not tell you now what was on them. The type went back in the
+      case and that was that.&rdquo; <!-- TEXT: Max --></p>
+
+      <p>What residents describe, when they will describe it, is less grief than a gap.
+      Verna Kohl, 68, who has run the laundromat on Lake Street since 1961 and is one
+      of the last people operating a business in town, put it this way: &ldquo;I know
+      there were more of us. I cannot give you the faces. I have sat with the old class
+      pictures and tried. You count the <span class="circ">shadows</span> on the ground
+      in those photographs and there are more of us standing there than there are faces
+      to go around.&rdquo; <!-- TEXT: Max --></p>
+
+      <div class="notice">
+        <span class="t">NOTICE OF FORFEITURE</span>
+        HARMON COUNTY. Taxes on the parcels listed below remain unpaid for 1978&ndash;1981
+        and are subject to forfeiture to the State. Owners of record may redeem at the
+        County Treasurer, Osgood Bldg., Stillwater. Parcels 07&#8209;114 through
+        07&#8209;133. &mdash; <i>cont. 6A</i>
+      </div>
+
+      <p>The lake has settled nothing. Divers hired by the county in 1981 to search the
+      deep hole off Beaufort Point brought up two rowboats and a 1964 sedan and nothing
+      else. &ldquo;People want to say they all walked into the water,&rdquo; Mesick said.
+      &ldquo;The lake has never given a body back, not in my time nor before it. But
+      eight hundred people do not walk into a lake and leave the cars in the drive.&rdquo;
+      <!-- TEXT: Max --></p>
+
+      <p>The state demographer&rsquo;s office, asked about the Stillwater figure,
+      described it in a 1982 memo as &ldquo;an apparent reporting error under review.&rdquo;
+      The review was never published. Two calls to the office for this article were not
+      returned. <!-- TEXT: Max --></p>
+
+      <p>Stillwater still has a township board, which meets the second Tuesday of the
+      month at the Osgood building, quorum permitting, and a post office open four hours
+      a day. The Bijou has been dark since 1977. The three storefronts still tenanted on
+      the north side of Lake Street are the laundromat, the post office, and Pyle&rsquo;s.
+      <!-- TEXT: Max --></p>
+
+      <p>&ldquo;You keep waiting for somebody to come and ask about it properly,&rdquo;
+      Verna Kohl said. &ldquo;Nobody ever has. After a while you understand nobody is
+      going to. And then some days you cannot remember what it was you meant to tell
+      them.&rdquo; <!-- TEXT: Max --></p>
+
+      <p class="jump">See STILLWATER, Page 6A</p>
+
+      <div class="notice">
+        <span class="t">FIRST LUTHERAN CHURCH</span>
+        Service 2nd &amp; 4th Sundays, 9 a.m. &middot; Osgood Bldg. &middot; All are welcome.
+      </div>
+
+    </div><!-- /cols -->
+
+    <div class="wash" id="wash"><span class="cap">pencil &mdash; not printed</span></div>
+
+  </div>
+
+  <div class="foot">
+    A transcription. The marks are his. &nbsp;&middot;&nbsp;
+    <a href="index.html">AnchorPoint</a>
+  </div>
 </div>
-<!-- from here: notcrazy.html . the mouth. the same working. -->
+
+<!-- a transcription. the marks are his. the pencil line is not printed and not english. -->
+<script src="ledger/cipher.js"></script>
+<script>
+  if(window.CIPHER){
+    var w = document.getElementById('wash');
+    w.insertAdjacentHTML('afterbegin', CIPHER.washWord('mislaid'));   // his word for it. TEXT: Max
+  }
+</script>
 </body>
 </html>
