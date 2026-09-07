@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<script>
+/* you reach this by moving through rem, not by typing its name */
+(function(){try{
+  if(/[?&]dev\b/.test(location.search)) return;
+  if(localStorage.getItem('ap_pass_ds') === '1') return;
+  if(sessionStorage.getItem('ap_gate_ds') === '1'){
+    sessionStorage.removeItem('ap_gate_ds');
+    localStorage.setItem('ap_pass_ds','1');
+    return;
+  }
+  location.replace('notyet.html');
+}catch(e){}})();
+</script>
 <title>DreamScape</title>
 <style>
   html,body{margin:0;height:100%;background:#040303;overflow:hidden;
@@ -192,6 +205,7 @@
   var solved = false;
   function openThinPlace(){
     solved = true;
+    try{ sessionStorage.setItem('ap_gate_nc','1'); }catch(e){}
     room.classList.add('narrowed');
     toward.hidden = false;
     flash();

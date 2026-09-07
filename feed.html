@@ -197,6 +197,7 @@
   document.getElementById('wrap').addEventListener('click', function(e){
     var a = e.target.closest('a'); if (!a) return;
     e.preventDefault();
+    try{ sessionStorage.setItem('ap_gate_nc','1'); }catch(e2){}
     var c = document.getElementById('veil'); c.style.display = 'block';
     var ctx = c.getContext('2d'); c.width = window.innerWidth; c.height = window.innerHeight;
     var end = performance.now() + 900;

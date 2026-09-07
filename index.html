@@ -489,10 +489,21 @@
       idxGo = document.getElementById('idxGo'),
       idxR  = document.getElementById('idxR');
   function idxSubmit(){
-    var q = normalize(idxIn.value);
+    var rawInput = idxIn.value;
+    // someone who has worked out that pages are "<word>.html" and is typing one in
+    var typedPage = /\.html?\s*$/i.test(rawInput);
+    var q = normalize(rawInput.replace(/\.html?\s*$/i, ''));
     if(!q) return;
+    if(typedPage){
+      var onPath = dreaming && (q === 'dreamscape' || q === 'the room');
+      // only the sealed pages care — they cannot be jumped ahead of
+      if(!onPath && /^(dreamscape|the room|notcrazy|not crazy|you are not crazy)$/.test(q)){
+        location.href = 'notyet.html';
+        return;
+      }
+    }
     if(AP_INDEX[q]){ location.href = AP_INDEX[q]; return; }
-    submitMessage('[index] ' + q);           // filed. the visitor is told nothing.
+    submitMessage('[index] ' + q);            // filed. the visitor is told nothing.
     idxR.textContent = (q === 'nyarlathotep') ? 'No.' : '';
     idxIn.value = '';
   }

@@ -39,15 +39,15 @@
     for(var i=0;i<n;i++){
       var e = document.createElement('img');
       e.src = 'img/eyes2.png';
-      var base = 0.06 + Math.random()*0.09;
+      var base = 0.12 + Math.random()*0.16;
       e.style.left = (Math.random()*100)+'%';
       e.style.top = (Math.random()*100)+'%';
       e.style.width = (60 + Math.random()*200)+'px';
       e.style.transform = 'translate(-50%,-50%) rotate('+(Math.random()*360)+'deg)';
-      e.style.filter = 'brightness('+(0.04 + Math.random()*0.1).toFixed(3)+')';
+      e.style.filter = 'brightness('+(0.05 + Math.random()*0.14).toFixed(3)+')';
       e.style.opacity = base.toFixed(3);
-      e.style.setProperty('--lo', Math.max(0, base-0.03).toFixed(3));
-      e.style.setProperty('--hi', (base+0.03).toFixed(3));
+      e.style.setProperty('--lo', Math.max(0, base-0.05).toFixed(3));
+      e.style.setProperty('--hi', (base+0.04).toFixed(3));
       e.style.animation = 'eb '+(3+Math.random()*4).toFixed(2)+'s ease-in-out '+(Math.random()*3).toFixed(2)+'s infinite alternate';
       host.appendChild(e);
     }

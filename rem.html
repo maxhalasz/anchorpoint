@@ -64,6 +64,7 @@
 
   function leave(){
     going = true;
+    try{ sessionStorage.setItem('ap_gate_ds','1'); }catch(e){}
     flare.style.opacity = '1';
     setTimeout(function(){ location.href = 'dreamscape.html'; }, 1150);
   }

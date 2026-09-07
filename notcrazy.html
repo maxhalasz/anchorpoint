@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<script>
+/* reached through the feed, or through the thin place in the dream — not by typing */
+(function(){try{
+  if(/[?&]dev\b/.test(location.search)) return;
+  if(localStorage.getItem('ap_pass_nc') === '1') return;
+  if(sessionStorage.getItem('ap_gate_nc') === '1'){
+    sessionStorage.removeItem('ap_gate_nc');
+    localStorage.setItem('ap_pass_nc','1');
+    return;
+  }
+  location.replace('notyet.html');
+}catch(e){}})();
+</script>
 <title> </title>
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#dfe3da}
