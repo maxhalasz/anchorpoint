@@ -59,7 +59,7 @@
   /* ---- masthead ---- */
   .flag{position:relative;text-align:center;border-bottom:3px double #241c10;padding-bottom:6px}
   .flag h1{font-family:"IM Fell English SC","IM Fell English",Georgia,serif;
-    font-weight:400;font-size:min(8.6vw,50px);letter-spacing:.05em;margin:0;color:#1c150c;
+    font-weight:400;font-size:min(7.4vw,44px);letter-spacing:.03em;margin:0;color:#1c150c;
     text-shadow:.4px .4px 0 rgba(23,15,7,.35)}
   .flag .est{font-family:"IM Fell English SC",Georgia,serif;font-size:10.5px;letter-spacing:.26em;
     color:#4a3b22;margin-top:3px}
@@ -107,6 +107,17 @@
     background-position:0 0,1.3px 1.4px;
     mix-blend-mode:multiply;opacity:.55}
 
+  /* an empty picture frame — for a leaf that never got a photograph */
+  .photobox{break-inside:avoid;margin:0 0 12px;border:1px solid #6f6244;
+    box-shadow:0 1px 0 rgba(255,255,255,.25)}
+  .ph-frame{height:172px;display:flex;align-items:center;justify-content:center;padding:14px;
+    border-bottom:1px solid #7d6f4c;background:
+      repeating-linear-gradient(45deg,#c7bc9c 0 1px,transparent 1px 15px),#d9cfac}
+  .ph-empty{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.04em;
+    text-align:center;color:#5a4a2c;max-width:23ch;line-height:1.5}
+  .photobox figcaption{font-size:10px;line-height:1.35;color:#3a2e1c;padding:5px 7px;
+    font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.03em}
+
   .notice{break-inside:avoid;border:1px solid #241c10;padding:7px 8px;margin:0 0 12px;
     text-align:center;font-size:10.5px;line-height:1.42;color:#2c2213}
   .notice .t{font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.16em;font-size:11px;
@@ -116,6 +127,12 @@
 
   .jump{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.16em;
     color:#4a3b22;margin-top:4px}
+
+  /* a page picking up mid-way through the section before it */
+  .contd{font-size:12.5px;line-height:1.55;color:#2c2213;margin:0 0 8px}
+  .contd .tag{display:block;text-align:center;font-family:"IM Fell English SC",Georgia,serif;
+    font-size:9.5px;letter-spacing:.14em;color:#5a4a2c;margin-top:2px}
+  hr.pgdiv{border:0;border-top:2px solid #241c10;margin:4px 0 10px}
 
   .colophon{border-top:1px solid #a99a72;margin-top:16px;padding-top:6px;
     font-family:"IM Fell English SC",Georgia,serif;font-size:8.6px;letter-spacing:.1em;
@@ -137,15 +154,18 @@
     mix-blend-mode:multiply;opacity:.6}
 
   /* pinned to the sheet itself, not to page content, so they hold their corner
-     no matter how tall either page underneath them turns out to be */
+     no matter how tall whichever page underneath them turns out to be */
   .wash{position:absolute;left:12px;bottom:46px;width:104px;color:#33405c;transform:rotate(4deg);
     line-height:1;pointer-events:none;z-index:4}
   .wash .glyph{width:14px;height:19px}
 
-  .flip{position:absolute;right:12px;bottom:14px;width:30px;height:30px;border-radius:50%;
-    border:1px solid #241c10;background:rgba(239,230,205,.65);color:#241c10;
+  .pgnav{position:absolute;right:12px;bottom:14px;display:flex;align-items:center;gap:7px;z-index:6}
+  .pgnav .lbl{font-family:"IM Fell English SC",Georgia,serif;font-size:10px;letter-spacing:.08em;
+    color:#5a4a2c}
+  .flip{width:30px;height:30px;border-radius:50%;border:1px solid #241c10;
+    background:rgba(239,230,205,.65);color:#241c10;
     font-family:Georgia,serif;font-size:17px;line-height:1;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;z-index:6}
+    display:flex;align-items:center;justify-content:center}
   .flip:hover{background:rgba(239,230,205,.95)}
 
   .pg[hidden]{display:none}
@@ -170,14 +190,14 @@
 
     <div class="pg" id="pageMain">
       <div class="folio">
-        <span>STILLWATER, HARMON COUNTY</span>
+        <span>HARMON COUNTY, MINN.</span>
         <span>&#9733;</span>
         <span>PAGE ONE</span>
       </div>
 
       <div class="flag">
-        <h1>The Stillwater Clarion</h1>
-        <div class="est">Harmon County &middot; Established 1891 &middot; Published Wednesdays</div>
+        <h1>The Harmon County Clarion</h1>
+        <div class="est">Pym, Minn. &middot; Established 1891 &middot; Published Wednesdays</div>
         <div class="ear">
           <b>TODAY</b>
           Fair, colder.<br>High 31, low 9.<br>Lake ice unsafe.
@@ -185,7 +205,7 @@
       </div>
       <div class="rag">
         <span>VOL. CIII &nbsp; NO. 19</span>
-        <span>STILLWATER &middot; <span class="dl">DATE: Max, a Wednesday, 1993</span></span>
+        <span>PYM &middot; <span class="dl">DATE: Max, a Wednesday, 1993</span></span>
         <span>THIRTY-FIVE CENTS</span>
       </div>
 
@@ -193,7 +213,7 @@
       <h2 class="hed">Stillwater&rsquo;s Missing Years</h2>
       <div class="deck">Between the autumn of 1977 and the 1980 census the village lost better
       than four residents in every five. No agreed account exists of how. Most of the people
-      still here will not put a single year to when it started, or a name to who is gone.</div>
+      still there will not put a single year to when it started, or a name to who is gone.</div>
       <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
 
       <div class="cols">
@@ -263,9 +283,34 @@
         addresses and once in a while somebody pays them. I have a drawer of receipts signed in
         hands I cannot read.&rdquo; <!-- TEXT: Max --></p>
 
+        <div class="notice">
+          <span class="t">THE CASE OF FABIAN GARDNER</span>
+          The one person the lake has ever given back: a boy, alive, pulled from the shallows
+          off Beaufort Point in June 1978. No one has ever identified him, and no family ever
+          came forward. County records list him only by the name he gave himself. Residents who
+          were there still bring up the color of his eyes, unprompted, fifteen years on.
+          <i>Full account overleaf.</i> <!-- TEXT: Max -->
+        </div>
+
+        <p class="jump">See STILLWATER, Page 6A</p>
+
+      </div><!-- /cols -->
+    </div><!-- /pageMain -->
+
+    <div class="pg" id="page6A" hidden>
+      <div class="folio">
+        <span>HARMON COUNTY, MINN.</span>
+        <span>&#9733;</span>
+        <span>PAGE 6A</span>
+      </div>
+      <div class="kicker">CONTINUED FROM PAGE ONE</div>
+      <h2 class="hed small">Stillwater&rsquo;s Missing Years</h2>
+
+      <div class="cols">
+
         <div class="notice ad">
           <span class="big">PYLE&rsquo;S HARDWARE</span>
-          Lake St. at Cass &middot; MELrose 4&#8209;2971<br>Paint &middot; Tackle &middot; Since 1912
+          Lake St. at Cass, Stillwater &middot; MELrose 4&#8209;2971<br>Paint &middot; Tackle &middot; Since 1912
         </div>
 
         <p>At First Lutheran, the Rev. Thomas Ault, who by the late 1980s was driving in from
@@ -302,8 +347,8 @@
           <span class="t">NOTICE OF FORFEITURE</span>
           HARMON COUNTY. Taxes on the parcels listed below remain unpaid for 1978&ndash;1981
           and are subject to forfeiture to the State. Owners of record may redeem at the
-          County Treasurer, Osgood Bldg., Stillwater. Parcels 07&#8209;114 through
-          07&#8209;133. <i>Cont. 6A.</i>
+          County Treasurer, Court House, Pym. Parcels 07&#8209;114 through
+          07&#8209;133. <i>Cont. 8A.</i>
         </div>
 
         <p>The lake has settled nothing, and given back only one thing anyone can point to.
@@ -315,13 +360,6 @@
         do not walk into a lake and leave the cars in the drive. If they did, where is the other
         six hundred and fifty of them?&rdquo; <!-- TEXT: Max --></p>
 
-        <div class="notice">
-          <span class="t">THE CASE OF FABIAN GARDNER</span>
-          The one person the lake has ever given back: a boy, alive, pulled from the shallows
-          off Beaufort Point in June 1978. No one has ever identified him.
-          <i>Full account overleaf.</i> <!-- TEXT: Max -->
-        </div>
-
         <p>The state demographer&rsquo;s office, asked about the Stillwater figure, described it
         in a 1982 memo as &ldquo;an apparent reporting error under review.&rdquo; The review was
         never published. Two calls to the office for this article were not returned.
@@ -329,7 +367,7 @@
 
         <p>Not everyone who has looked into Stillwater accepts the town&rsquo;s own account of
         itself. A 1979 state review, which Clarion reporters have never been permitted to read
-        in full (our correspondence with that office is reproduced on 6A), considered, and by
+        in full (our correspondence with that office is reproduced on 8A), considered, and by
         its own summary did not rule out, organized abduction, and noted the county&rsquo;s
         stretch of Highway 61 and its rail siding traffic, later examined at length in an
         unrelated 1984 trafficking indictment out of Duluth. Sheriff&rsquo;s investigators at
@@ -351,8 +389,6 @@
         nobody is going to. And then some days you cannot remember what it was you meant to tell
         them.&rdquo; <!-- TEXT: Max --></p>
 
-        <p class="jump">See STILLWATER, Page 6A</p>
-
         <div class="notice">
           <span class="t">INFORMATION WANTED</span>
           Concerning the household at 4 Beaufort Ave., Stillwater, and the people who lived in
@@ -362,7 +398,7 @@
 
         <div class="notice">
           <span class="t">FIRST LUTHERAN CHURCH</span>
-          Service 2nd &amp; 4th Sundays, 9 a.m. &middot; Osgood Bldg. &middot; All are welcome.
+          Service 2nd &amp; 4th Sundays, 9 a.m. &middot; Osgood Bldg., Stillwater &middot; All are welcome.
         </div>
 
         <div class="notice">
@@ -381,14 +417,24 @@
         </div>
 
       </div><!-- /cols -->
-    </div><!-- /pageMain -->
+    </div><!-- /page6A -->
 
     <div class="pg" id="pageFabian" hidden>
       <div class="folio">
-        <span>STILLWATER, HARMON COUNTY</span>
+        <span>HARMON COUNTY, MINN.</span>
         <span>&#9733;</span>
         <span>PAGE THREE-A</span>
       </div>
+
+      <div class="contd">
+        &hellip;the Ladies Aid meets the first Thursday, coffee following. Memorial
+        contributions in lieu of flowers may be sent to the Building Fund, care of the church
+        office. The Christmas program is set for December 19th, 7 p.m., all children of the
+        parish invited to take part regardless of attendance through the year.
+        <span class="tag">&mdash; CHURCH NOTES, cont. from 5A</span>
+      </div>
+      <hr class="pgdiv">
+
       <div class="kicker">CONTINUED FROM PAGE ONE</div>
       <h2 class="hed small">The Fabian Gardner File</h2>
       <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
@@ -428,17 +474,28 @@
         know why, or where he went. The color of his eyes is the part of the story Stillwater has
         never let go of. Ask almost anyone left in town and, sooner or later, without being asked
         twice, they will bring it up themselves. <!-- TEXT: Max --></p>
+
+        <div class="photobox">
+          <div class="ph-frame">
+            <div class="ph-empty">No photograph of Fabian Gardner exists in the Clarion&rsquo;s files.</div>
+          </div>
+          <figcaption>The county&rsquo;s own intake photo, taken August 1978, was destroyed with
+          the rest of his sealed record in 1985. <!-- TEXT: Max --></figcaption>
+        </div>
       </div>
     </div><!-- /pageFabian -->
 
-    <div class="colophon" id="colophon">
-      Published Wednesdays at the Osgood Building, Stillwater &middot; Founded 1891 by A. R. Pym
-      &middot; Entered as second-class matter at the Stillwater post office &middot;
+    <div class="colophon">
+      Published Wednesdays at the Clarion Building, Pym &middot; Founded 1891 by A. R. Pym
+      &middot; Entered as second-class matter at the Pym post office &middot;
       Subscriptions $6 the year, payable in advance
     </div>
 
     <div class="wash" id="wash"></div>
-    <button class="flip" id="flip" type="button" aria-label="the Fabian Gardner file">&#8250;</button>
+    <div class="pgnav">
+      <span class="lbl" id="pgLbl">1</span>
+      <button class="flip" id="flip" type="button" aria-label="next page">&#8250;</button>
+    </div>
 
   </div>
 
@@ -459,18 +516,19 @@
     w.insertAdjacentHTML('afterbegin', CIPHER.washWord('mislaid'));   // his word for it. TEXT: Max
   }
 
-  // the corner turn -> the Fabian Gardner file, and back
+  // the corner turn -> 1 -> 3A -> 6A -> back to 1
   (function(){
-    var flip = document.getElementById('flip'),
-        main = document.getElementById('pageMain'),
-        fab  = document.getElementById('pageFabian'),
-        on   = false;
+    var order  = ['pageMain', 'pageFabian', 'page6A'],
+        labels = ['1', '3A', '6A'],
+        els    = order.map(function(id){ return document.getElementById(id); }),
+        flip   = document.getElementById('flip'),
+        lbl    = document.getElementById('pgLbl'),
+        idx    = 0;
     flip.addEventListener('click', function(){
-      on = !on;
-      main.hidden = on;
-      fab.hidden  = !on;
-      flip.innerHTML = on ? '&#8249;' : '&#8250;';
-      flip.setAttribute('aria-label', on ? 'back to page one' : 'the Fabian Gardner file');
+      els[idx].hidden = true;
+      idx = (idx + 1) % els.length;
+      els[idx].hidden = false;
+      lbl.textContent = labels[idx];
     });
   })();
 
