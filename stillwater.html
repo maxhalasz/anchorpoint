@@ -111,10 +111,28 @@
     color:#5a4a2c;text-align:center;line-height:1.6}
 
   /* ---- his marks ---- */
-  .circ{position:relative}
+  /* inline-block + nowrap: a plain inline .circ that wraps across two lines breaks
+     the absolutely-positioned ::after (the ring gets fragmented/misplaced). these
+     are all short phrases, so forcing one box + one line is the correct fix. */
+  .circ{position:relative;display:inline-block;white-space:nowrap}
   .circ::after{content:"";position:absolute;inset:-5px -8px;border:2px solid #9e2b16;
     border-radius:58% 42% 55% 45%/48% 56% 44% 52%;transform:rotate(-2.2deg);
     mix-blend-mode:multiply;opacity:.72;pointer-events:none}
+
+  /* ---- scan pass: a real scan/photocopy has grain, dust, banding and a halftone
+     screen on any reproduced photo — none of that reads from clean CSS gradients
+     alone, so a processed texture plate carries it */
+  .scan{position:absolute;inset:0;pointer-events:none;
+    background:url("img/tex/scan-noise.png") center/cover;
+    mix-blend-mode:multiply;opacity:.6}
+  figure.cut{position:relative}
+  figure.cut .dots{position:absolute;top:0;left:0;right:0;height:172px;pointer-events:none;
+    background-image:
+      radial-gradient(circle at center,rgba(20,15,8,.6) .55px,transparent .65px),
+      radial-gradient(circle at center,rgba(20,15,8,.35) .5px,transparent .6px);
+    background-size:2.6px 2.6px,3.3px 3.3px;
+    background-position:0 0,1.3px 1.4px;
+    mix-blend-mode:multiply;opacity:.55}
 
   .wash{position:absolute;left:-6px;top:1160px;width:118px;color:#33405c;transform:rotate(4deg);
     line-height:1;pointer-events:none}
@@ -136,6 +154,7 @@
 <body>
 <div class="frame">
   <div class="sheet">
+    <div class="scan"></div>
 
     <div class="folio">
       <span>STILLWATER, HARMON COUNTY</span>
@@ -168,6 +187,7 @@
 
       <figure class="cut">
         <img src="img/lake-street.jpg" alt="Lake Street, Stillwater">
+        <div class="dots"></div>
         <figcaption>LAKE STREET, looking north from the Marne Hotel, undated, from the
         Clarion files. Fourteen of the seventeen storefronts in this view stood vacant
         by 1980. &mdash; Clarion file photo <!-- TEXT: Max --></figcaption>
@@ -188,11 +208,31 @@
       smaller each week through that year and did not remark on it. <!-- TEXT: Max --></p>
 
       <p>&ldquo;Eleven years I sat that desk,&rdquo; said Harold Mesick, 71, the
-      resident sheriff&rsquo;s deputy for Stillwater until 1979. &ldquo;In the whole
-      of that year I did not take one missing-person report. Not one. Nobody came
-      in to <span class="circ">say a name</span>. You cannot file on a
-      person if there&rsquo;s nobody left who remembers to miss them.&rdquo;
-      <!-- TEXT: Max --></p>
+      resident sheriff&rsquo;s deputy for Stillwater until 1979. &ldquo;That October
+      we ran more missing-person calls in nine days than the three years before it,
+      put together. <span class="circ">Eleven names</span> the first week alone.
+      Then it started thinning &mdash; four the second week, two the third. By the
+      new year I don&rsquo;t believe I wrote one down, and I couldn&rsquo;t tell you
+      if that&rsquo;s because there was nobody left to go missing, or nobody left
+      who still thought to call it in. Some weeks both felt true.&rdquo; Mesick was
+      one of two deputies posted to Stillwater that year; his partner, Danny
+      Olafson, is counted among the missing in the township&rsquo;s own uncertain
+      tally. The county sheriff sent five more men in on rotation between November
+      and March. Two never rotated back out. <!-- TEXT: Max --></p>
+
+      <p>What some who stayed will describe, carefully and usually only the once,
+      is a sound that came before a person was gone &mdash; not a voice exactly,
+      said Arvo Lahti, 74, who has fished the north shore most mornings since
+      before the mine closed. &ldquo;A whisper with a place to it. You&rsquo;d know
+      which way to turn your head. Never what it said. My sister heard it three
+      nights running before she went down to the water and didn&rsquo;t come back
+      up the bank.&rdquo; By 1978 the Clarion&rsquo;s own reporters had a shorthand
+      for it in their notebooks &mdash; a &ldquo;pull,&rdquo; spoken of the way
+      another town might speak of a headache, or a fever breaking. State health
+      officials who came through that spring, checking well water after a run of
+      complaints, noted in their report an unusual flatness in the people they
+      interviewed &mdash; &ldquo;diminished affective response&rdquo; was the
+      phrase used &mdash; and recommended no further action. <!-- TEXT: Max --></p>
 
       <p>Harmon County&rsquo;s own records for the period are incomplete. County Clerk
       Carl Wisz said the 1978 property-tax rolls carry <span class="circ">nineteen
@@ -230,6 +270,14 @@
       in those photographs and there are more of us standing there than there are faces
       to go around.&rdquo; <!-- TEXT: Max --></p>
 
+      <p>The 1980 census breaks out age along with number. Of the sixty-two counted,
+      fifty-four were past fifty. The county&rsquo;s separate school census shows
+      Stillwater&rsquo;s one-room schoolhouse closed for want of pupils in the
+      spring of 1978 &mdash; not from families moving away, which the district
+      would have a record of, but from a roll that emptied grade by grade,
+      youngest first, until there was no one left to hold a class for.
+      <!-- TEXT: Max --></p>
+
       <div class="notice">
         <span class="t">NOTICE OF FORFEITURE</span>
         HARMON COUNTY. Taxes on the parcels listed below remain unpaid for 1978&ndash;1981
@@ -238,17 +286,55 @@
         07&#8209;133. &mdash; <i>cont. 6A</i>
       </div>
 
-      <p>The lake has settled nothing. Divers hired by the county in 1981 to search the
-      deep hole off Beaufort Point brought up two rowboats and a 1964 sedan and nothing
-      else. &ldquo;People want to say they all walked into the water,&rdquo; Mesick said.
-      &ldquo;The lake has never given a body back, not in my time nor before it. But
-      eight hundred people do not walk into a lake and leave the cars in the drive.&rdquo;
-      <!-- TEXT: Max --></p>
+      <p>The lake has settled nothing, and given back only one thing anyone can
+      point to. Divers hired by the county in 1981 to search the deep hole off
+      Beaufort Point brought up two rowboats and a 1964 sedan; the search that
+      mattered more, in June of 1978, brought up a boy. <i>See notice, this
+      page.</i> &ldquo;People want to say they all walked into the water,&rdquo;
+      Mesick said. &ldquo;I have got exactly one case in eleven years where that
+      lake gave anybody back, and I still do not have an explanation for that boy.
+      Eight hundred people do not walk into a lake and leave the cars in the
+      drive &mdash; and if they did, where are the other seven hundred and
+      ninety-nine?&rdquo; <!-- TEXT: Max --></p>
+
+      <div class="notice">
+        <span class="t">THE CASE OF FABIAN GARDNER</span>
+        A county diver recovered one person from the lake in the whole of the
+        1981 search &mdash; three years earlier, in June 1978, not by the county
+        but by a resident who pulled him from the shallows off Beaufort Point: a
+        boy, eight or nine, alive. He answered to no name any resident recognized
+        and gave his own as Fabian Gardner. No one came forward for him. State
+        workers, unable to place him with any family in the county or the towns
+        around it, remanded him to Harmon County Child Support Enforcement pending
+        an identity the office was never able to establish; a working theory in
+        the county&rsquo;s own file, that the boy was concealing his real one, was
+        never substantiated either way. He spoke rarely, and mostly of one fear:
+        that his eyes &ldquo;followed things nobody had said were there yet.&rdquo;
+        Deputies at the time logged their color as an unusual pale yellow-brown, a
+        detail residents still bring up unprompted, sixteen years on. The
+        Clarion&rsquo;s inquiry goes no further than the county&rsquo;s own file,
+        which ends there. <!-- TEXT: Max -->
+      </div>
 
       <p>The state demographer&rsquo;s office, asked about the Stillwater figure,
       described it in a 1982 memo as &ldquo;an apparent reporting error under review.&rdquo;
       The review was never published. Two calls to the office for this article were not
       returned. <!-- TEXT: Max --></p>
+
+      <p>Not everyone who has looked into Stillwater accepts the town&rsquo;s own
+      account of itself. A 1979 state review, which Clarion reporters have never
+      been permitted to read in full &mdash; our correspondence with that office
+      is reproduced on 6A &mdash; considered and, by its own summary, did not rule
+      out organized abduction, and noted the county&rsquo;s stretch of Highway 61
+      and its rail siding traffic, later examined at length in an unrelated 1984
+      trafficking indictment out of Duluth. Sheriff&rsquo;s investigators at the
+      time called that theory unsupported. Some longtime residents call it worse
+      than unsupported: a story brought in from outside that misses what happened
+      by insisting on an explanation everyone else would find reasonable. This
+      paper takes no position beyond the following: something in Stillwater&rsquo;s
+      own habit of not looking closely &mdash; not at the reports, not at the
+      records, not at each other &mdash; made it very easy, for the better part of
+      a year, for no one to ask which explanation was true. <!-- TEXT: Max --></p>
 
       <p>Stillwater still has a township board, which meets the second Tuesday of the
       month at the Osgood building, quorum permitting, and a post office open four hours
@@ -280,6 +366,7 @@
         Deaths &amp; Cards of Thanks &hellip; 4A<br>
         Township Board minutes &hellip; 5A<br>
         Church Notes &hellip; 5A<br>
+        The Fabian Gardner File &hellip; 3A<br>
         Classified &amp; Legals &hellip; 8A<br>
         Weather &amp; Lake Report &hellip; 2A
       </div>

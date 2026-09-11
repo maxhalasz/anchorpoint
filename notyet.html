@@ -4,20 +4,217 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title> </title>
+<title>AnchorPoint</title>
 <style>
-  html,body{margin:0;height:100%;overflow:hidden;background:#050505;color:#4a4a4a;
-    font-family:"Courier New",Courier,monospace;cursor:default}
-  .mid{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-    text-align:center;padding:24px}
-  p{margin:0;font-size:15px;letter-spacing:1px;line-height:2}
-  .b{position:fixed;left:5px;bottom:3px;font-size:10px;letter-spacing:1px;color:#0b0b0b;
-    text-decoration:none}
-  .b::selection{background:#1e1e1e;color:#050505}
+  html,body{margin:0;background:#eef3ea;color:#111;font-family:"Times New Roman",Times,serif;
+    font-size:17px;line-height:1.4;overflow:hidden;height:100%;cursor:default}
+  a{color:#0000ee}
+
+  .banner{background:#f2f7ef;border-bottom:3px solid #2e5d3b;padding:12px 22px;
+    display:flex;align-items:center;gap:14px}
+  .banner .mark{height:56px;width:auto;display:block;filter:saturate(.85)}
+  .banner h1{margin:0;font-size:30px;color:#2e5d3b;letter-spacing:1px}
+  .banner .tag{font-style:italic;font-size:14px;color:#4a7c59;margin-top:2px}
+
+  /* the same chromatic-split wrongness used on the other deep pages */
+  .ab{text-shadow:-1.6px 0 rgba(255,20,70,.45),1.6px 0 rgba(30,170,255,.35);
+    animation:ab 3.4s ease-in-out infinite}
+  @keyframes ab{0%,100%{text-shadow:-1.6px 0 rgba(255,20,70,.45),1.6px 0 rgba(30,170,255,.35)}
+    50%{text-shadow:-3.2px 0 rgba(255,20,70,.6),3.2px 0 rgba(30,170,255,.5)}}
+
+  table.layout{width:100%;border-collapse:collapse}
+  td.side{width:196px;vertical-align:top;background:#e2ecdb;border-right:2px solid #2e5d3b;padding:14px 12px}
+  td.body{vertical-align:top;padding:16px 22px}
+
+  .box{border:2px solid #2e5d3b;background:#ffffff;margin:0 0 16px}
+  .box>.bar{background:#2e5d3b;color:#e9f2e4;font-weight:bold;padding:3px 9px;font-size:15px;
+    font-family:Verdana,Arial,sans-serif;letter-spacing:.3px}
+  .box>.in{padding:11px 14px}
+  .side .box{background:#f2f7ef;margin-bottom:14px}
+  .side .box>.in{padding:8px 9px}
+
+  .navlink{display:block;border:1px solid #2e5d3b;background:#e9f2e4;color:#0000ee;
+    padding:5px 9px;margin:4px 0;text-decoration:none;
+    font-family:Verdana,Arial,sans-serif;font-size:12px}
+
+  .side .idx input{width:100%;box-sizing:border-box;font-family:"Times New Roman",serif;font-size:14px;
+    padding:3px 4px;border:1px solid #2e5d3b;background:#fff;margin-bottom:4px;color:#111}
+  .side .idx button{font-family:Verdana,Arial,sans-serif;font-size:11px;padding:2px 12px;
+    background:#e2ecdb;border:1px solid #2e5d3b}
+  .side .idx .lbl{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#5c6b3a;margin-bottom:4px}
+  .side .idx .r{font-family:Verdana,Arial,sans-serif;font-size:11px;color:#7a2a2a;margin-top:5px;
+    min-height:1em;line-height:1.4;opacity:0;transition:opacity 2.2s ease}
+  .side .idx .r.on{opacity:1}
+
+  p{margin:0 0 12px}
+
+  /* ---- the wrongness on top ---- */
+  .grain{position:fixed;left:-100%;top:-100%;width:300%;height:300%;z-index:6;pointer-events:none;
+    background:url("img/tex/ds-grain.jpg");will-change:transform}
+  .grain.g1{opacity:.13;mix-blend-mode:overlay;background-size:300px 300px;animation:grain 1.1s steps(6) infinite}
+  .grain.g2{opacity:.07;mix-blend-mode:soft-light;background-size:520px 520px;animation:grain 2.3s steps(5) infinite reverse}
+  @keyframes grain{
+    0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-10%)}20%{transform:translate(-14%,5%)}
+    30%{transform:translate(7%,-24%)}40%{transform:translate(-5%,24%)}50%{transform:translate(-14%,10%)}
+    60%{transform:translate(14%,0)}70%{transform:translate(0,14%)}80%{transform:translate(3%,32%)}
+    90%{transform:translate(-9%,9%)}}
+
+  .tvsnow{position:fixed;left:-50%;top:-50%;width:200%;height:200%;z-index:6;pointer-events:none;
+    background:url("img/tex/ds-tvsnow.png");background-size:340px 340px;image-rendering:pixelated;
+    opacity:.05;mix-blend-mode:screen;animation:grain .28s steps(4) infinite}
+
+  .scan{position:fixed;inset:0;z-index:7;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(20,30,20,.06) 0 2px,transparent 2px 4px);opacity:.6}
+  .scan::after{content:"";position:absolute;left:0;right:0;height:16vh;
+    background:linear-gradient(rgba(255,255,255,.05),transparent);animation:roll 7s linear infinite}
+  @keyframes roll{from{top:-20vh}to{top:105vh}}
+
+  #eyewash{position:fixed;inset:0;z-index:6;pointer-events:none;background:url("img/eyes2.png") center/420px;
+    mix-blend-mode:multiply;opacity:0}
+
+  #fx{position:fixed;inset:0;z-index:8;pointer-events:none}
+  #jump{position:fixed;inset:0;z-index:1}
+
+  .b{position:fixed;left:5px;bottom:3px;font-size:10px;letter-spacing:1px;color:#f4f3ec;
+    text-decoration:none;z-index:9}
+  .b::selection{background:#2e5d3b;color:#fff}
 </style>
 </head>
 <body>
-  <div class="mid"><p>You are not supposed to be here yet.</p></div>
+  <div class="grain g1"></div>
+  <div class="grain g2"></div>
+  <div class="tvsnow"></div>
+  <div class="scan"></div>
+  <div id="eyewash"></div>
+
+  <div id="jump">
+    <div class="banner">
+      <img class="mark" src="img/anchor.png" alt="">
+      <div>
+        <h1 class="ab" id="h1">AnchorPoint</h1>
+        <div class="tag" id="tag">Some things arrive only if you write them down.</div>
+      </div>
+    </div>
+
+    <table class="layout"><tr>
+      <td class="side">
+        <div class="box"><div class="bar">Links</div><div class="in">
+          <span class="navlink" id="navA">Find Support</span>
+          <span class="navlink" id="navB">About</span>
+          <span class="navlink">Guestbook</span>
+        </div></div>
+        <div class="box"><div class="bar">Index</div><div class="in idx">
+          <div class="lbl">page name</div>
+          <input id="idxIn" type="text" autocomplete="off" spellcheck="false" readonly>
+          <button id="idxGo">open</button>
+          <div class="r" id="idxR"></div>
+        </div></div>
+      </td>
+      <td class="body">
+        <p id="p1">You are welcome to write to us. Someone reads everything that arrives.</p>
+        <p id="p2">This page is not on the menu, and you did not earn it the way it opens.</p>
+      </td>
+    </tr></table>
+  </div>
+
+  <canvas id="fx"></canvas>
   <a class="b" href="index.html">back the way you came</a>
+
+<!-- you typed ahead of where you have earned. nothing here answers you. -->
+<script>
+(function(){
+  var idxIn = document.getElementById('idxIn'), idxR = document.getElementById('idxR');
+  try{ idxIn.value = (sessionStorage.getItem('ap_lastTyped') || 'dreamscape.html'); }catch(e){ idxIn.value = 'dreamscape.html'; }
+  setTimeout(function(){ idxR.textContent = 'you are not supposed to be here yet.'; idxR.classList.add('on'); }, 2600);
+
+  var GL = ['ＡＮＣＨＯＲＰＯＩＮＴ', // fullwidth ANCHORPOINT
+            'AnchorPoint', 'A̶n̶c̶h̶o̶r̶P̶o̶i̶n̶t̶'];
+  var TAGS = ['Some things arrive only if you write them down.',
+              'Some things arrive only if you were not supposed to.',
+              'Ｓｏｍｅ ｔｈｉｎｇｓ ｄｏ ｎｏｔ ａｒｒｉｖｅ.'];
+  var NAVS = ['Find Support', 'Do Not', 'ＦＩＮＤ ＳＵＰＰＯＲＴ'];
+  var h1 = document.getElementById('h1'), tag = document.getElementById('tag'), navA = document.getElementById('navA');
+  setInterval(function(){
+    if(Math.random() < 0.4) h1.textContent = GL[(Math.random()*GL.length)|0];
+    if(Math.random() < 0.3) tag.textContent = TAGS[(Math.random()*TAGS.length)|0];
+    if(Math.random() < 0.35) navA.textContent = NAVS[(Math.random()*NAVS.length)|0];
+  }, 900);
+
+  // ---- the same tear-glitch used on dreamscape, borrowed straight ----
+  var fx = document.getElementById('fx'), fc = fx.getContext('2d');
+  function sizeFx(){ fx.width = innerWidth; fx.height = innerHeight; }
+  sizeFx(); addEventListener('resize', sizeFx);
+  var jump = document.getElementById('jump'), eyewash = document.getElementById('eyewash');
+  function tear(){
+    var n = 4 + (Math.random()*6|0);
+    jump.style.transform = 'translate(' + (Math.random()*10-5).toFixed(1) + 'px,' + (Math.random()*4-2).toFixed(1) + 'px) skewX(' + (Math.random()*1.2-0.6).toFixed(2) + 'deg)';
+    eyewash.style.opacity = (0.02 + Math.random()*0.05).toFixed(3);
+    (function f(k){
+      if(k <= 0){
+        fc.clearRect(0,0,fx.width,fx.height);
+        jump.style.transform = 'none';
+        eyewash.style.opacity = '0';
+        return schedule();
+      }
+      fc.clearRect(0,0,fx.width,fx.height);
+      for(var i=0;i<n;i++){
+        var y = Math.random()*fx.height, h = 1 + Math.random()*22, dx = Math.random()*50-25;
+        fc.fillStyle = 'rgba(' + (Math.random()<.5 ? '255,30,60' : '20,40,30') + ',' + (0.05+Math.random()*0.16).toFixed(2) + ')';
+        fc.fillRect(dx, y, fx.width, h);
+      }
+      requestAnimationFrame(function(){ f(k-1); });
+    })(n);
+  }
+  function schedule(){ setTimeout(tear, 3600 + Math.random()*5200); }
+  schedule();
+
+  // ---- audio: a sharp, distorted, unstable ring. gesture-gated. ----
+  var ac = null, alive = true;
+  function startRing(){
+    if(ac) return;
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext; ac = new Ctx();
+      var master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+
+      var o1 = ac.createOscillator(); o1.type = 'sine'; o1.frequency.value = 9200;
+      var o2 = ac.createOscillator(); o2.type = 'sine'; o2.frequency.value = 9260;
+      var mix = ac.createGain(); mix.gain.value = 0.5;
+      o1.connect(mix); o2.connect(mix);
+
+      var ws = ac.createWaveShaper(); ws.oversample = '4x';
+      var n = 44100, curve = new Float32Array(n);
+      for(var i = 0; i < n; i++){ var x = i*2/n - 1; curve[i] = Math.tanh(x*7)*0.8; }
+      ws.curve = curve;
+
+      var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200;
+
+      var lfo = ac.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.13;
+      var lfoG = ac.createGain(); lfoG.gain.value = 35;
+      lfo.connect(lfoG); lfoG.connect(o1.frequency); lfoG.connect(o2.frequency);
+
+      mix.connect(ws); ws.connect(hp); hp.connect(master);
+      o1.start(); o2.start(); lfo.start();
+      master.gain.linearRampToValueAtTime(0.22, ac.currentTime + 1.6);
+
+      (function stutter(){
+        if(!alive) return;
+        if(Math.random() < 0.5){
+          var t = ac.currentTime;
+          master.gain.cancelScheduledValues(t);
+          master.gain.setValueAtTime(master.gain.value, t);
+          master.gain.linearRampToValueAtTime(0.03, t + 0.03);
+          master.gain.linearRampToValueAtTime(0.22, t + 0.03 + Math.random()*0.1);
+        }
+        setTimeout(stutter, 420 + Math.random()*900);
+      })();
+
+      window.addEventListener('pagehide', function(){ alive = false; try{ ac.close(); }catch(e){} });
+    }catch(e){ ac = null; }
+  }
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){
+    window.addEventListener(ev, startRing, { once: true, passive: true });
+  });
+})();
+</script>
 </body>
 </html>
