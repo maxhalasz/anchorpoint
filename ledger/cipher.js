@@ -9,11 +9,20 @@
      A vertical stroke + one ball.
        ball at BOTTOM  -> top block  (A..P)
        ball at TOP     -> bottom block (Q..)
-     position in the 4x4 block is set by horizontal ticks:
-       none / upper-half / lower-half / both  ==  1 / 2 / 3 / 4  along an axis
-       one axis for the column, one for the row; the two axes swap sides
-       between the blocks (that is the "right/down" vs "left/down" flip).
-     So A = stroke + ball at the bottom, no ticks.
+     position in the 4x4 block is set by horizontal ticks: none / upper / lower /
+     both == 1/2/3/4 along an axis. Sides are FIXED, they never swap — the column
+     axis always ticks off the RIGHT of the stroke, the row axis always off the
+     LEFT. What swaps between blocks is which axis is the "anchor": in block 1
+     the column axis is the anchor (its upper mark sits at the very top end of
+     the stroke, its lower mark at the vertical midpoint between the row axis's
+     two fixed marks); in block 2 the row axis is the anchor instead (its lower
+     mark at the very bottom end, its upper mark at that same midpoint). The
+     non-anchor axis in either block just keeps the two old fixed heights.
+     Block 2 also fills its 16 cells BACKWARDS from the last one — Q sits where
+     block 1's own reading would have ended (row 3, col 3), R one cell back from
+     that, and so on — so the six unused "*" slots land at block 2's own start
+     (row 0, and row 1's first two), not its end.
+     So A = stroke + ball at the bottom, no ticks (row 0, col 0, both axes at 0).
    Diacritics (ball both ends = umlaut; ball as a hooked line = cedilla;
    ball struck through = circumflex/hacek) are NOT drawn here — real font only.
 
@@ -24,15 +33,29 @@ window.CIPHER = (function () {
 
   // ---- Wash: structurally-correct placeholder ----
   function washCell(i) {                 // i: 0..25 -> {block,row,col}
-    var block = i < 16 ? 0 : 1;
-    var within = block ? i - 16 : i;
-    return { block: block, row: (within / 4) | 0, col: within % 4 };
+    if (i < 16) return { block: 0, row: (i / 4) | 0, col: i % 4 };
+    var within = 31 - i;                 // block 2 reads backward from its last cell
+    return { block: 1, row: (within / 4) | 0, col: within % 4 };
   }
-  function ticks(x, n, flip) {           // n: 0..3  ->  none / upper / lower / both
+  // non-anchor axis: unchanged, the two original fixed heights
+  function ticksFixed(n, dir) {
     var out = '';
-    var dir = flip ? -1 : 1;
     if (n === 1 || n === 3) out += '<line x1="11" y1="10" x2="' + (11 + dir * 6) + '" y2="10"/>';
     if (n === 2 || n === 3) out += '<line x1="11" y1="20" x2="' + (11 + dir * 6) + '" y2="20"/>';
+    return out;
+  }
+  // block-1 anchor axis (column): upper mark -> top end of the stroke, lower -> midpoint
+  function ticksAnchorTop(n, dir) {
+    var out = '';
+    if (n === 1 || n === 3) out += '<line x1="11" y1="6"  x2="' + (11 + dir * 6) + '" y2="6"/>';
+    if (n === 2 || n === 3) out += '<line x1="11" y1="15" x2="' + (11 + dir * 6) + '" y2="15"/>';
+    return out;
+  }
+  // block-2 anchor axis (row): lower mark -> bottom end of the stroke, upper -> midpoint
+  function ticksAnchorBottom(n, dir) {
+    var out = '';
+    if (n === 1 || n === 3) out += '<line x1="11" y1="15" x2="' + (11 + dir * 6) + '" y2="15"/>';
+    if (n === 2 || n === 3) out += '<line x1="11" y1="24" x2="' + (11 + dir * 6) + '" y2="24"/>';
     return out;
   }
   function wash(ch) {
@@ -42,8 +65,14 @@ window.CIPHER = (function () {
     if (i < 0 || i > 25) return '';
     var cell = washCell(i);
     var ballBottom = cell.block === 0;
-    var colTicks = ticks(11, cell.col, cell.block === 1);   // column axis, swaps side per block
-    var rowTicks = ticks(11, cell.row, cell.block === 0);   // row axis, other side
+    var colTicks, rowTicks;                // column: always right (dir +1). row: always left (dir -1)
+    if (cell.block === 0) {
+      colTicks = ticksAnchorTop(cell.col, 1);
+      rowTicks = ticksFixed(cell.row, -1);
+    } else {
+      colTicks = ticksFixed(cell.col, 1);
+      rowTicks = ticksAnchorBottom(cell.row, -1);
+    }
     return '<svg class="glyph" viewBox="0 0 22 30" width="18" height="24">'
       + '<g stroke="currentColor" stroke-width="2.1" stroke-linecap="round" fill="none">'
       + '<line x1="11" y1="4" x2="11" y2="26"/>' + colTicks + rowTicks + '</g>'

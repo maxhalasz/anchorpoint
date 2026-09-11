@@ -56,6 +56,7 @@
 <script>
 (function(){
   var LS; try{ LS = window.localStorage; }catch(e){ LS = null; }
+  try{ localStorage.setItem('ap_seen_feed','1'); }catch(e){}   // call-sim's deep-line milestone check
 
   var POOL = [
 "Is anyone still awake. I just need to know there is a real person on the other side.",

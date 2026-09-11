@@ -29,7 +29,10 @@
       linear-gradient(1deg,transparent 45.4%,rgba(70,52,30,.10) 46%,rgba(255,255,255,.3) 46.5%,transparent 47.2%),
       radial-gradient(140% 120% at 50% 50%,transparent 62%,rgba(90,66,34,.16) 100%),
       repeating-linear-gradient(0deg,rgba(70,55,30,.028) 0 1px,transparent 1px 3px);
-    filter:sepia(.16) contrast(1.05)}
+    /* the blur is the fix for text reading as a crisp overlay instead of part of the
+       scan: it softens paper, photo, grain AND type together, as one composited scan
+       would, instead of leaving vector-sharp letterforms floating over a textured plate */
+    filter:sepia(.16) contrast(1.1) blur(.32px)}
   .sheet::before{content:"";position:absolute;inset:0;pointer-events:none;
     /* crop / registration marks at the corners */
     background:
@@ -74,6 +77,7 @@
   h2.hed{font-family:"IM Fell English","IM Fell English SC",Georgia,serif;font-weight:400;
     font-size:min(9vw,46px);line-height:1.08;text-align:center;margin:0 0 8px;color:#140d06;
     letter-spacing:.01em;text-shadow:.5px .5px 0 rgba(20,13,6,.25)}
+  h2.hed.small{font-size:min(6.4vw,30px)}
   .deck{font-style:italic;text-align:center;color:#3a2e1c;max-width:46ch;margin:0 auto 12px;
     font-size:15px;line-height:1.42}
   .byl{font-family:"IM Fell English SC",Georgia,serif;font-size:11px;letter-spacing:.2em;
@@ -90,11 +94,18 @@
   .dl{font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.14em;font-size:12px}
 
   figure.cut{break-inside:avoid;margin:0 0 12px;border:1px solid #6f6244;
-    box-shadow:0 1px 0 rgba(255,255,255,.25)}
+    box-shadow:0 1px 0 rgba(255,255,255,.25);position:relative}
   .cut img{display:block;width:100%;height:172px;object-fit:cover;background:#7a7362;
     filter:grayscale(1) contrast(1.06) brightness(.97);border-bottom:1px solid #7d6f4c}
   .cut figcaption{font-size:10px;line-height:1.35;color:#3a2e1c;padding:5px 7px;
     font-family:"IM Fell English SC",Georgia,serif;letter-spacing:.03em}
+  .cut .dots{position:absolute;top:0;left:0;right:0;height:172px;pointer-events:none;
+    background-image:
+      radial-gradient(circle at center,rgba(20,15,8,.6) .55px,transparent .65px),
+      radial-gradient(circle at center,rgba(20,15,8,.35) .5px,transparent .6px);
+    background-size:2.6px 2.6px,3.3px 3.3px;
+    background-position:0 0,1.3px 1.4px;
+    mix-blend-mode:multiply;opacity:.55}
 
   .notice{break-inside:avoid;border:1px solid #241c10;padding:7px 8px;margin:0 0 12px;
     text-align:center;font-size:10.5px;line-height:1.42;color:#2c2213}
@@ -119,24 +130,25 @@
     border-radius:58% 42% 55% 45%/48% 56% 44% 52%;transform:rotate(-2.2deg);
     mix-blend-mode:multiply;opacity:.72;pointer-events:none}
 
-  /* ---- scan pass: a real scan/photocopy has grain, dust, banding and a halftone
-     screen on any reproduced photo — none of that reads from clean CSS gradients
-     alone, so a processed texture plate carries it */
+  /* ---- scan pass: a real scan/photocopy has grain, dust and banding — none of
+     that reads from clean CSS gradients alone, so a processed texture plate carries it */
   .scan{position:absolute;inset:0;pointer-events:none;
     background:url("img/tex/scan-noise.png") center/cover;
     mix-blend-mode:multiply;opacity:.6}
-  figure.cut{position:relative}
-  figure.cut .dots{position:absolute;top:0;left:0;right:0;height:172px;pointer-events:none;
-    background-image:
-      radial-gradient(circle at center,rgba(20,15,8,.6) .55px,transparent .65px),
-      radial-gradient(circle at center,rgba(20,15,8,.35) .5px,transparent .6px);
-    background-size:2.6px 2.6px,3.3px 3.3px;
-    background-position:0 0,1.3px 1.4px;
-    mix-blend-mode:multiply;opacity:.55}
 
-  .wash{position:absolute;left:-6px;top:1160px;width:118px;color:#33405c;transform:rotate(4deg);
-    line-height:1;pointer-events:none}
-  .wash .glyph{width:15px;height:20px}
+  /* pinned to the sheet itself, not to page content, so they hold their corner
+     no matter how tall either page underneath them turns out to be */
+  .wash{position:absolute;left:12px;bottom:46px;width:104px;color:#33405c;transform:rotate(4deg);
+    line-height:1;pointer-events:none;z-index:4}
+  .wash .glyph{width:14px;height:19px}
+
+  .flip{position:absolute;right:12px;bottom:14px;width:30px;height:30px;border-radius:50%;
+    border:1px solid #241c10;background:rgba(239,230,205,.65);color:#241c10;
+    font-family:Georgia,serif;font-size:17px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;z-index:6}
+  .flip:hover{background:rgba(239,230,205,.95)}
+
+  .pg[hidden]{display:none}
 
   #static{position:fixed;inset:0;display:none;z-index:80}
 
@@ -156,235 +168,277 @@
   <div class="sheet">
     <div class="scan"></div>
 
-    <div class="folio">
-      <span>STILLWATER, HARMON COUNTY</span>
-      <span>&#9733;</span>
-      <span>PAGE ONE</span>
-    </div>
-
-    <div class="flag">
-      <h1>The Stillwater Clarion</h1>
-      <div class="est">Harmon County &middot; Established 1891 &middot; Published Wednesdays</div>
-      <div class="ear">
-        <b>TODAY</b>
-        Fair, colder.<br>High 31, low 9.<br>Lake ice unsafe.
-      </div>
-    </div>
-    <div class="rag">
-      <span>VOL. CIII &nbsp; NO. 19</span>
-      <span>STILLWATER &middot; <span class="dl">DATE: Max &mdash; a Wednesday, 1993</span></span>
-      <span>THIRTY-FIVE CENTS</span>
-    </div>
-
-    <div class="kicker">FIFTEEN YEARS ON</div>
-    <h2 class="hed">Stillwater&rsquo;s Missing Year</h2>
-    <div class="deck">Between the fall of 1977 and the fall of 1978 the village lost nine
-    of every ten residents. The county kept no full account of it, and most of the people
-    still here will not put a number on the year, or a name to who is gone.</div>
-    <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
-
-    <div class="cols">
-
-      <figure class="cut">
-        <img src="img/lake-street.jpg" alt="Lake Street, Stillwater">
-        <div class="dots"></div>
-        <figcaption>LAKE STREET, looking north from the Marne Hotel, undated, from the
-        Clarion files. Fourteen of the seventeen storefronts in this view stood vacant
-        by 1980. &mdash; Clarion file photo <!-- TEXT: Max --></figcaption>
-      </figure>
-
-      <p class="lead"><span class="dl">STILLWATER</span> &mdash; The 1980 federal census
-      put the population of this village at <span class="circ">62</span>. Ten years
-      earlier it had been 811. The fall &mdash; better than ninety percent in a decade
-      &mdash; was the steepest of any incorporated place in the state, and nearly all
-      of it happened inside one twelve-month stretch that began, as close as anyone
-      here will say, in the autumn of 1977. <!-- TEXT: Max --></p>
-
-      <p>There is no agreed account of what happened. The Halvorsen mine had closed in
-      1971, and that loss was real and well recorded: severance notices, a supper at
-      the Marne Hotel, letters back from families resettled in Duluth and the Cities.
-      What came six years later left no paper of that kind. People did not pack and
-      say goodbye. By the reckoning of those who stayed, the town simply woke a little
-      smaller each week through that year and did not remark on it. <!-- TEXT: Max --></p>
-
-      <p>&ldquo;Eleven years I sat that desk,&rdquo; said Harold Mesick, 71, the
-      resident sheriff&rsquo;s deputy for Stillwater until 1979. &ldquo;That October
-      we ran more missing-person calls in nine days than the three years before it,
-      put together. <span class="circ">Eleven names</span> the first week alone.
-      Then it started thinning &mdash; four the second week, two the third. By the
-      new year I don&rsquo;t believe I wrote one down, and I couldn&rsquo;t tell you
-      if that&rsquo;s because there was nobody left to go missing, or nobody left
-      who still thought to call it in. Some weeks both felt true.&rdquo; Mesick was
-      one of two deputies posted to Stillwater that year; his partner, Danny
-      Olafson, is counted among the missing in the township&rsquo;s own uncertain
-      tally. The county sheriff sent five more men in on rotation between November
-      and March. Two never rotated back out. <!-- TEXT: Max --></p>
-
-      <p>What some who stayed will describe, carefully and usually only the once,
-      is a sound that came before a person was gone &mdash; not a voice exactly,
-      said Arvo Lahti, 74, who has fished the north shore most mornings since
-      before the mine closed. &ldquo;A whisper with a place to it. You&rsquo;d know
-      which way to turn your head. Never what it said. My sister heard it three
-      nights running before she went down to the water and didn&rsquo;t come back
-      up the bank.&rdquo; By 1978 the Clarion&rsquo;s own reporters had a shorthand
-      for it in their notebooks &mdash; a &ldquo;pull,&rdquo; spoken of the way
-      another town might speak of a headache, or a fever breaking. State health
-      officials who came through that spring, checking well water after a run of
-      complaints, noted in their report an unusual flatness in the people they
-      interviewed &mdash; &ldquo;diminished affective response&rdquo; was the
-      phrase used &mdash; and recommended no further action. <!-- TEXT: Max --></p>
-
-      <p>Harmon County&rsquo;s own records for the period are incomplete. County Clerk
-      Carl Wisz said the 1978 property-tax rolls carry <span class="circ">nineteen
-      parcels</span> paid current by owners the office has never matched to a resident,
-      living or dead. &ldquo;The money comes in. It still does, some years. We send the
-      notices to the addresses and once in a while somebody pays them. I have a drawer
-      of receipts signed in hands I cannot read.&rdquo; <!-- TEXT: Max --></p>
-
-      <div class="notice ad">
-        <span class="big">PYLE&rsquo;S HARDWARE</span>
-        Lake St. at Cass &middot; MELrose 4&#8209;2971<br>Paint &middot; Tackle &middot; Since 1912
+    <div class="pg" id="pageMain">
+      <div class="folio">
+        <span>STILLWATER, HARMON COUNTY</span>
+        <span>&#9733;</span>
+        <span>PAGE ONE</span>
       </div>
 
-      <p>At First Lutheran, the Rev. Thomas Ault &mdash; who by the late 1980s drove in
-      from Two Harbors to hold a service every second Sunday &mdash; keeps the
-      membership book from those years on the vestry shelf. &ldquo;Two hundred and
-      forty communicants in 1976,&rdquo; he said, turning to the page. &ldquo;Two
-      hundred and forty in 1979. Not one name <span class="circ">crossed out</span>.
-      There was no one to cross them out, and no one to say they should be.&rdquo;
-      <!-- TEXT: Max --></p>
-
-      <p>The Clarion&rsquo;s own file has a hole in it. Frank Deller, 79, who edited and
-      largely set this paper from 1954 to 1983, went back some years ago to bind the
-      run for 1977 and 1978. &ldquo;Between about the middle of October and the
-      following September there is nothing in the morgue but the front-page flags,&rdquo;
-      he said. &ldquo;Eleven months of issues. I set most of those pages with my own
-      hands and I could not tell you now what was on them. The type went back in the
-      case and that was that.&rdquo; <!-- TEXT: Max --></p>
-
-      <p>What residents describe, when they will describe it, is less grief than a gap.
-      Verna Kohl, 68, who has run the laundromat on Lake Street since 1961 and is one
-      of the last people operating a business in town, put it this way: &ldquo;I know
-      there were more of us. I cannot give you the faces. I have sat with the old class
-      pictures and tried. You count the <span class="circ">shadows</span> on the ground
-      in those photographs and there are more of us standing there than there are faces
-      to go around.&rdquo; <!-- TEXT: Max --></p>
-
-      <p>The 1980 census breaks out age along with number. Of the sixty-two counted,
-      fifty-four were past fifty. The county&rsquo;s separate school census shows
-      Stillwater&rsquo;s one-room schoolhouse closed for want of pupils in the
-      spring of 1978 &mdash; not from families moving away, which the district
-      would have a record of, but from a roll that emptied grade by grade,
-      youngest first, until there was no one left to hold a class for.
-      <!-- TEXT: Max --></p>
-
-      <div class="notice">
-        <span class="t">NOTICE OF FORFEITURE</span>
-        HARMON COUNTY. Taxes on the parcels listed below remain unpaid for 1978&ndash;1981
-        and are subject to forfeiture to the State. Owners of record may redeem at the
-        County Treasurer, Osgood Bldg., Stillwater. Parcels 07&#8209;114 through
-        07&#8209;133. &mdash; <i>cont. 6A</i>
+      <div class="flag">
+        <h1>The Stillwater Clarion</h1>
+        <div class="est">Harmon County &middot; Established 1891 &middot; Published Wednesdays</div>
+        <div class="ear">
+          <b>TODAY</b>
+          Fair, colder.<br>High 31, low 9.<br>Lake ice unsafe.
+        </div>
+      </div>
+      <div class="rag">
+        <span>VOL. CIII &nbsp; NO. 19</span>
+        <span>STILLWATER &middot; <span class="dl">DATE: Max, a Wednesday, 1993</span></span>
+        <span>THIRTY-FIVE CENTS</span>
       </div>
 
-      <p>The lake has settled nothing, and given back only one thing anyone can
-      point to. Divers hired by the county in 1981 to search the deep hole off
-      Beaufort Point brought up two rowboats and a 1964 sedan; the search that
-      mattered more, in June of 1978, brought up a boy. <i>See notice, this
-      page.</i> &ldquo;People want to say they all walked into the water,&rdquo;
-      Mesick said. &ldquo;I have got exactly one case in eleven years where that
-      lake gave anybody back, and I still do not have an explanation for that boy.
-      Eight hundred people do not walk into a lake and leave the cars in the
-      drive &mdash; and if they did, where are the other seven hundred and
-      ninety-nine?&rdquo; <!-- TEXT: Max --></p>
+      <div class="kicker">FIFTEEN YEARS ON</div>
+      <h2 class="hed">Stillwater&rsquo;s Missing Years</h2>
+      <div class="deck">Between the autumn of 1977 and the 1980 census the village lost better
+      than four residents in every five. No agreed account exists of how. Most of the people
+      still here will not put a single year to when it started, or a name to who is gone.</div>
+      <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
 
-      <div class="notice">
-        <span class="t">THE CASE OF FABIAN GARDNER</span>
-        A county diver recovered one person from the lake in the whole of the
-        1981 search &mdash; three years earlier, in June 1978, not by the county
-        but by a resident who pulled him from the shallows off Beaufort Point: a
-        boy, eight or nine, alive. He answered to no name any resident recognized
-        and gave his own as Fabian Gardner. No one came forward for him. State
-        workers, unable to place him with any family in the county or the towns
-        around it, remanded him to Harmon County Child Support Enforcement pending
-        an identity the office was never able to establish; a working theory in
-        the county&rsquo;s own file, that the boy was concealing his real one, was
-        never substantiated either way. He spoke rarely, and mostly of one fear:
-        that his eyes &ldquo;followed things nobody had said were there yet.&rdquo;
-        Deputies at the time logged their color as an unusual pale yellow-brown, a
-        detail residents still bring up unprompted, sixteen years on. The
-        Clarion&rsquo;s inquiry goes no further than the county&rsquo;s own file,
-        which ends there. <!-- TEXT: Max -->
+      <div class="cols">
+
+        <figure class="cut">
+          <img src="img/lake-street.jpg" alt="Lake Street, Stillwater">
+          <div class="dots"></div>
+          <figcaption>LAKE STREET, looking north from the Marne Hotel, undated, from the
+          Clarion files. Fourteen of the seventeen storefronts in this view stood vacant
+          by 1980. Clarion file photo. <!-- TEXT: Max --></figcaption>
+        </figure>
+
+        <p class="lead"><span class="dl">STILLWATER</span> &mdash; The 1980 federal census put
+        the population of this village at <span class="circ">143</span>. Ten years earlier it
+        had been 811, and the decline did not arrive in a single bad year. It came in waves that
+        started in the autumn of 1977 and did not fully stop until the decade turned: a bad
+        season, then a quiet spell long enough that people stopped watching for the next one,
+        then another bad season worse than the first. By the time the census takers came
+        through, the fall was the steepest recorded for any incorporated place in the state, and
+        nobody in Stillwater agrees on when, exactly, it stopped being ordinary decline.
+        <!-- TEXT: Max --></p>
+
+        <p>There is no agreed account of what happened. The Halvorsen mine closed in 1971, and
+        that loss was real and well recorded, with severance notices, a supper at the Marne
+        Hotel, and letters back from families who resettled in Duluth and the Cities. What began
+        six years later, and did not fully stop for three years after that, left no paper of
+        that kind. People did not pack and say goodbye. By the reckoning of those who stayed,
+        the town simply woke a little smaller every so often, in runs that came and went through
+        the back half of the decade, and mostly went unremarked until there was almost no one
+        left to do the remarking. <!-- TEXT: Max --></p>
+
+        <p>&ldquo;It wasn&rsquo;t one year,&rdquo; said Harold Mesick, 71, the resident
+        sheriff&rsquo;s deputy for Stillwater until 1979. &ldquo;People want it to be one year,
+        one they can point to and say that&rsquo;s when it happened, and it wasn&rsquo;t. It was
+        three seasons, four, on and off. Every autumn from &rsquo;77 on we&rsquo;d get a run of
+        calls, a dozen, twenty, folks phoning about a neighbor or a cousin or somebody&rsquo;s
+        boy, and every autumn the run was smaller than the one before it. Every spring it went
+        quiet again, like nothing had happened. Took me until &rsquo;79 to understand the quiet
+        wasn&rsquo;t the same thing as stopped.&rdquo; The county&rsquo;s own count for the
+        village slides from an estimated <span class="circ">740</span> in 1976 to under four
+        hundred by the close of 1979, with no two internal documents agreeing on the figure,
+        before the 1980 federal census fixed the number at 143 and made the decade&rsquo;s
+        arithmetic official. Mesick was one of two deputies posted to Stillwater in those years;
+        his partner, Danny Olafson, is counted among the missing in the township&rsquo;s own
+        uncertain tally. The county sheriff rotated five more men through on temporary
+        assignment between 1977 and 1980. Two never rotated back out. <!-- TEXT: Max --></p>
+
+        <p>What some who stayed will describe, carefully and usually only the once, is a sound
+        that came before a person was gone, not quite a voice, said Arvo Lahti, 74, who has
+        fished the north shore most mornings since before the mine closed. &ldquo;A whisper with
+        a place to it. You&rsquo;d know which way to turn your head. Hardly what it said, though.
+        A word, maybe two, gone before you had hold of them. My sister heard it three nights
+        running before she went down to the water and didn&rsquo;t come back up the bank.&rdquo;
+        By 1978 the Clarion&rsquo;s own reporters had a shorthand for it in their notebooks, a
+        &ldquo;pull,&rdquo; spoken of the way another town might speak of a headache, or a fever
+        breaking. State health officials who came through that spring, checking well water after
+        a run of complaints, noted in their report an unusual flatness in the people they
+        interviewed, &ldquo;diminished affective response&rdquo; was the phrase used, and
+        recommended no further action. None of the residents interviewed for that 1978 survey,
+        nor any interviewed for this one fifteen years later, described noticing any change in
+        themselves at all. <!-- TEXT: Max --></p>
+
+        <p>Harmon County&rsquo;s own records for the period are incomplete. County Clerk Carl
+        Wisz said the 1978 property-tax rolls carry <span class="circ">nineteen parcels</span>
+        paid current by owners the office has never matched to a resident, living or dead.
+        &ldquo;The money comes in. It still does, some years. We send the notices to the
+        addresses and once in a while somebody pays them. I have a drawer of receipts signed in
+        hands I cannot read.&rdquo; <!-- TEXT: Max --></p>
+
+        <div class="notice ad">
+          <span class="big">PYLE&rsquo;S HARDWARE</span>
+          Lake St. at Cass &middot; MELrose 4&#8209;2971<br>Paint &middot; Tackle &middot; Since 1912
+        </div>
+
+        <p>At First Lutheran, the Rev. Thomas Ault, who by the late 1980s was driving in from
+        Two Harbors to hold a service every second Sunday, keeps the membership book from those
+        years on the vestry shelf. &ldquo;Two hundred and forty communicants in 1976,&rdquo; he
+        said, turning to the page. &ldquo;Two hundred and forty in 1979. Not one name
+        <span class="circ">crossed out</span>. There was no one to cross them out, and no one to
+        say they should be.&rdquo; <!-- TEXT: Max --></p>
+
+        <p>The Clarion&rsquo;s own file has a hole in it. Frank Deller, 79, who edited and
+        largely set this paper from 1954 to 1983, went back some years ago to bind the run for
+        1977 through 1979. &ldquo;Between the fall of &rsquo;77 and the spring of &rsquo;80 the
+        morgue has long stretches with nothing in it but the front-page flags,&rdquo; he said.
+        &ldquo;The better part of two years of issues, on and off. I set most of those pages
+        with my own hands and I could not tell you now what was on them. The type went back in
+        the case and that was that.&rdquo; <!-- TEXT: Max --></p>
+
+        <p>What residents describe, when they will describe it, is less grief than a gap. Verna
+        Kohl, 68, who has run the laundromat on Lake Street since 1961 and is one of the last
+        people operating a business in town, put it this way: &ldquo;I know there were more of
+        us. I cannot give you the faces. I have sat with the old class pictures and tried. You
+        count the <span class="circ">shadows</span> on the ground in those photographs and there
+        are more of us standing there than there are faces to go around.&rdquo;
+        <!-- TEXT: Max --></p>
+
+        <p>The 1980 census breaks out age along with number. Of the 143 counted, 121 were past
+        fifty. The county&rsquo;s separate school census shows Stillwater&rsquo;s one-room
+        schoolhouse closed for want of pupils in the spring of 1979, not from families moving
+        away, which the district would have a record of, but from a roll that had emptied grade
+        by grade, youngest first, over three years, until there was no one left to hold a class
+        for. <!-- TEXT: Max --></p>
+
+        <div class="notice">
+          <span class="t">NOTICE OF FORFEITURE</span>
+          HARMON COUNTY. Taxes on the parcels listed below remain unpaid for 1978&ndash;1981
+          and are subject to forfeiture to the State. Owners of record may redeem at the
+          County Treasurer, Osgood Bldg., Stillwater. Parcels 07&#8209;114 through
+          07&#8209;133. <i>Cont. 6A.</i>
+        </div>
+
+        <p>The lake has settled nothing, and given back only one thing anyone can point to.
+        Divers hired by the county in 1981 to search the deep hole off Beaufort Point brought up
+        two rowboats and a 1964 sedan. The search that mattered more, in June of 1978, brought
+        up a boy. &ldquo;People want to say they all walked into the water,&rdquo; Mesick said.
+        &ldquo;I have got exactly one case in my years on that desk where the lake gave anybody
+        back, and I still do not have an explanation for that boy. Six hundred and some people
+        do not walk into a lake and leave the cars in the drive. If they did, where is the other
+        six hundred and fifty of them?&rdquo; <!-- TEXT: Max --></p>
+
+        <div class="notice">
+          <span class="t">THE CASE OF FABIAN GARDNER</span>
+          The one person the lake has ever given back: a boy, alive, pulled from the shallows
+          off Beaufort Point in June 1978. No one has ever identified him.
+          <i>Full account overleaf.</i> <!-- TEXT: Max -->
+        </div>
+
+        <p>The state demographer&rsquo;s office, asked about the Stillwater figure, described it
+        in a 1982 memo as &ldquo;an apparent reporting error under review.&rdquo; The review was
+        never published. Two calls to the office for this article were not returned.
+        <!-- TEXT: Max --></p>
+
+        <p>Not everyone who has looked into Stillwater accepts the town&rsquo;s own account of
+        itself. A 1979 state review, which Clarion reporters have never been permitted to read
+        in full (our correspondence with that office is reproduced on 6A), considered, and by
+        its own summary did not rule out, organized abduction, and noted the county&rsquo;s
+        stretch of Highway 61 and its rail siding traffic, later examined at length in an
+        unrelated 1984 trafficking indictment out of Duluth. Sheriff&rsquo;s investigators at
+        the time called that theory unsupported. Some longtime residents call it worse than
+        unsupported, a story brought in from outside that misses what happened by insisting on
+        an explanation everyone else would find reasonable. This paper takes no position beyond
+        the following: something in Stillwater&rsquo;s own habit of not looking closely, not at
+        the reports, not at the records, not at each other, made it very easy, across the better
+        part of three years, for no one to ask which explanation was true. <!-- TEXT: Max --></p>
+
+        <p>Stillwater still has a township board, which meets the second Tuesday of the month at
+        the Osgood building, quorum permitting, and a post office open four hours a day. The
+        Bijou has been dark since 1977. The three storefronts still tenanted on the north side
+        of Lake Street are the laundromat, the post office, and Pyle&rsquo;s.
+        <!-- TEXT: Max --></p>
+
+        <p class="end">&ldquo;You keep waiting for somebody to come and ask about it
+        properly,&rdquo; Verna Kohl said. &ldquo;Nobody ever has. After a while you understand
+        nobody is going to. And then some days you cannot remember what it was you meant to tell
+        them.&rdquo; <!-- TEXT: Max --></p>
+
+        <p class="jump">See STILLWATER, Page 6A</p>
+
+        <div class="notice">
+          <span class="t">INFORMATION WANTED</span>
+          Concerning the household at 4 Beaufort Ave., Stillwater, and the people who lived in
+          it. Names not required. Any recollection at all. This notice will run until it is
+          answered. <a class="lw" id="toFeed" href="feed.html">Leave word at this paper.</a>
+        </div>
+
+        <div class="notice">
+          <span class="t">FIRST LUTHERAN CHURCH</span>
+          Service 2nd &amp; 4th Sundays, 9 a.m. &middot; Osgood Bldg. &middot; All are welcome.
+        </div>
+
+        <div class="notice">
+          <span class="t">INSIDE TODAY</span>
+          Deaths &amp; Cards of Thanks &hellip; 4A<br>
+          Township Board minutes &hellip; 5A<br>
+          Church Notes &hellip; 5A<br>
+          The Fabian Gardner File &hellip; 3A<br>
+          Classified &amp; Legals &hellip; 8A<br>
+          Weather &amp; Lake Report &hellip; 2A
+        </div>
+
+        <div class="notice ad">
+          <span class="big">THE CLARION</span>
+          Delivered in the county, $6 the year.<br>Payable in advance &middot; MELrose 4&#8209;2100
+        </div>
+
+      </div><!-- /cols -->
+    </div><!-- /pageMain -->
+
+    <div class="pg" id="pageFabian" hidden>
+      <div class="folio">
+        <span>STILLWATER, HARMON COUNTY</span>
+        <span>&#9733;</span>
+        <span>PAGE THREE-A</span>
       </div>
+      <div class="kicker">CONTINUED FROM PAGE ONE</div>
+      <h2 class="hed small">The Fabian Gardner File</h2>
+      <div class="byl">BY RUTH ENDERBY &nbsp;&mdash;&nbsp; CLARION STAFF WRITER</div>
 
-      <p>The state demographer&rsquo;s office, asked about the Stillwater figure,
-      described it in a 1982 memo as &ldquo;an apparent reporting error under review.&rdquo;
-      The review was never published. Two calls to the office for this article were not
-      returned. <!-- TEXT: Max --></p>
+      <div class="cols">
+        <p class="lead"><span class="dl">STILLWATER</span> &mdash; He came out of the water on
+        the evening of June 14, 1978, pulled from the shallows off Beaufort Point by Roy
+        Instenes, who had gone down to check his nets and found a boy face down in eight inches
+        of water instead, still breathing. Instenes carried him up to the Pyle place, the
+        nearest house with a working phone, and rode with him the forty minutes to the county
+        hospital in Two Harbors. <!-- TEXT: Max --></p>
 
-      <p>Not everyone who has looked into Stillwater accepts the town&rsquo;s own
-      account of itself. A 1979 state review, which Clarion reporters have never
-      been permitted to read in full &mdash; our correspondence with that office
-      is reproduced on 6A &mdash; considered and, by its own summary, did not rule
-      out organized abduction, and noted the county&rsquo;s stretch of Highway 61
-      and its rail siding traffic, later examined at length in an unrelated 1984
-      trafficking indictment out of Duluth. Sheriff&rsquo;s investigators at the
-      time called that theory unsupported. Some longtime residents call it worse
-      than unsupported: a story brought in from outside that misses what happened
-      by insisting on an explanation everyone else would find reasonable. This
-      paper takes no position beyond the following: something in Stillwater&rsquo;s
-      own habit of not looking closely &mdash; not at the reports, not at the
-      records, not at each other &mdash; made it very easy, for the better part of
-      a year, for no one to ask which explanation was true. <!-- TEXT: Max --></p>
+        <p>He gave his name, once he was able to speak, as Fabian Gardner. He did not know a
+        birthdate. He did not know the name of any parent, guardian, or relation, and none ever
+        came forward, though the county ran notices in four regional papers for the better part
+        of a year. He was examined and judged to be eight or nine years old, undernourished but
+        not gravely so, with no injury consistent with a drowning. <!-- TEXT: Max --></p>
 
-      <p>Stillwater still has a township board, which meets the second Tuesday of the
-      month at the Osgood building, quorum permitting, and a post office open four hours
-      a day. The Bijou has been dark since 1977. The three storefronts still tenanted on
-      the north side of Lake Street are the laundromat, the post office, and Pyle&rsquo;s.
-      <!-- TEXT: Max --></p>
+        <p>Two women sat with him in shifts during his ten days at the hospital: Alma Rooke, a
+        ward aide, and Dorothy Pyle, of the hardware family, who had known him only the length
+        of the car ride. Both gave the county the same account, independently and some years
+        apart. His eyes, a pale and startling yellow neither woman could put a better name to,
+        seemed to follow something moving in the room. There was nothing in the room. Rooke&rsquo;s
+        notes, kept in the county file, record that he grew agitated only once, when a window
+        blind was drawn, and would not say why. <!-- TEXT: Max --></p>
 
-      <p class="end">&ldquo;You keep waiting for somebody to come and ask about it
-      properly,&rdquo; Verna Kohl said. &ldquo;Nobody ever has. After a while you
-      understand nobody is going to. And then some days you cannot remember what it
-      was you meant to tell them.&rdquo; <!-- TEXT: Max --></p>
+        <p>Unable to place him with any family in Harmon County or the counties around it, the
+        state remanded him, that August, to the custody of Harmon County Child Support
+        Enforcement, pending an identity the office was never able to establish, the office
+        being, by any ordinary reading of its charter, the wrong one for the job, a fact noted
+        without further comment in the county board&rsquo;s own minutes for that month.
+        <!-- TEXT: Max --></p>
 
-      <p class="jump">See STILLWATER, Page 6A</p>
-
-      <div class="notice">
-        <span class="t">INFORMATION WANTED</span>
-        Concerning the household at 4 Beaufort Ave., Stillwater, and the people who
-        lived in it. Names not required. Any recollection at all. This notice will run
-        until it is answered. &mdash; <a class="lw" id="toFeed" href="feed.html">leave word at this paper</a>
+        <p class="end">What became of him afterward is not in the Clarion&rsquo;s file. A
+        caseworker who asked not to be named said only that his record was sealed by the county
+        in 1985, three years before he would have aged out of its care, and that she did not
+        know why, or where he went. The color of his eyes is the part of the story Stillwater has
+        never let go of. Ask almost anyone left in town and, sooner or later, without being asked
+        twice, they will bring it up themselves. <!-- TEXT: Max --></p>
       </div>
+    </div><!-- /pageFabian -->
 
-      <div class="notice">
-        <span class="t">FIRST LUTHERAN CHURCH</span>
-        Service 2nd &amp; 4th Sundays, 9 a.m. &middot; Osgood Bldg. &middot; All are welcome.
-      </div>
-
-      <div class="notice">
-        <span class="t">INSIDE TODAY</span>
-        Deaths &amp; Cards of Thanks &hellip; 4A<br>
-        Township Board minutes &hellip; 5A<br>
-        Church Notes &hellip; 5A<br>
-        The Fabian Gardner File &hellip; 3A<br>
-        Classified &amp; Legals &hellip; 8A<br>
-        Weather &amp; Lake Report &hellip; 2A
-      </div>
-
-      <div class="notice ad">
-        <span class="big">THE CLARION</span>
-        Delivered in the county, $6 the year.<br>Payable in advance &middot; MELrose 4&#8209;2100
-      </div>
-
-    </div><!-- /cols -->
-
-    <div class="colophon">
+    <div class="colophon" id="colophon">
       Published Wednesdays at the Osgood Building, Stillwater &middot; Founded 1891 by A. R. Pym
       &middot; Entered as second-class matter at the Stillwater post office &middot;
       Subscriptions $6 the year, payable in advance
     </div>
 
     <div class="wash" id="wash"></div>
+    <button class="flip" id="flip" type="button" aria-label="the Fabian Gardner file">&#8250;</button>
 
   </div>
 
@@ -404,6 +458,21 @@
     var w = document.getElementById('wash');
     w.insertAdjacentHTML('afterbegin', CIPHER.washWord('mislaid'));   // his word for it. TEXT: Max
   }
+
+  // the corner turn -> the Fabian Gardner file, and back
+  (function(){
+    var flip = document.getElementById('flip'),
+        main = document.getElementById('pageMain'),
+        fab  = document.getElementById('pageFabian'),
+        on   = false;
+    flip.addEventListener('click', function(){
+      on = !on;
+      main.hidden = on;
+      fab.hidden  = !on;
+      flip.innerHTML = on ? '&#8249;' : '&#8250;';
+      flip.setAttribute('aria-label', on ? 'back to page one' : 'the Fabian Gardner file');
+    });
+  })();
 
   // the "information wanted" notice -> the wall of what people can still say
   document.getElementById('toFeed').addEventListener('click', function(e){
