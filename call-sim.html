@@ -152,6 +152,71 @@
   // it is meant to be heard, not read — there is no on-screen transcript.
   var QUIET_SRC = 'aud/quiet-hours-line.mp3';   // FILE: Max
 
+  // the main AnchorPoint line. same number either way — which recording answers
+  // depends on whether this caller has actually been through the gate at rem
+  // (not the notyet trick) or has reached feed. FILES: Max, both in.
+  var MAIN_SRC = 'aud/anchorpoint-line.mp3';
+  var DEEP_SRC = 'aud/anchorpoint-line-deep.mp3';
+  var DEEP_LINE = (function(){
+    try{ return localStorage.getItem('ap_pass_ds') === '1' || localStorage.getItem('ap_seen_feed') === '1'; }
+    catch(e){ return false; }
+  })();
+
+  // the deep line's own edit: his greeting, the same one, cut short at 18.3s
+  // (the take has a natural 18.0-27.1s silence there) into a burst of static,
+  // then the band opens up — no longer sounding like a phone line — for
+  // whatever it is that was never meant to be recorded. a click ends it early.
+  function playAnchorLine(){
+    var src = DEEP_LINE ? DEEP_SRC : MAIN_SRC, fallback = DEEP_LINE ? 74 : 95;
+    if(!audio){ setTimeout(endCall, fallback * 1000); return; }
+    var ac = audio.ac, master = audio.master;
+
+    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass';  lp.frequency.value = 3400;
+    hp.connect(lp); lp.connect(master);
+
+    fetch(src).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
+      .then(function(ab){ return ac.decodeAudioData(ab); })
+      .then(function(buf){
+        if(done) return;
+        var s = ac.createBufferSource(); s.buffer = buf; s.connect(hp);
+        var t = ac.currentTime + 0.05;
+        s.start(t);
+        s.onended = function(){ if(!done) setTimeout(endCall, 900); };
+
+        if(DEEP_LINE){
+          // the line stops sounding like a phone the moment the real thing starts
+          hp.frequency.setValueAtTime(300, t + 18.3);
+          hp.frequency.linearRampToValueAtTime(90, t + 19.0);
+          lp.frequency.setValueAtTime(3400, t + 18.3);
+          lp.frequency.linearRampToValueAtTime(9000, t + 19.0);
+
+          var burst = ac.createBufferSource();
+          var bb = ac.createBuffer(1, Math.floor(ac.sampleRate * 2.6), ac.sampleRate), bd = bb.getChannelData(0);
+          for(var i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
+          burst.buffer = bb;
+          var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1400; bbp.Q.value = 0.6;
+          var bg = ac.createGain(); bg.gain.value = 0.0001;
+          burst.connect(bbp); bbp.connect(bg); bg.connect(master);
+          bg.gain.setValueAtTime(0.0001, t + 18.3);
+          bg.gain.exponentialRampToValueAtTime(0.5, t + 18.5);
+          bg.gain.setValueAtTime(0.5, t + 20.6);
+          bg.gain.exponentialRampToValueAtTime(0.0001, t + 20.65);   // a hard cut, not a fade
+          burst.start(t + 18.3); burst.stop(t + 21);
+
+          var ct = t + buf.duration - 0.15;
+          var click = ac.createOscillator(); click.type = 'square'; click.frequency.value = 1800;
+          var cg = ac.createGain(); cg.gain.value = 0.0001;
+          click.connect(cg); cg.connect(master);
+          cg.gain.setValueAtTime(0.0001, ct);
+          cg.gain.exponentialRampToValueAtTime(0.35, ct + 0.008);
+          cg.gain.exponentialRampToValueAtTime(0.0001, ct + 0.05);
+          click.start(ct); click.stop(ct + 0.08);
+        }
+      })
+      .catch(function(){ if(!done) setTimeout(endCall, fallback * 1000); });
+  }
+
   function playRecordedLine(src, fallbackSecs){
     var el = null;
     try{ el = new Audio(src); el.preload = 'auto'; }catch(e){ el = null; }
@@ -182,7 +247,7 @@
       t0=Date.now();
       stateEl.textContent='0:00';
       tick=setInterval(function(){ stateEl.textContent=fmt(Math.floor((Date.now()-t0)/1000)); },1000);
-      setTimeout(endCall, 10000);
+      setTimeout(function(){ if(!done) playAnchorLine(); }, 500);
     }, 6200);
   }
   function endCall(){
