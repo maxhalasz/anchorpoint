@@ -96,6 +96,17 @@
   var MODE = /[?&]n=quiet\b/.test(location.search) ? 'quiet' : 'main';
   if(MODE==='quiet') nameEl.textContent = '(207) 555-0163';
 
+  // ?dev=main / ?dev=deep forces which AnchorPoint line answers, so both can be
+  // tested without actually earning ap_pass_ds / ap_seen_feed first
+  var DEV_LINE = (function(){ var m=/[?&]dev=(main|deep)\b/.exec(location.search); return m ? m[1] : null; })();
+  if(DEV_LINE){
+    var dtag = document.createElement('div');
+    dtag.textContent = 'dev: ' + DEV_LINE + ' line';
+    dtag.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99998;font-size:11px;'
+      + 'color:rgba(255,255,255,.55);font-family:monospace';
+    document.body.appendChild(dtag);
+  }
+
   function clock(){
     var d=new Date();
     document.getElementById('clock').textContent = d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
@@ -174,7 +185,7 @@
   // (not the notyet trick) or has reached feed. FILES: Max, both in.
   var MAIN_SRC = 'aud/anchorpoint-line.mp3';
   var DEEP_SRC = 'aud/anchorpoint-line-deep.mp3';
-  var DEEP_LINE = (function(){
+  var DEEP_LINE = DEV_LINE ? (DEV_LINE === 'deep') : (function(){
     try{ return localStorage.getItem('ap_pass_ds') === '1' || localStorage.getItem('ap_seen_feed') === '1'; }
     catch(e){ return false; }
   })();
@@ -231,13 +242,13 @@
           var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1500; bbp.Q.value = 0.5;
           var grit = ac.createWaveShaper();
           var gn = 512, gc = new Float32Array(gn);
-          for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*4.5); }
+          for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*2.2); }
           grit.curve = gc;
           var bg = ac.createGain(); bg.gain.value = 0.0001;
           burst.connect(bbp); bbp.connect(grit); grit.connect(bg); bg.connect(master);
           bg.gain.setValueAtTime(0.0001, t);
-          bg.gain.exponentialRampToValueAtTime(0.55, t + 0.25);
-          bg.gain.setValueAtTime(0.55, t + staticEnd - 0.05);
+          bg.gain.exponentialRampToValueAtTime(0.15, t + 0.25);
+          bg.gain.setValueAtTime(0.15, t + staticEnd - 0.05);
           bg.gain.exponentialRampToValueAtTime(0.0001, t + staticEnd - 0.045);   // a hard cut, not a fade
           burst.start(t); burst.stop(t + staticEnd);
 
