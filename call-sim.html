@@ -118,20 +118,37 @@
     }
     return function stop(){ try{o.stop();o2.stop();}catch(e){} };
   }
+  // an actual mains hum (fundamental + 3 harmonics, wobbling together under one
+  // slow shared LFO) over pink noise (1/f), not two pure close sines over white
+  // noise through a single bandpass — that read as loud and synthetic. levels
+  // are deliberately quiet; this sits UNDER a voice, it isn't the point.
   function roomTone(ac,master){
-    var o1=ac.createOscillator(); o1.type='sine'; o1.frequency.value=55;
-    var o2=ac.createOscillator(); o2.type='sine'; o2.frequency.value=55.7;
-    var od=ac.createGain(); od.gain.value=0.8; o1.connect(od); o2.connect(od);
-    var nb=ac.createBufferSource(), buf=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate), ch=buf.getChannelData(0);
-    for(var i=0;i<ch.length;i++) ch[i]=(Math.random()*2-1)*0.5;
-    nb.buffer=buf; nb.loop=true;
-    var bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=500; bp.Q.value=0.7;
-    var ng=ac.createGain(); ng.gain.value=0.3; nb.connect(bp); bp.connect(ng);
-    var p=ac.createOscillator(); p.type='sine'; p.frequency.value=0.5;
-    var pg=ac.createGain(); pg.gain.value=0.45; p.connect(pg);
-    var m=ac.createGain(); m.gain.value=0; od.connect(m); ng.connect(m); m.connect(master); pg.connect(m.gain);
-    o1.start();o2.start();nb.start();p.start();
-    m.gain.linearRampToValueAtTime(0.65, ac.currentTime+1.2);
+    var m=ac.createGain(); m.gain.value=0; m.connect(master);
+
+    var humG=ac.createGain(); humG.gain.value=0.045; humG.connect(m);
+    var lfo=ac.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.08; lfo.start();
+    [[1,1.0],[2,0.34],[3,0.15],[4,0.06]].forEach(function(h){
+      var o=ac.createOscillator(); o.type='sine'; o.frequency.value=60*h[0];
+      var og=ac.createGain(); og.gain.value=h[1];
+      var lg=ac.createGain(); lg.gain.value=h[1]*0.18;
+      lfo.connect(lg); lg.connect(og.gain);
+      o.connect(og); og.connect(humG); o.start();
+    });
+
+    var n=ac.sampleRate*3, buf=ac.createBuffer(1,n,ac.sampleRate), d=buf.getChannelData(0);
+    var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(var i=0;i<n;i++){
+      var white=Math.random()*2-1;
+      b0=0.99886*b0+white*0.0555179; b1=0.99332*b1+white*0.0750759;
+      b2=0.96900*b2+white*0.1538520; b3=0.86650*b3+white*0.3104856;
+      b4=0.55000*b4+white*0.5329522; b5=-0.7616*b5-white*0.0168980;
+      d[i]=(b0+b1+b2+b3+b4+b5+b6+white*0.5362)*0.09;
+      b6=white*0.115926;
+    }
+    var nb=ac.createBufferSource(); nb.buffer=buf; nb.loop=true;
+    var ng=ac.createGain(); ng.gain.value=0.05; nb.connect(ng); ng.connect(m); nb.start();
+
+    m.gain.linearRampToValueAtTime(1, ac.currentTime+1.2);
   }
   function startAudio(){
     try{
@@ -162,9 +179,9 @@
     catch(e){ return false; }
   })();
 
-  // the deep line's own edit: his greeting, the same one, cut short at 18.3s
-  // (the take has a natural 18.0-27.1s silence there) into a burst of static,
-  // then the band opens up — no longer sounding like a phone line — for
+  // the deep line's own edit: static covers the greeting itself from 0:00 (the
+  // take has a natural 18.0-27.1s silence right after it), cuts hard at 18.3s,
+  // and the band opens up — no longer sounding like a phone line — for
   // whatever it is that was never meant to be recorded. a click ends it early.
   function playAnchorLine(){
     var src = DEEP_LINE ? DEEP_SRC : MAIN_SRC, fallback = DEEP_LINE ? 74 : 95;
@@ -173,7 +190,23 @@
 
     var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
     var lp = ac.createBiquadFilter(); lp.type = 'lowpass';  lp.frequency.value = 3400;
-    hp.connect(lp); lp.connect(master);
+
+    // what actually reads as "phone line" past a bandpass: G.711-style mu-law
+    // companding (a real telephone codec quantizes loud/quiet unevenly) and a
+    // hard compressor squashing the dynamic range
+    var ws = ac.createWaveShaper();
+    var n = 1024, curve = new Float32Array(n), mu = 255, amt = 0.32;
+    for(var k = 0; k < n; k++){
+      var x = k/(n-1)*2 - 1;
+      var y = Math.sign(x) * Math.log(1 + mu*Math.abs(x)) / Math.log(1 + mu);
+      curve[k] = x*(1-amt) + y*amt;
+    }
+    ws.curve = curve; ws.oversample = '2x';
+    var comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -22; comp.ratio.value = 6; comp.attack.value = 0.003;
+    comp.release.value = 0.25; comp.knee.value = 6;
+
+    hp.connect(lp); lp.connect(ws); ws.connect(comp); comp.connect(master);
 
     fetch(src).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
       .then(function(ab){ return ac.decodeAudioData(ab); })
@@ -185,24 +218,28 @@
         s.onended = function(){ if(!done) setTimeout(endCall, 900); };
 
         if(DEEP_LINE){
-          // the line stops sounding like a phone the moment the real thing starts
-          hp.frequency.setValueAtTime(300, t + 18.3);
-          hp.frequency.linearRampToValueAtTime(90, t + 19.0);
-          lp.frequency.setValueAtTime(3400, t + 18.3);
-          lp.frequency.linearRampToValueAtTime(9000, t + 19.0);
+          var staticEnd = 18.3;
+          hp.frequency.setValueAtTime(300, t + staticEnd);
+          hp.frequency.linearRampToValueAtTime(90, t + staticEnd + 0.7);
+          lp.frequency.setValueAtTime(3400, t + staticEnd);
+          lp.frequency.linearRampToValueAtTime(9000, t + staticEnd + 0.7);
 
           var burst = ac.createBufferSource();
-          var bb = ac.createBuffer(1, Math.floor(ac.sampleRate * 2.6), ac.sampleRate), bd = bb.getChannelData(0);
+          var bb = ac.createBuffer(1, Math.ceil(ac.sampleRate * staticEnd), ac.sampleRate), bd = bb.getChannelData(0);
           for(var i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
           burst.buffer = bb;
-          var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1400; bbp.Q.value = 0.6;
+          var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1500; bbp.Q.value = 0.5;
+          var grit = ac.createWaveShaper();
+          var gn = 512, gc = new Float32Array(gn);
+          for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*4.5); }
+          grit.curve = gc;
           var bg = ac.createGain(); bg.gain.value = 0.0001;
-          burst.connect(bbp); bbp.connect(bg); bg.connect(master);
-          bg.gain.setValueAtTime(0.0001, t + 18.3);
-          bg.gain.exponentialRampToValueAtTime(0.5, t + 18.5);
-          bg.gain.setValueAtTime(0.5, t + 20.6);
-          bg.gain.exponentialRampToValueAtTime(0.0001, t + 20.65);   // a hard cut, not a fade
-          burst.start(t + 18.3); burst.stop(t + 21);
+          burst.connect(bbp); bbp.connect(grit); grit.connect(bg); bg.connect(master);
+          bg.gain.setValueAtTime(0.0001, t);
+          bg.gain.exponentialRampToValueAtTime(0.55, t + 0.25);
+          bg.gain.setValueAtTime(0.55, t + staticEnd - 0.05);
+          bg.gain.exponentialRampToValueAtTime(0.0001, t + staticEnd - 0.045);   // a hard cut, not a fade
+          burst.start(t); burst.stop(t + staticEnd);
 
           var ct = t + buf.duration - 0.15;
           var click = ac.createOscillator(); click.type = 'square'; click.frequency.value = 1800;
