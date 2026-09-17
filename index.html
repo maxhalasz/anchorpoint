@@ -347,11 +347,16 @@
   }
 
   // ---- dev tools: window.AP + ?dev panel to force the chance events ----
+  // the complete list of every key any page in the site writes — keep this in
+  // sync when a new page starts tracking something, or "reset" quietly stops
+  // being a full reset
   function fullReset(){
     try{
-      ['ap_pos','ap_gap','ap_visits','ap_lastMessage',
+      ['ap_pos','ap_gap','ap_visits','ap_lastMessage','ap_sent','ap_flags',
+       'ap_pass_ds','ap_pass_nc','ap_seen_feed',
        'st_visits','st_seenDark','st_seenLight',
        'lg_seen','lg_found','lg_unlocked','lg_opened'].forEach(function(k){ localStorage.removeItem(k); });
+      ['ds_seen','ap_gate_ds','ap_gate_nc','ap_lastTyped'].forEach(function(k){ sessionStorage.removeItem(k); });
     }catch(e){}
     location.reload();
   }
@@ -369,11 +374,15 @@
   if(/[?&]dev\b/.test(location.search)){
     var dp = document.createElement('div');
     dp.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:200000;background:#111;color:#9f9;font:11px/1.6 monospace;padding:8px 10px;border:1px solid #3a3';
+    var flag = function(k){ try{ return localStorage.getItem(k)==='1'; }catch(e){ return false; } };
     dp.innerHTML = '<b>AP dev</b> &nbsp;pos ' + pos + '/' + gap + ' &nbsp;v' + visits + (dreaming ? ' <span style="color:#f99">DREAM</span>' : '') +
+      '<br>gates: ds ' + (flag('ap_pass_ds')?'✓':'—') + ' &middot; nc ' + (flag('ap_pass_nc')?'✓':'—') +
+      ' &middot; feed ' + (flag('ap_seen_feed')?'✓':'—') +
       '<br><button data-a="dream">dream</button> ' +
       '<button data-a="eyes">eyes</button> <button data-a="palette">palette</button>' +
       '<br><button data-a="fav">favicon</button> ' +
-      '<button data-a="photo">photo</button> <button data-a="room">room</button> <button data-a="reset">reset</button>';
+      '<button data-a="photo">photo</button> <button data-a="room">room</button> ' +
+      '<button data-a="reset" style="color:#f99;font-weight:bold">reset everything</button>';
     dp.addEventListener('click', function(e){ var a = e.target.getAttribute('data-a'); if(a && window.AP[a]) window.AP[a](); });
     document.body.appendChild(dp);
   }

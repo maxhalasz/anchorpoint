@@ -126,10 +126,10 @@
       <div class="row"><label>de (s)</label><input id="staticFrom" type="number" step="0.1" value="0">
         <label style="flex:0 0 40px;text-align:right">até (s)</label><input id="staticTo" type="number" step="0.1" value="18.3"></div>
       <div class="row"><label>intensidade</label>
-        <input id="staticLevel" type="range" min="0" max="1" step="0.01" value="0.15">
+        <input id="staticLevel" type="range" min="0" max="1" step="0.01" value="0.045">
         <span class="val" id="staticLevelVal"></span></div>
       <div class="row"><label>textura/grit</label>
-        <input id="staticGrit" type="range" min="0" max="1" step="0.01" value="0.22">
+        <input id="staticGrit" type="range" min="0" max="1" step="0.01" value="0.07">
         <span class="val" id="staticGritVal"></span></div>
       <button id="detectBtn">detectar silêncios</button>
       <p class="sub" style="margin:6px 0 0">Preenche <b>de/até</b> clicando num dos silêncios
@@ -359,7 +359,7 @@
     var buf = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate*dur)), ctx.sampleRate), d = buf.getChannelData(0);
     for(var i = 0; i < d.length; i++) d[i] = Math.random()*2 - 1;
     src.buffer = buf;
-    var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1200 + opts.staticGrit*1400; bp.Q.value = 0.5;
+    var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1200 + opts.staticGrit*1400; bp.Q.value = 1.1;
     var grit = ctx.createWaveShaper();
     var n = 512, curve = new Float32Array(n);
     for(var k = 0; k < n; k++){ var x = k/(n-1)*2-1; curve[k] = Math.tanh(x*(1+opts.staticGrit*6)); }

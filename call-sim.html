@@ -99,12 +99,24 @@
   // ?dev=main / ?dev=deep forces which AnchorPoint line answers, so both can be
   // tested without actually earning ap_pass_ds / ap_seen_feed first
   var DEV_LINE = (function(){ var m=/[?&]dev=(main|deep)\b/.exec(location.search); return m ? m[1] : null; })();
-  if(DEV_LINE){
+  if(DEV_LINE || /[?&]dev\b/.test(location.search)){
     var dtag = document.createElement('div');
-    dtag.textContent = 'dev: ' + DEV_LINE + ' line';
     dtag.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99998;font-size:11px;'
-      + 'color:rgba(255,255,255,.55);font-family:monospace';
+      + 'color:rgba(255,255,255,.55);font-family:monospace;display:flex;gap:10px;align-items:center';
+    dtag.innerHTML = (DEV_LINE ? '<span>dev: ' + DEV_LINE + ' line</span>' : '') +
+      '<a href="#" id="devResetAll" style="color:#f99">reset everything</a>';
     document.body.appendChild(dtag);
+    document.getElementById('devResetAll').addEventListener('click', function(e){
+      e.preventDefault();
+      try{
+        ['ap_pos','ap_gap','ap_visits','ap_lastMessage','ap_sent','ap_flags',
+         'ap_pass_ds','ap_pass_nc','ap_seen_feed',
+         'st_visits','st_seenDark','st_seenLight',
+         'lg_seen','lg_found','lg_unlocked','lg_opened'].forEach(function(k){ localStorage.removeItem(k); });
+        ['ds_seen','ap_gate_ds','ap_gate_nc','ap_lastTyped'].forEach(function(k){ sessionStorage.removeItem(k); });
+      }catch(err){}
+      location.href = 'index.html';
+    });
   }
 
   function clock(){
@@ -239,16 +251,16 @@
           var bb = ac.createBuffer(1, Math.ceil(ac.sampleRate * staticEnd), ac.sampleRate), bd = bb.getChannelData(0);
           for(var i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
           burst.buffer = bb;
-          var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1500; bbp.Q.value = 0.5;
+          var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1500; bbp.Q.value = 1.1;
           var grit = ac.createWaveShaper();
           var gn = 512, gc = new Float32Array(gn);
-          for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*2.2); }
+          for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*1.4); }
           grit.curve = gc;
           var bg = ac.createGain(); bg.gain.value = 0.0001;
           burst.connect(bbp); bbp.connect(grit); grit.connect(bg); bg.connect(master);
           bg.gain.setValueAtTime(0.0001, t);
-          bg.gain.exponentialRampToValueAtTime(0.15, t + 0.25);
-          bg.gain.setValueAtTime(0.15, t + staticEnd - 0.05);
+          bg.gain.exponentialRampToValueAtTime(0.045, t + 0.25);
+          bg.gain.setValueAtTime(0.045, t + staticEnd - 0.05);
           bg.gain.exponentialRampToValueAtTime(0.0001, t + staticEnd - 0.045);   // a hard cut, not a fade
           burst.start(t); burst.stop(t + staticEnd);
 
