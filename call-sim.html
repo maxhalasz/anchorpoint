@@ -202,13 +202,17 @@
     catch(e){ return false; }
   })();
 
-  // the deep line's own edit: static covers the greeting itself from 0:00 (the
-  // take has a natural 18.0-27.1s silence right after it), cuts hard at 18.3s,
-  // and the band opens up — no longer sounding like a phone line — for
-  // whatever it is that was never meant to be recorded. a click ends it early.
+  // the deep line's first ~19.65s is now literally spliced from the MAIN
+  // recording itself (its own strongest pause, right after "...actually need
+  // you to do."), not a separate take -- so it really is the same recording,
+  // until it isn't. it comes apart there: a thread of ring modulation and a
+  // wow/flutter pitch instability both creep in rather than announcing
+  // themselves, neither one raising the level. it cuts hard at that pause and
+  // the deep take's own dialogue picks up from where IT goes quiet
+  // (18.0-27.1s in that file), band opened up, no longer sounding like a call.
+  // a click cuts the recording slightly early instead of a natural end.
   function playAnchorLine(){
-    var src = DEEP_LINE ? DEEP_SRC : MAIN_SRC, fallback = DEEP_LINE ? 74 : 95;
-    if(!audio){ setTimeout(endCall, fallback * 1000); return; }
+    if(!audio){ setTimeout(endCall, (DEEP_LINE ? 66 : 95) * 1000); return; }
     var ac = audio.ac, master = audio.master;
 
     var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
@@ -231,50 +235,100 @@
 
     hp.connect(lp); lp.connect(ws); ws.connect(comp); comp.connect(master);
 
-    fetch(src).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
-      .then(function(ab){ return ac.decodeAudioData(ab); })
-      .then(function(buf){
-        if(done) return;
-        var s = ac.createBufferSource(); s.buffer = buf; s.connect(hp);
-        var t = ac.currentTime + 0.05;
-        s.start(t);
-        s.onended = function(){ if(!done) setTimeout(endCall, 900); };
+    if(!DEEP_LINE){
+      fetch(MAIN_SRC).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(function(ab){ return ac.decodeAudioData(ab); })
+        .then(function(buf){
+          if(done) return;
+          var s = ac.createBufferSource(); s.buffer = buf; s.connect(hp);
+          var t = ac.currentTime + 0.05;
+          s.start(t);
+          s.onended = function(){ if(!done) setTimeout(endCall, 900); };
+        })
+        .catch(function(){ if(!done) setTimeout(endCall, 95 * 1000); });
+      return;
+    }
 
-        if(DEEP_LINE){
-          var staticEnd = 18.3;
-          hp.frequency.setValueAtTime(300, t + staticEnd);
-          hp.frequency.linearRampToValueAtTime(90, t + staticEnd + 0.7);
-          lp.frequency.setValueAtTime(3400, t + staticEnd);
-          lp.frequency.linearRampToValueAtTime(9000, t + staticEnd + 0.7);
+    var SPLICE = 19.65, DIALOGUE_FROM = 27.15;   // measured, not guessed — see the two aud/ files
 
-          var burst = ac.createBufferSource();
-          var bb = ac.createBuffer(1, Math.ceil(ac.sampleRate * staticEnd), ac.sampleRate), bd = bb.getChannelData(0);
-          for(var i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
-          burst.buffer = bb;
-          var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1500; bbp.Q.value = 1.1;
-          var grit = ac.createWaveShaper();
-          var gn = 512, gc = new Float32Array(gn);
-          for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*1.4); }
-          grit.curve = gc;
-          var bg = ac.createGain(); bg.gain.value = 0.0001;
-          burst.connect(bbp); bbp.connect(grit); grit.connect(bg); bg.connect(master);
-          bg.gain.setValueAtTime(0.0001, t);
-          bg.gain.exponentialRampToValueAtTime(0.045, t + 0.25);
-          bg.gain.setValueAtTime(0.045, t + staticEnd - 0.05);
-          bg.gain.exponentialRampToValueAtTime(0.0001, t + staticEnd - 0.045);   // a hard cut, not a fade
-          burst.start(t); burst.stop(t + staticEnd);
+    Promise.all([
+      fetch(MAIN_SRC).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return ac.decodeAudioData(ab); }),
+      fetch(DEEP_SRC).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return ac.decodeAudioData(ab); })
+    ]).then(function(bufs){
+      if(done) return;
+      var mainBuf = bufs[0], deepBuf = bufs[1];
+      var t = ac.currentTime + 0.05;
 
-          var ct = t + buf.duration - 0.15;
-          var click = ac.createOscillator(); click.type = 'square'; click.frequency.value = 1800;
-          var cg = ac.createGain(); cg.gain.value = 0.0001;
-          click.connect(cg); cg.connect(master);
-          cg.gain.setValueAtTime(0.0001, ct);
-          cg.gain.exponentialRampToValueAtTime(0.35, ct + 0.008);
-          cg.gain.exponentialRampToValueAtTime(0.0001, ct + 0.05);
-          click.start(ct); click.stop(ct + 0.08);
-        }
-      })
-      .catch(function(){ if(!done) setTimeout(endCall, fallback * 1000); });
+      // ---- segment A: the greeting, coming apart ----
+      var s1 = ac.createBufferSource(); s1.buffer = mainBuf;
+
+      var ring = ac.createGain(); ring.gain.value = 0;      // base 0 -> pure multiply = ring mod
+      var ringOsc = ac.createOscillator(); ringOsc.type = 'sine'; ringOsc.frequency.value = 41;
+      ringOsc.connect(ring.gain); ringOsc.start(t); ringOsc.stop(t + SPLICE);
+
+      var ringWet = ac.createGain(), ringDry = ac.createGain(), wetMix = ac.createGain();
+      s1.connect(ring); ring.connect(ringWet); ringWet.connect(wetMix);
+      s1.connect(ringDry); ringDry.connect(wetMix);
+      ringDry.gain.setValueAtTime(1, t);
+      ringDry.gain.linearRampToValueAtTime(0.88, t + SPLICE * 0.85);   // dry eases back as wet comes in —
+      ringWet.gain.setValueAtTime(0.0001, t);                          // total loudness doesn't climb
+      ringWet.gain.linearRampToValueAtTime(0.28, t + SPLICE * 0.85);
+
+      // wow & flutter: slow, incommensurate pitch drift plus a faster flutter,
+      // creeping in rather than present from the first second — analog tape
+      // wobble, not a robot voice
+      var wowDepth = ac.createGain(); wowDepth.gain.value = 0.0001;
+      wowDepth.gain.setValueAtTime(0.0001, t);
+      wowDepth.gain.linearRampToValueAtTime(1, t + SPLICE * 0.75);
+      [[0.19, 16], [0.31, 10], [5.4, 7]].forEach(function(w){
+        var lfo = ac.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = w[0];
+        var depth = ac.createGain(); depth.gain.value = w[1];
+        lfo.connect(depth); depth.connect(wowDepth); lfo.start(t); lfo.stop(t + SPLICE);
+      });
+      wowDepth.connect(s1.detune);
+
+      wetMix.connect(hp);
+      s1.start(t, 0, SPLICE);
+
+      // ---- the cut: band opens up right as the different recording starts ----
+      hp.frequency.setValueAtTime(300, t + SPLICE);
+      hp.frequency.linearRampToValueAtTime(90, t + SPLICE + 0.7);
+      lp.frequency.setValueAtTime(3400, t + SPLICE);
+      lp.frequency.linearRampToValueAtTime(9000, t + SPLICE + 0.7);
+
+      var burst = ac.createBufferSource();
+      var bb = ac.createBuffer(1, Math.ceil(ac.sampleRate * SPLICE), ac.sampleRate), bd = bb.getChannelData(0);
+      for(var i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
+      burst.buffer = bb;
+      var bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1500; bbp.Q.value = 1.1;
+      var grit = ac.createWaveShaper();
+      var gn = 512, gc = new Float32Array(gn);
+      for(var gk = 0; gk < gn; gk++){ var gx = gk/(gn-1)*2-1; gc[gk] = Math.tanh(gx*1.4); }
+      grit.curve = gc;
+      var bg = ac.createGain(); bg.gain.value = 0.0001;
+      burst.connect(bbp); bbp.connect(grit); grit.connect(bg); bg.connect(master);
+      bg.gain.setValueAtTime(0.0001, t);
+      bg.gain.exponentialRampToValueAtTime(0.045, t + 0.25);
+      bg.gain.setValueAtTime(0.045, t + SPLICE - 0.05);
+      bg.gain.exponentialRampToValueAtTime(0.0001, t + SPLICE - 0.045);   // a hard cut, not a fade
+      burst.start(t); burst.stop(t + SPLICE);
+
+      // ---- segment B: the deep take's own dialogue, from where it goes quiet ----
+      var s2 = ac.createBufferSource(); s2.buffer = deepBuf; s2.connect(hp);
+      var t2 = t + SPLICE;
+      s2.start(t2, DIALOGUE_FROM);
+      s2.onended = function(){ if(!done) setTimeout(endCall, 900); };
+
+      var dur2 = deepBuf.duration - DIALOGUE_FROM;
+      var ct = t2 + dur2 - 0.15;
+      var click = ac.createOscillator(); click.type = 'square'; click.frequency.value = 1800;
+      var cg = ac.createGain(); cg.gain.value = 0.0001;
+      click.connect(cg); cg.connect(master);
+      cg.gain.setValueAtTime(0.0001, ct);
+      cg.gain.exponentialRampToValueAtTime(0.35, ct + 0.008);
+      cg.gain.exponentialRampToValueAtTime(0.0001, ct + 0.05);
+      click.start(ct); click.stop(ct + 0.08);
+    }).catch(function(){ if(!done) setTimeout(endCall, 66 * 1000); });
   }
 
   function playRecordedLine(src, fallbackSecs){
