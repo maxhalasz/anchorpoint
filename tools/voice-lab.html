@@ -334,7 +334,7 @@
   ];
   var SAMPLE_LIBRARY_BY_ID = {};
   SAMPLE_LIBRARY.forEach(function(s){ SAMPLE_LIBRARY_BY_ID[s.id] = s; });
-  function sampleUrl(id){ return 'aud/samples/' + id + '.mp3'; }
+  function sampleUrl(id){ return '../aud/samples/' + id + '.mp3'; }   // voice-lab.html lives in tools/, samples live at the repo root
 
   // id -> Promise<AudioBuffer> while loading; id -> AudioBuffer once resolved
   // (sampleBufferReady is the synchronous-read cache build() actually uses --
