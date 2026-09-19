@@ -182,11 +182,22 @@
   </div>
 
   <div class="footer">
-    <button id="exportBtn" class="primary" disabled>exportar .wav processado</button>
+    <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:6px">formato
+      <select id="exportFormat" style="background:#26272a;border:1px solid var(--line);color:var(--ink);
+        border-radius:6px;padding:5px 8px;font-size:12.5px">
+        <option value="wav">WAV (sem perda, arquivo grande)</option>
+        <option value="mp3" selected>MP3 128kbps (comprimido, bem menor)</option>
+      </select></label>
+    <button id="exportBtn" class="primary" disabled>exportar processado</button>
     <span id="status"></span>
   </div>
+  <p class="sub" style="max-width:1200px">WAV é PCM sem compressão &mdash; um arquivo de ~1-2min já fica
+    na casa de 15-20MB independente de qualquer efeito (não é o processamento que aumenta, é o formato:
+    seu áudio original provavelmente já veio comprimido em MP3/AAC, bem menor). MP3 exporta comprimido,
+    perto do tamanho original.</p>
 
 <script src="vendor/soundtouch/formant-correction.bundle.js"></script>
+<script src="vendor/lamejs/lame.min.js"></script>
 <script>
 (function(){
 
@@ -216,7 +227,20 @@
     ctx.__pinkCache[key] = buf;
     return buf;
   }
+  // same real per-sample cost problem pinkNoiseBuffer had: a large room (up
+  // to ctx.sampleRate*3.75 samples, stereo) is a few hundred thousand
+  // Math.random() calls, and pushLiveVoiceParams rebuilds this on every
+  // single "tamanho da sala" slider input while live -- dragging it during
+  // playback was regenerating a fresh IR dozens of times a second and was
+  // very likely a real source of the live preview sounding degraded/glitchy
+  // next to the export (which never fights a real-time deadline). Cache by
+  // roomSize rounded to a coarse step -- 21 buckets across the whole slider
+  // range, imperceptible quantization for what a reverb tail actually sounds
+  // like, and the size stops being regenerated on every pixel of drag.
   function makeReverbIR(ctx, roomSize){
+    var key = Math.round(roomSize*20);
+    if(!ctx.__irCache) ctx.__irCache = {};
+    if(ctx.__irCache[key]) return ctx.__irCache[key];
     var len = Math.floor(ctx.sampleRate * (0.25 + roomSize*3.5));
     var ir = ctx.createBuffer(2, len, ctx.sampleRate);
     for(var ch=0; ch<2; ch++){
@@ -226,6 +250,7 @@
         d[i] = (Math.random()*2-1) * decay;
       }
     }
+    ctx.__irCache[key] = ir;
     return ir;
   }
   // continuous layers fade in/out rather than snapping on -- "camadas dinâmicas"
@@ -237,6 +262,25 @@
     g.gain.setValueAtTime(1, Math.max(t+ft, t+dur-ft));
     g.gain.linearRampToValueAtTime(0, t+dur);
     return g;
+  }
+  // temporarily wraps ctx.createOscillator/createBufferSource so every source
+  // node created while fn() runs gets collected -- needed to force-stop a
+  // whole timeline early. Most ELEMENTS.*.build() functions create several
+  // oscillators/buffer sources internally and hand none of them back, so
+  // there'd otherwise be no way to reach in and kill them before their own
+  // scheduled .stop(t+dur) time -- which is exactly why re-seeking used to
+  // leave the previous timeline's zone layers running underneath the new
+  // one (stopPlayback only ever stopped the voice source itself).
+  function withSourceTracking(ctx, fn){
+    var sources = [];
+    var origOsc = ctx.createOscillator.bind(ctx), origBuf = ctx.createBufferSource.bind(ctx);
+    ctx.createOscillator = function(){ var n = origOsc(); sources.push(n); return n; };
+    ctx.createBufferSource = function(){ var n = origBuf(); sources.push(n); return n; };
+    try{ fn(); } finally{ ctx.createOscillator = origOsc; ctx.createBufferSource = origBuf; }
+    return sources;
+  }
+  function stopSources(sources){
+    (sources||[]).forEach(function(n){ try{ n.stop(); }catch(e){} });
   }
 
   // =========================================================================
@@ -639,18 +683,28 @@
     if(key === 'cue') return Math.max(1.5, (p.offset||0) + 1);
     return 3.5;
   }
+  // a new preview stops whatever the last one was doing first -- otherwise
+  // checking a box, tweaking a slider and checking again (or clicking
+  // "ouvir" again) stacked the new preview on top of the still-fading-out
+  // old one instead of replacing it, which is audibly indistinguishable
+  // from "the slider cut/garbled the sound"
+  var currentPreviewSources = [];
   function previewElement(key, p){
+    stopSources(currentPreviewSources);
+    currentPreviewSources = [];
     var pac = getAc();
     (pac.resume ? pac.resume() : Promise.resolve()).then(function(){
       var el = ELEMENTS[key];
       var dur = previewDurFor(key, p);
       var t0 = pac.currentTime + 0.05;
-      if(el.kind === 'continuous'){
-        var bus = fadedBus(pac, pac.destination, t0, dur, 0.3);
-        el.build(pac, bus, t0, dur, p);
-      } else {
-        el.build(pac, pac.destination, t0, dur, p);
-      }
+      currentPreviewSources = withSourceTracking(pac, function(){
+        if(el.kind === 'continuous'){
+          var bus = fadedBus(pac, pac.destination, t0, dur, 0.3);
+          el.build(pac, bus, t0, dur, p);
+        } else {
+          el.build(pac, pac.destination, t0, dur, p);
+        }
+      });
     });
   }
 
@@ -849,6 +903,17 @@
     var beforeDur = voiceOffset > 0 ? 0 : opts.beforeDur;
     var afterDur = opts.afterDur, voiceDur = (voiceBuf.duration - voiceOffset) / speed;
 
+    // collect every oscillator/buffer-source node created below so
+    // stopPlayback can force-stop the whole timeline immediately instead of
+    // waiting for each node's own scheduled .stop(t+dur) -- without this,
+    // re-seeking (or replaying) mid-playback left the PREVIOUS timeline's
+    // zone layers still running underneath the new one, since stopPlayback
+    // only ever stopped the voice source itself
+    var allSources = [];
+    var origOsc = ctx.createOscillator.bind(ctx), origBuf = ctx.createBufferSource.bind(ctx);
+    ctx.createOscillator = function(){ var n = origOsc(); allSources.push(n); return n; };
+    ctx.createBufferSource = function(){ var n = origBuf(); allSources.push(n); return n; };
+
     function placeZone(zoneName, zStart, zDur){
       if(zDur <= 0) return;
       var bus = fadedBus(ctx, master, zStart, zDur, zoneName==='during' ? 0.9 : 0.6);
@@ -895,10 +960,13 @@
     var conv = ctx.createConvolver(); conv.buffer = makeReverbIR(ctx, opts.roomSize);
     master.connect(reverbSend); reverbSend.connect(conv); conv.connect(dest);
 
+    ctx.createOscillator = origOsc; ctx.createBufferSource = origBuf;   // tracking done, restore
+
     return {
       voiceSrc: src, total: t0 + beforeDur + voiceDur + afterDur,
       beforeDur: beforeDur, voiceStart: voiceStart, voiceDur: voiceDur, speed: speed, voiceOffset: voiceOffset,
-      live: { ctx:ctx, src:src, formantNode:formantNode, chain:chain, reverbSend:reverbSend, conv:conv }
+      live: { ctx:ctx, src:src, formantNode:formantNode, chain:chain, reverbSend:reverbSend, conv:conv,
+               allSources:allSources, lastRoomKey: Math.round(opts.roomSize*20) }
     };
   }
 
@@ -921,7 +989,14 @@
   });
   fileInput.addEventListener('change', function(){ if(fileInput.files[0]) loadFile(fileInput.files[0]); });
 
-  function getAc(){ if(!ac){ var Ctx=window.AudioContext||window.webkitAudioContext; ac=new Ctx(); } return ac; }
+  // 'playback' latencyHint trades responsiveness (irrelevant here -- this
+  // isn't an instrument) for a larger internal buffer, which gives the
+  // browser more headroom before a real-time-constrained graph this dense
+  // (a dozen-plus oscillators/buffer sources, a convolver, an AudioWorklet)
+  // underruns and audibly glitches -- the default 'interactive' hint picks
+  // the smallest buffer it can, the opposite of what a background preview
+  // that's never touched for low latency actually wants
+  function getAc(){ if(!ac){ var Ctx=window.AudioContext||window.webkitAudioContext; ac=new Ctx({latencyHint:'playback'}); } return ac; }
 
   function loadFile(file){
     fileName = file.name.replace(/\.[^.]+$/, '');
@@ -1015,7 +1090,16 @@
     chain.dryG.gain.setTargetAtTime(opts.phoneOn?0:1, now, 0.03);
     if(currentLive.reverbSend){
       currentLive.reverbSend.gain.setTargetAtTime(opts.reverbOn?opts.reverbWet:0, now, 0.05);
-      if(currentLive.conv) currentLive.conv.buffer = makeReverbIR(ctx, opts.roomSize);
+      // reassigning a ConvolverNode's buffer isn't free even when the buffer
+      // itself is cached (the engine still has to re-init the convolution
+      // kernel) -- skip it entirely unless the room size actually moved into
+      // a new bucket since last time, so dragging the slider doesn't hit
+      // this on every single 'input' tick
+      var roomKey = Math.round(opts.roomSize*20);
+      if(currentLive.conv && currentLive.lastRoomKey !== roomKey){
+        currentLive.conv.buffer = makeReverbIR(ctx, opts.roomSize);
+        currentLive.lastRoomKey = roomKey;
+      }
     }
   }
 
@@ -1030,6 +1114,10 @@
     starting = false;
     playing=false; playBtn.disabled=!rawBuffer; playBtn.textContent='▶ play';
     if(playSrc){ try{ playSrc.stop(); }catch(e){} playSrc=null; }
+    // stop every zone-layer node too, not just the voice source -- otherwise
+    // they keep sounding until their own originally-scheduled stop time,
+    // stacking with whatever the next play/seek builds on top
+    if(currentLive) stopSources(currentLive.allSources);
     if(rafId) cancelAnimationFrame(rafId);
     currentLive = null;
   }
@@ -1080,6 +1168,7 @@
 
   exportBtn.addEventListener('click', function(){
     if(!rawBuffer) return;
+    var format = document.getElementById('exportFormat').value;
     exportBtn.disabled = true; statusEl.textContent = 'renderizando (1/2)…';
     var opts = readVoiceOpts();
 
@@ -1097,13 +1186,18 @@
       buildTimeline(offline, offline.destination, opts, voiceBuf, false, 0);
       return offline.startRendering();
     }).then(function(rendered){
-      var blob = encodeWav(rendered);
-      var url = URL.createObjectURL(blob);
+      if(format === 'mp3'){
+        statusEl.textContent = 'codificando mp3…';
+        return encodeMp3(rendered, 128).then(function(blob){ return {blob:blob, ext:'mp3'}; });
+      }
+      return Promise.resolve({ blob: encodeWav(rendered), ext: 'wav' });
+    }).then(function(res){
+      var url = URL.createObjectURL(res.blob);
       var a = document.createElement('a');
-      a.href = url; a.download = fileName + '-processed.wav';
+      a.href = url; a.download = fileName + '-processed.' + res.ext;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
-      statusEl.textContent = 'exportado: ' + a.download;
+      statusEl.textContent = 'exportado: ' + a.download + ' (' + (res.blob.size/1024/1024).toFixed(1) + 'MB)';
       exportBtn.disabled = false;
     }).catch(function(err){
       statusEl.textContent = 'erro exportando: ' + (err && err.message || err);
@@ -1130,6 +1224,44 @@
       }
     }
     return new Blob([ab], {type:'audio/wav'});
+  }
+
+  // WAV is uncompressed 16-bit PCM -- a ~100s stereo clip is ~17MB regardless
+  // of what effects are applied, which is the real answer to "why did the
+  // file get so much bigger" (it's the format, not the processing; the
+  // original recording almost certainly came in already MP3/AAC-compressed).
+  // lamejs (pure JS, no WASM/build step, vendored as the same single
+  // browser-ready file the project ships) gets a real compressed option.
+  function floatTo16(f){
+    var out = new Int16Array(f.length);
+    for(var i=0;i<f.length;i++){
+      var s = Math.max(-1, Math.min(1, f[i]));
+      out[i] = s<0 ? s*0x8000 : s*0x7FFF;
+    }
+    return out;
+  }
+  function encodeMp3(buf, kbps){
+    return new Promise(function(resolve, reject){
+      // defer one tick so the "codificando mp3..." status has a chance to
+      // paint before the encode loop blocks the main thread
+      setTimeout(function(){
+        try{
+          var ch = buf.numberOfChannels, sr = buf.sampleRate;
+          var encoder = new lamejs.Mp3Encoder(ch, sr, kbps);
+          var left = floatTo16(buf.getChannelData(0));
+          var right = ch > 1 ? floatTo16(buf.getChannelData(1)) : null;
+          var block = 1152, chunks = [];
+          for(var i=0; i<left.length; i+=block){
+            var l = left.subarray(i, i+block);
+            var enc = right ? encoder.encodeBuffer(l, right.subarray(i, i+block)) : encoder.encodeBuffer(l);
+            if(enc.length > 0) chunks.push(enc);
+          }
+          var tail = encoder.flush();
+          if(tail.length > 0) chunks.push(tail);
+          resolve(new Blob(chunks, {type:'audio/mp3'}));
+        } catch(err){ reject(err); }
+      }, 30);
+    });
   }
 })();
 </script>
