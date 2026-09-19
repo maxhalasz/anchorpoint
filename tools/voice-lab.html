@@ -850,12 +850,22 @@
     var voiceStart = t0 + beforeDur;
     var chain = buildVoiceChain(ctx, master, opts);
     var src = ctx.createBufferSource(); src.buffer = voiceBuf; src.playbackRate.value = speed;
+    // constructing a FormantCorrectionNode throws unless its worklet module was
+    // already registered on THIS context (register() is async, called from
+    // startPlayback before buildTimeline runs) -- guard on that, and on the
+    // construction itself, so a registration failure degrades to "plays
+    // without live disguise" instead of the whole preview silently failing
     var formantNode = null;
-    if(liveDisguise && window.SoundTouchFormant){
-      formantNode = new SoundTouchFormant.FormantCorrectionNode({ context: ctx, outputChannelCount: 1 });
-      formantNode.pitchSemitones.value = opts.disguiseOn ? opts.pitch : 0;
-      formantNode.formantStrength.value = opts.formant;
-      src.connect(formantNode); formantNode.connect(chain.input);
+    if(liveDisguise && window.SoundTouchFormant && formantRegistered.has(ctx)){
+      try{
+        formantNode = new SoundTouchFormant.FormantCorrectionNode({ context: ctx, outputChannelCount: 1 });
+        formantNode.pitchSemitones.value = opts.disguiseOn ? opts.pitch : 0;
+        formantNode.formantStrength.value = opts.formant;
+        src.connect(formantNode); formantNode.connect(chain.input);
+      } catch(err){
+        formantNode = null;
+        src.connect(chain.input);
+      }
     } else {
       src.connect(chain.input);
     }
@@ -1017,8 +1027,13 @@
     var myToken = ++playToken;
     var localAc = getAc();
     var opts = readVoiceOpts();
+    // always register the formant worklet (not just when disguiseOn is
+    // currently checked) -- the node has to exist in the graph for the
+    // checkbox to toggle it live; gating registration on the checkbox meant
+    // playing with Disfarce off skipped registration, then buildTimeline
+    // tried to construct the node anyway and threw, killing the whole preview
     (localAc.resume ? localAc.resume() : Promise.resolve()).then(function(){
-      return (opts.disguiseOn && window.SoundTouchFormant) ? ensureFormantRegistered(localAc) : Promise.resolve();
+      return window.SoundTouchFormant ? ensureFormantRegistered(localAc) : Promise.resolve();
     }).then(function(){
       if(myToken !== playToken) return;   // superseded by a newer play/stop/seek
       starting = false; playBtn.disabled = false;
