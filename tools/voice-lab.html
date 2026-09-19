@@ -62,6 +62,7 @@
 </style>
 </head>
 <body>
+<a href="https://maxhalasz.github.io/deserto-terminal/tools/" style="position:fixed;left:10px;top:10px;z-index:99999;font:12px monospace;color:#8b8d93;text-decoration:none;background:#1d1e20;border:1px solid #2c2d30;border-radius:6px;padding:4px 9px">&larr; ferramentas</a>
   <h1>Voice Lab</h1>
   <p class="sub">Editor geral de áudio &mdash; carrega uma gravação, empilha camadas antes/durante/depois
     dela, ouve tudo junto ao vivo, exporta um <code>.wav</code> processado. Vive no site, HTTPS, nada de
@@ -93,6 +94,20 @@
         <input id="formant" type="range" min="0" max="1" step="0.01" value="1"><span class="val" id="formantVal"></span></div>
       <p class="sub" style="margin:6px 0 0">0 = o timbre muda junto com o pitch. 1 = só o tom muda
         (LPC, @soundtouchjs/formant-correction-worklet).</p>
+    </div>
+    <div class="panel">
+      <h2>Velocidade (fita/vinil antigo)</h2>
+      <div class="preset">
+        <button data-speed="0.85">um pouco mais devagar</button>
+        <button data-speed="0.65">bem mais devagar</button>
+        <button data-speed="1">normal</button>
+      </div>
+      <div class="row"><label>velocidade</label>
+        <input id="speed" type="range" min="0.5" max="1.5" step="0.01" value="1"><span class="val" id="speedVal"></span></div>
+      <p class="sub" style="margin:6px 0 0">Isso é <code>playbackRate</code> puro, não o disfarce de
+        cima &mdash; desacelera e baixa o tom JUNTOS, do jeito que uma fita ou vinil de verdade
+        mudando de velocidade faz (o disfarce acima faz o oposto: muda só o tom, mantém a duração).
+        Os dois se combinam se você ligar ambos.</p>
     </div>
     <div class="panel">
       <h2>Linha de telefone</h2>
@@ -535,7 +550,7 @@
 
   // ---- voice / phone controls ----
   var voiceEls = {};
-  ['pitch','formant','phoneLo','phoneHi','compand','compress','roomSize','reverbWet'].forEach(function(id){
+  ['pitch','formant','speed','phoneLo','phoneHi','compand','compress','roomSize','reverbWet'].forEach(function(id){
     voiceEls[id] = document.getElementById(id);
   });
   var voiceVals = {};
@@ -543,6 +558,7 @@
   function syncVoiceVals(){
     voiceVals.pitch.textContent = (+voiceEls.pitch.value).toFixed(1);
     voiceVals.formant.textContent = (+voiceEls.formant.value).toFixed(2);
+    voiceVals.speed.textContent = (+voiceEls.speed.value).toFixed(2) + 'x';
     voiceVals.phoneLo.textContent = voiceEls.phoneLo.value;
     voiceVals.phoneHi.textContent = voiceEls.phoneHi.value;
     voiceVals.compand.textContent = (+voiceEls.compand.value).toFixed(2);
@@ -555,14 +571,16 @@
   document.querySelectorAll('.preset').forEach(function(row){
     row.querySelectorAll('button').forEach(function(b){
       b.addEventListener('click', function(){
-        voiceEls.pitch.value = b.dataset.pitch; voiceEls.formant.value = b.dataset.formant; syncVoiceVals();
+        if(b.dataset.pitch !== undefined){ voiceEls.pitch.value = b.dataset.pitch; voiceEls.formant.value = b.dataset.formant; }
+        if(b.dataset.speed !== undefined){ voiceEls.speed.value = b.dataset.speed; }
+        syncVoiceVals();
       });
     });
   });
 
   function readVoiceOpts(){
     return {
-      pitch:+voiceEls.pitch.value, formant:+voiceEls.formant.value,
+      pitch:+voiceEls.pitch.value, formant:+voiceEls.formant.value, speed:+voiceEls.speed.value,
       phoneLo:+voiceEls.phoneLo.value, phoneHi:+voiceEls.phoneHi.value,
       compand:+voiceEls.compand.value, compress:+voiceEls.compress.value,
       roomSize:+voiceEls.roomSize.value, reverbWet:+voiceEls.reverbWet.value,
@@ -595,7 +613,11 @@
   function buildTimeline(ctx, dest, opts, voiceBuf){
     var master = ctx.createGain(); master.gain.value = 1;   // dry bus, everything below feeds this
     var t0 = 0.05;
-    var beforeDur = opts.beforeDur, afterDur = opts.afterDur, voiceDur = voiceBuf.duration;
+    var speed = opts.speed || 1;
+    // old-style speed change: playbackRate couples pitch to duration, same as a
+    // tape or record actually running slower -- distinct from the formant-
+    // preserving disguise above, which decouples pitch from duration on purpose
+    var beforeDur = opts.beforeDur, afterDur = opts.afterDur, voiceDur = voiceBuf.duration / speed;
 
     function placeZone(zoneName, zStart, zDur){
       if(zDur <= 0) return;
@@ -611,7 +633,8 @@
     placeZone('before', t0, beforeDur);
     var voiceStart = t0 + beforeDur;
     var chain = buildVoiceChain(ctx, master, opts);
-    var src = ctx.createBufferSource(); src.buffer = voiceBuf; src.connect(chain.input);
+    var src = ctx.createBufferSource(); src.buffer = voiceBuf; src.playbackRate.value = speed;
+    src.connect(chain.input);
     src.start(voiceStart);
     placeZone('during', voiceStart, voiceDur);
     var afterStart = voiceStart + voiceDur;
@@ -745,7 +768,7 @@
 
     pass1.then(function(voiceBuf){
       statusEl.textContent = 'renderizando (2/2)…';
-      var estTotal = opts.beforeDur + voiceBuf.duration + opts.afterDur + 0.5;
+      var estTotal = opts.beforeDur + voiceBuf.duration / (opts.speed || 1) + opts.afterDur + 0.5;
       var OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
       var offline = new OfflineCtx(2, Math.ceil(voiceBuf.sampleRate * estTotal), voiceBuf.sampleRate);
       buildTimeline(offline, offline.destination, opts, voiceBuf);
