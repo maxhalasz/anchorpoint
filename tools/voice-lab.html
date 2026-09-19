@@ -63,10 +63,26 @@
   .panel.off .body{opacity:.35;pointer-events:none}
   .row{display:flex;align-items:center;gap:8px;margin:5px 0}
   .row label{flex:0 0 110px;font-size:11px;color:var(--dim)}
-  .row input[type=range]{flex:1;accent-color:var(--accent)}
-  .row select{flex:1;background:#101011;border:1px solid var(--line);color:var(--ink);border-radius:4px;
+  /* min-width:0 is load-bearing: flex:1 alone does NOT let a range/select
+     shrink below its intrinsic content width, so at narrow grid-column
+     widths the row (and then the card, then neighbouring cards) overflowed
+     sideways and visually overlapped -- exactly what was blocking clicks */
+  .row input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
+  .row select{flex:1;min-width:0;background:#101011;border:1px solid var(--line);color:var(--ink);border-radius:4px;
     padding:3px 5px;font-size:11.5px}
   .row .val{flex:0 0 42px;text-align:right;font-variant-numeric:tabular-nums;font-size:11px}
+  .cardGroupLabel{grid-column:1/-1;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--dim);margin:4px 0 -2px;padding-top:8px}
+  .cardGroupLabel:first-child{padding-top:0}
+
+  .tabs{display:flex;gap:4px;margin:22px 0 14px;max-width:1200px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);padding-bottom:0}
+  .tabBtn{background:transparent;border:1px solid transparent;border-bottom:none;color:var(--dim);
+    border-radius:7px 7px 0 0;padding:8px 15px;font-size:12.5px;cursor:pointer;margin-bottom:-1px}
+  .tabBtn:hover{color:var(--ink);background:#1c1d1f}
+  .tabBtn.active{color:var(--ink);background:var(--panel);border-color:var(--line);font-weight:600}
+  .tabPage{display:none}
+  .tabPage.active{display:block}
 
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px 16px;
     max-width:1200px;margin-bottom:12px}
@@ -94,7 +110,10 @@
   </div>
 
   <div class="quickRow">
-    <button id="loadFactoryWalk" type="button">carregar "The Factory Walk" (ambiente, 6min) como áudio principal</button>
+    <label>carregar amostra da biblioteca como áudio principal
+      <select id="mainSampleSelect"></select>
+    </label>
+    <button id="loadMainSample" type="button">carregar como principal</button>
     <label>duração alvo (repete em loop se for mais longa que o áudio)
       <input id="targetDur" type="number" step="5" min="0" placeholder="natural"><span>s</span>
     </label>
@@ -106,117 +125,129 @@
     <span id="clock">0:00 / 0:00</span>
   </div>
 
-  <h3>Presets</h3>
   <div class="panel" style="max-width:1200px">
     <div class="preset" id="presetRow" style="margin-bottom:0"></div>
     <p class="sub" style="margin:8px 0 0">Aplica tudo de uma vez (voz, zonas, reverb) &mdash; é o ponto
       de partida, mexe à vontade depois. <b>Limpo</b> zera tudo.</p>
   </div>
 
-  <h3>Voz</h3>
-  <p class="sub" style="margin-top:-6px">Os três painéis com checkbox (Disfarce, Linha de telefone,
-    Reverb mais abaixo) ficam ao vivo &mdash; mexer neles <b>enquanto o preview toca</b> já muda o
-    som na hora, sem precisar parar e tocar de novo. As camadas de Antes/Durante/Depois não (são
-    eventos já agendados quando o play começa) &mdash; pra ouvir uma mudança nelas, toca de novo.</p>
-  <div class="grid2">
-    <div class="panel" id="panelDisguise">
-      <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
-        <input id="disguiseOn" type="checkbox"> Disfarce &mdash; leve</label></h2>
-      <div class="body">
-        <div class="preset">
-          <button data-pitch="-1.2" data-formant="1">um pouco mais grave</button>
-          <button data-pitch="1.0" data-formant="1">um pouco mais agudo</button>
+  <div class="tabs" id="tabBar">
+    <button class="tabBtn" data-tab="voz">Voz</button>
+    <button class="tabBtn" data-tab="antes">Antes</button>
+    <button class="tabBtn" data-tab="durante">Durante</button>
+    <button class="tabBtn" data-tab="depois">Depois</button>
+    <button class="tabBtn" data-tab="sala">Sala / Export</button>
+  </div>
+
+  <div class="tabPage" data-tab="voz">
+    <p class="sub">Os três painéis com checkbox (Disfarce, Linha de telefone, Reverb na aba Sala) ficam
+      ao vivo &mdash; mexer neles <b>enquanto o preview toca</b> já muda o som na hora, sem precisar
+      parar e tocar de novo. As camadas de Antes/Durante/Depois não (são eventos já agendados quando o
+      play começa) &mdash; pra ouvir uma mudança nelas, toca de novo.</p>
+    <div class="grid2">
+      <div class="panel" id="panelDisguise">
+        <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+          <input id="disguiseOn" type="checkbox"> Disfarce &mdash; leve</label></h2>
+        <div class="body">
+          <div class="preset">
+            <button data-pitch="-1.2" data-formant="1">um pouco mais grave</button>
+            <button data-pitch="1.0" data-formant="1">um pouco mais agudo</button>
+          </div>
+          <div class="row"><label>pitch (semitons)</label>
+            <input id="pitch" type="range" min="-6" max="6" step="0.1" value="-1.2"><span class="val" id="pitchVal"></span></div>
+          <div class="row"><label>preservar timbre</label>
+            <input id="formant" type="range" min="0" max="1" step="0.01" value="1"><span class="val" id="formantVal"></span></div>
+          <p class="sub" style="margin:6px 0 0">0 = o timbre muda junto com o pitch. 1 = só o tom muda
+            (LPC, @soundtouchjs/formant-correction-worklet).</p>
         </div>
-        <div class="row"><label>pitch (semitons)</label>
-          <input id="pitch" type="range" min="-6" max="6" step="0.1" value="-1.2"><span class="val" id="pitchVal"></span></div>
-        <div class="row"><label>preservar timbre</label>
-          <input id="formant" type="range" min="0" max="1" step="0.01" value="1"><span class="val" id="formantVal"></span></div>
-        <p class="sub" style="margin:6px 0 0">0 = o timbre muda junto com o pitch. 1 = só o tom muda
-          (LPC, @soundtouchjs/formant-correction-worklet).</p>
+      </div>
+      <div class="panel">
+        <h2>Velocidade (fita/vinil antigo)</h2>
+        <div class="preset">
+          <button data-speed="0.85">um pouco mais devagar</button>
+          <button data-speed="0.65">bem mais devagar</button>
+          <button data-speed="1">normal</button>
+        </div>
+        <div class="row"><label>velocidade</label>
+          <input id="speed" type="range" min="0.5" max="1.5" step="0.01" value="1"><span class="val" id="speedVal"></span></div>
+        <p class="sub" style="margin:6px 0 0">Isso é <code>playbackRate</code> puro, não o disfarce de
+          cima &mdash; desacelera e baixa o tom JUNTOS, do jeito que uma fita ou vinil de verdade
+          mudando de velocidade faz (o disfarce acima faz o oposto: muda só o tom, mantém a duração).
+          Os dois se combinam se você ligar ambos. Também fica ao vivo durante o play. <b>Quanto mais
+          devagar, mais longo (e maior) fica o áudio final</b> &mdash; ver estimativa na aba Sala/Export.</p>
+      </div>
+      <div class="panel" id="panelPhone">
+        <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+          <input id="phoneOn" type="checkbox"> Linha de telefone</label></h2>
+        <div class="body">
+          <div class="row"><label>corte grave (Hz)</label>
+            <input id="phoneLo" type="range" min="80" max="800" step="5" value="300"><span class="val" id="phoneLoVal"></span></div>
+          <div class="row"><label>corte agudo (Hz)</label>
+            <input id="phoneHi" type="range" min="1800" max="7000" step="10" value="3400"><span class="val" id="phoneHiVal"></span></div>
+          <div class="row"><label>compansão (&mu;-law)</label>
+            <input id="compand" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="compandVal"></span></div>
+          <div class="row"><label>compressão</label>
+            <input id="compress" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="compressVal"></span></div>
+          <p class="sub" style="margin:6px 0 0">Desligado por padrão &mdash; isso aqui é pra imitar
+            telefone especificamente. Liga só se quiser esse efeito.</p>
+        </div>
       </div>
     </div>
-    <div class="panel">
-      <h2>Velocidade (fita/vinil antigo)</h2>
-      <div class="preset">
-        <button data-speed="0.85">um pouco mais devagar</button>
-        <button data-speed="0.65">bem mais devagar</button>
-        <button data-speed="1">normal</button>
-      </div>
-      <div class="row"><label>velocidade</label>
-        <input id="speed" type="range" min="0.5" max="1.5" step="0.01" value="1"><span class="val" id="speedVal"></span></div>
-      <p class="sub" style="margin:6px 0 0">Isso é <code>playbackRate</code> puro, não o disfarce de
-        cima &mdash; desacelera e baixa o tom JUNTOS, do jeito que uma fita ou vinil de verdade
-        mudando de velocidade faz (o disfarce acima faz o oposto: muda só o tom, mantém a duração).
-        Os dois se combinam se você ligar ambos. Também fica ao vivo durante o play.</p>
+  </div>
+
+  <div class="tabPage" data-tab="antes">
+    <p class="sub">Camadas que tocam ANTES da gravação principal começar, preenchendo a "duração" abaixo
+      em silêncio &mdash; o intro da chamada/fita. Marcar a caixa já toca uma prévia na hora; pro efeito
+      entrar na reprodução completa, dá o play de novo.</p>
+    <div class="zoneWrap">
+      <div class="zoneDur"><span>duração</span><input id="beforeDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
+      <div class="cards" id="beforeCards"></div>
     </div>
-    <div class="panel" id="panelPhone">
+  </div>
+
+  <div class="tabPage" data-tab="durante">
+    <p class="sub">Camadas que tocam JUNTO com a gravação, por baixo da voz, do começo ao fim dela.</p>
+    <div class="zoneWrap"><div class="cards" id="duringCards"></div></div>
+  </div>
+
+  <div class="tabPage" data-tab="depois">
+    <p class="sub">Mesma ideia de "Antes", mas depois que a gravação termina &mdash; o outro da
+      chamada/fita.</p>
+    <div class="zoneWrap">
+      <div class="zoneDur"><span>duração</span><input id="afterDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
+      <div class="cards" id="afterCards"></div>
+    </div>
+  </div>
+
+  <div class="tabPage" data-tab="sala">
+    <div class="panel" style="max-width:1200px" id="panelReverb">
       <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
-        <input id="phoneOn" type="checkbox"> Linha de telefone</label></h2>
+        <input id="reverbOn" type="checkbox"> Reverb ligado</label></h2>
       <div class="body">
-        <div class="row"><label>corte grave (Hz)</label>
-          <input id="phoneLo" type="range" min="80" max="800" step="5" value="300"><span class="val" id="phoneLoVal"></span></div>
-        <div class="row"><label>corte agudo (Hz)</label>
-          <input id="phoneHi" type="range" min="1800" max="7000" step="10" value="3400"><span class="val" id="phoneHiVal"></span></div>
-        <div class="row"><label>compansão (&mu;-law)</label>
-          <input id="compand" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="compandVal"></span></div>
-        <div class="row"><label>compressão</label>
-          <input id="compress" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="compressVal"></span></div>
-        <p class="sub" style="margin:6px 0 0">Desligado por padrão &mdash; isso aqui é pra imitar
-          telefone especificamente. Liga só se quiser esse efeito.</p>
+        <div class="row"><label>tamanho da sala</label>
+          <input id="roomSize" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="roomSizeVal"></span></div>
+        <div class="row"><label>quantidade (wet)</label>
+          <input id="reverbWet" type="range" min="0" max="1" step="0.01" value="0.3"><span class="val" id="reverbWetVal"></span></div>
+        <p class="sub" style="margin:6px 0 0">Impulso sintético (ruído moldado por uma curva de decaimento)
+          &mdash; sala pequena e seca até uma cauda longa. Aplica em cima de tudo (voz + todas as camadas).</p>
       </div>
     </div>
-  </div>
 
-  <h3>Antes</h3>
-  <p class="sub" style="margin-top:-6px">Camadas que tocam ANTES da gravação principal começar, preenchendo
-    a "duração" abaixo em silêncio &mdash; o intro da chamada/fita. Marcar a caixa já toca uma prévia
-    na hora; pro efeito entrar na reprodução completa, dá o play de novo.</p>
-  <div class="zoneWrap">
-    <div class="zoneDur"><span>duração</span><input id="beforeDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
-    <div class="cards" id="beforeCards"></div>
-  </div>
-
-  <h3>Durante (junto com a voz)</h3>
-  <p class="sub" style="margin-top:-6px">Camadas que tocam JUNTO com a gravação, por baixo da voz, do
-    começo ao fim dela.</p>
-  <div class="zoneWrap"><div class="cards" id="duringCards"></div></div>
-
-  <h3>Depois</h3>
-  <p class="sub" style="margin-top:-6px">Mesma ideia de "Antes", mas depois que a gravação termina &mdash;
-    o outro da chamada/fita.</p>
-  <div class="zoneWrap">
-    <div class="zoneDur"><span>duração</span><input id="afterDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
-    <div class="cards" id="afterCards"></div>
-  </div>
-
-  <h3>Sala / Reverb</h3>
-  <div class="panel" style="max-width:1200px" id="panelReverb">
-    <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
-      <input id="reverbOn" type="checkbox"> ligado</label></h2>
-    <div class="body">
-      <div class="row"><label>tamanho da sala</label>
-        <input id="roomSize" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="roomSizeVal"></span></div>
-      <div class="row"><label>quantidade (wet)</label>
-        <input id="reverbWet" type="range" min="0" max="1" step="0.01" value="0.3"><span class="val" id="reverbWetVal"></span></div>
-      <p class="sub" style="margin:6px 0 0">Impulso sintético (ruído moldado por uma curva de decaimento)
-        &mdash; sala pequena e seca até uma cauda longa. Aplica em cima de tudo (voz + todas as camadas).</p>
+    <p class="sub" id="estimateRow" style="max-width:1200px;font-variant-numeric:tabular-nums">&nbsp;</p>
+    <div class="footer">
+      <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:6px">formato
+        <select id="exportFormat" style="background:#26272a;border:1px solid var(--line);color:var(--ink);
+          border-radius:6px;padding:5px 8px;font-size:12.5px">
+          <option value="wav">WAV (sem perda, arquivo grande)</option>
+          <option value="mp3" selected>MP3 128kbps (comprimido, bem menor)</option>
+        </select></label>
+      <button id="exportBtn" class="primary" disabled>exportar processado</button>
+      <span id="status"></span>
     </div>
+    <p class="sub" style="max-width:1200px">WAV é PCM sem compressão &mdash; o tamanho é sempre
+      duração &times; taxa de amostragem &times; canais, nada mais (ver estimativa acima, ela já conta
+      antes/depois/velocidade/loop). MP3 exporta comprimido, uma fração do tamanho.</p>
   </div>
-
-  <p class="sub" id="estimateRow" style="max-width:1200px;font-variant-numeric:tabular-nums">&nbsp;</p>
-  <div class="footer">
-    <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:6px">formato
-      <select id="exportFormat" style="background:#26272a;border:1px solid var(--line);color:var(--ink);
-        border-radius:6px;padding:5px 8px;font-size:12.5px">
-        <option value="wav">WAV (sem perda, arquivo grande)</option>
-        <option value="mp3" selected>MP3 128kbps (comprimido, bem menor)</option>
-      </select></label>
-    <button id="exportBtn" class="primary" disabled>exportar processado</button>
-    <span id="status"></span>
-  </div>
-  <p class="sub" style="max-width:1200px">WAV é PCM sem compressão &mdash; o tamanho é sempre
-    duração &times; taxa de amostragem &times; canais, nada mais (ver estimativa acima, ela já conta
-    antes/depois/velocidade/loop). MP3 exporta comprimido, uma fração do tamanho.</p>
 
 <script src="vendor/soundtouch/formant-correction.bundle.js"></script>
 <script src="vendor/lamejs/lame.min.js"></script>
@@ -722,6 +753,14 @@
   function renderZone(zoneName, containerEl){
     ZONE_ELEMENTS.forEach(function(key){
       var el = ELEMENTS[key], p = state[zoneName][key];
+      // ZONE_ELEMENTS lists the 13 synthesized types first, then the 4
+      // sample slots -- drop a group label right at that boundary so the
+      // grid reads as two groups instead of 17 identical-looking cards
+      if(el.real && !containerEl.querySelector('.cardGroupLabel')){
+        var lbl0 = document.createElement('div'); lbl0.className = 'cardGroupLabel';
+        lbl0.textContent = 'Amostras reais';
+        containerEl.appendChild(lbl0);
+      }
       var dom = { inputs:{} };
       var card = document.createElement('div'); card.className = el.real ? 'card off real' : 'card off';
       dom.card = card;
@@ -1219,9 +1258,34 @@
       fileInfo.textContent = 'erro carregando ' + label + ' (' + (err && err.message || err) + ')';
     });
   }
-  document.getElementById('loadFactoryWalk').addEventListener('click', function(){
-    loadSampleAsMain('factory_walk_main', 'The Factory Walk');
+  var mainSampleSelect = document.getElementById('mainSampleSelect');
+  SAMPLE_LIBRARY.forEach(function(s){
+    var o = document.createElement('option'); o.value = s.id; o.textContent = s.label;
+    mainSampleSelect.appendChild(o);
   });
+  mainSampleSelect.value = 'factory_walk_main';
+  document.getElementById('loadMainSample').addEventListener('click', function(){
+    var entry = SAMPLE_LIBRARY_BY_ID[mainSampleSelect.value];
+    if(entry) loadSampleAsMain(entry.id, entry.label);
+  });
+
+  // tabs -- Voz/Antes/Durante/Depois/Sala used to all sit on one endless
+  // scroll (50+ cards across the three zones, all rendered and visible at
+  // once); that's what was overflowing sideways and blocking clicks, and
+  // even fixed it was just too much on screen at once. One tab visible at a
+  // time now; nothing about renderZone/state/presets changed, only which
+  // container is shown.
+  var tabBtns = [].slice.call(document.querySelectorAll('.tabBtn'));
+  var tabPages = [].slice.call(document.querySelectorAll('.tabPage'));
+  function showTab(name){
+    tabBtns.forEach(function(b){ b.classList.toggle('active', b.dataset.tab === name); });
+    tabPages.forEach(function(p){ p.classList.toggle('active', p.dataset.tab === name); });
+    try{ localStorage.setItem('voicelab_tab', name); }catch(e){}
+  }
+  tabBtns.forEach(function(b){ b.addEventListener('click', function(){ showTab(b.dataset.tab); }); });
+  var startTab = 'voz';
+  try{ var savedTab = localStorage.getItem('voicelab_tab'); if(savedTab) startTab = savedTab; }catch(e){}
+  showTab(startTab);
 
   function fmt(s){ s=Math.max(0,s|0); return (s/60|0)+':'+String(s%60).padStart(2,'0'); }
 
