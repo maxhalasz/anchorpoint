@@ -43,6 +43,10 @@
   .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
   .card .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
   .card .hd label{font-size:12.5px;font-weight:600;flex:1}
+  .previewBtn{background:#26272a;border:1px solid var(--line);color:var(--accent);border-radius:5px;
+    padding:2px 7px;font-size:11px;cursor:pointer;flex:0 0 auto}
+  .previewBtn:hover{background:#2f3033}
+  .previewBtn:active{background:var(--accent);color:#0b1220}
   .card.off .body{opacity:.35;pointer-events:none}
   .panel.off .body{opacity:.35;pointer-events:none}
   .row{display:flex;align-items:center;gap:8px;margin:5px 0}
@@ -562,7 +566,10 @@
       chk.addEventListener('change', function(){ p.on = chk.checked; card.classList.toggle('off', !chk.checked); });
       dom.checkbox = chk;
       var lbl = document.createElement('label'); lbl.textContent = el.label;
-      hd.appendChild(chk); hd.appendChild(lbl); card.appendChild(hd);
+      var prevBtn = document.createElement('button'); prevBtn.type = 'button'; prevBtn.className = 'previewBtn';
+      prevBtn.textContent = '▶ ouvir'; prevBtn.title = 'toca só este elemento sozinho, nos valores atuais dos sliders (não precisa estar ligado nem carregar áudio)';
+      prevBtn.addEventListener('click', function(e){ e.stopPropagation(); previewElement(key, p); });
+      hd.appendChild(chk); hd.appendChild(lbl); hd.appendChild(prevBtn); card.appendChild(hd);
       var body = document.createElement('div'); body.className = 'body';
       el.params.forEach(function(prm){
         var row = document.createElement('div'); row.className = 'row';
@@ -604,6 +611,32 @@
       var defaults = { on:false };
       ELEMENTS[key].params.forEach(function(prm){ defaults[prm.key] = prm.def; });
       setZoneElement(zoneName, key, (spec && spec[key]) ? Object.assign({on:true}, defaults, spec[key]) : defaults);
+    });
+  }
+
+  // "▶ ouvir" on each card -- plays JUST that one element alone, at its
+  // current slider values, straight to speakers. Added because a checkbox
+  // buried in a 90s-long before/during/after timeline made it hard to tell
+  // whether a layer was doing anything at all -- this gives an immediate,
+  // isolated answer without needing to hit play on the whole thing.
+  function previewDurFor(key, p){
+    if(key === 'riser') return (p.length||4) + 0.8;
+    if(key === 'swell') return (p.length||8) + 0.8;
+    if(key === 'cue') return Math.max(1.5, (p.offset||0) + 1);
+    return 3.5;
+  }
+  function previewElement(key, p){
+    var pac = getAc();
+    (pac.resume ? pac.resume() : Promise.resolve()).then(function(){
+      var el = ELEMENTS[key];
+      var dur = previewDurFor(key, p);
+      var t0 = pac.currentTime + 0.05;
+      if(el.kind === 'continuous'){
+        var bus = fadedBus(pac, pac.destination, t0, dur, 0.3);
+        el.build(pac, bus, t0, dur, p);
+      } else {
+        el.build(pac, pac.destination, t0, dur, p);
+      }
     });
   }
 
