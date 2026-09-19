@@ -6,32 +6,39 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Voice Lab</title>
 <style>
-  :root{--bg:#151516;--panel:#1d1e20;--line:#2c2d30;--ink:#e7e7ea;--dim:#8b8d93;--accent:#7fb0ff;--warn:#e0a05a;--zone:#8fd6a8}
+  :root{--bg:#141415;--panel:#1c1d1f;--panel2:#202124;--line:#2c2d30;--ink:#e7e7ea;--dim:#8b8d93;
+    --accent:#7fb0ff;--warn:#e0a05a;--zone:#8fd6a8;--real:#d99bd6}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    padding:22px 22px 60px}
-  h1{font-size:17px;font-weight:600;margin:0 0 4px}
-  h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--zone);margin:22px 0 10px;
-    padding-top:14px;border-top:1px solid var(--line)}
-  h3:first-of-type{border-top:none;padding-top:0;margin-top:16px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    padding:22px 22px 70px}
+  h1{font-size:18px;font-weight:600;margin:0 0 4px;letter-spacing:.01em}
+  h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--zone);margin:26px 0 10px;
+    padding:14px 0 0 10px;border-top:1px solid var(--line);border-left:2px solid var(--zone)}
+  h3:first-of-type{border-top:none;padding-top:0;margin-top:18px}
   .sub{color:var(--dim);font-size:12.5px;margin:0 0 18px;max-width:900px}
   .sub b{color:var(--warn)}
 
-  #drop{border:2px dashed var(--line);border-radius:8px;padding:26px;text-align:center;color:var(--dim);
-    cursor:pointer;max-width:1200px;margin-bottom:14px}
+  #drop{border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--dim);
+    cursor:pointer;max-width:1200px;margin-bottom:10px;transition:border-color .15s,color .15s}
+  #drop:hover{border-color:#3a3b3f}
   #drop.over{border-color:var(--accent);color:var(--ink)}
   #fileInfo{font-size:12.5px;color:var(--dim);margin-top:4px}
   #file{display:none}
 
+  .quickRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;max-width:1200px}
+  .quickRow label{font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:6px}
+  .quickRow input[type=number]{width:80px;background:#101011;border:1px solid var(--line);color:var(--ink);
+    border-radius:5px;padding:5px 7px;font-variant-numeric:tabular-nums}
+
   .transport{display:flex;align-items:center;gap:12px;margin:14px 0;max-width:1200px}
   button{background:#26272a;border:1px solid var(--line);color:var(--ink);border-radius:6px;
-    padding:6px 11px;font-size:12.5px;cursor:pointer}
-  button:hover{background:#2f3033}
+    padding:6px 11px;font-size:12.5px;cursor:pointer;transition:background .12s,border-color .12s}
+  button:hover{background:#2f3033;border-color:#3a3b3f}
   button.primary{background:var(--accent);color:#0b1220;border-color:var(--accent);font-weight:600}
   button.primary:hover{background:#95bdff}
   button:disabled{opacity:.4;cursor:default}
   canvas#wave{display:block;flex:1;height:80px;background:#101011;border:1px solid var(--line);
-    border-radius:6px}
+    border-radius:6px;cursor:pointer}
   #clock{font-variant-numeric:tabular-nums;color:var(--dim);white-space:nowrap;font-size:12.5px}
 
   .zoneWrap{max-width:1200px}
@@ -40,9 +47,14 @@
     border-radius:4px;padding:3px 6px;font-variant-numeric:tabular-nums}
 
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+    transition:border-color .12s}
+  .card:not(.off):hover{border-color:#3a3b3f}
+  .card.real{border-left:2px solid var(--real)}
   .card .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
   .card .hd label{font-size:12.5px;font-weight:600;flex:1}
+  .realTag{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--real);
+    border:1px solid var(--real);border-radius:4px;padding:1px 5px;flex:0 0 auto;opacity:.85}
   .previewBtn{background:#26272a;border:1px solid var(--line);color:var(--accent);border-radius:5px;
     padding:2px 7px;font-size:11px;cursor:pointer;flex:0 0 auto}
   .previewBtn:hover{background:#2f3033}
@@ -52,15 +64,18 @@
   .row{display:flex;align-items:center;gap:8px;margin:5px 0}
   .row label{flex:0 0 110px;font-size:11px;color:var(--dim)}
   .row input[type=range]{flex:1;accent-color:var(--accent)}
+  .row select{flex:1;background:#101011;border:1px solid var(--line);color:var(--ink);border-radius:4px;
+    padding:3px 5px;font-size:11.5px}
   .row .val{flex:0 0 42px;text-align:right;font-variant-numeric:tabular-nums;font-size:11px}
 
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px 16px;
     max-width:1200px;margin-bottom:12px}
   .panel h2{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);
     margin:0 0 12px;font-weight:600}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1200px}
   @media(max-width:860px){.grid2{grid-template-columns:1fr}}
   .preset{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .preset button{border-radius:14px;padding:6px 13px}
 
   .footer{max-width:1200px;display:flex;align-items:center;gap:12px;margin-top:18px}
   #status{font-size:12.5px;color:var(--dim)}
@@ -76,6 +91,13 @@
   <div id="drop">Solta o áudio aqui (m4a / mp3 / wav) ou clica pra escolher
     <div id="fileInfo"></div>
     <input id="file" type="file" accept="audio/*">
+  </div>
+
+  <div class="quickRow">
+    <button id="loadFactoryWalk" type="button">carregar "The Factory Walk" (ambiente, 6min) como áudio principal</button>
+    <label>duração alvo (repete em loop se for mais longa que o áudio)
+      <input id="targetDur" type="number" step="5" min="0" placeholder="natural"><span>s</span>
+    </label>
   </div>
 
   <div class="transport">
@@ -284,12 +306,103 @@
   }
 
   // =========================================================================
+  // real-sample library -- Max's own recordings/downloads, trimmed and
+  // re-encoded (mono, 80-96kbps -- these are background texture, not
+  // dialogue) into aud/samples/. Referenced by URL and fetched on demand
+  // (not embedded as base64 like the props-generator's image textures --
+  // audio files are much bigger, a lazy fetch is the right call here, same
+  // as how aud/anchorpoint-line.mp3 already gets loaded).
+  // =========================================================================
+  var SAMPLE_LIBRARY = [
+    {id:'metal_groan_low', label:'Gemido metálico grave', dur:20.8},
+    {id:'metal_hatch_rusty', label:'Escotilha enferrujada', dur:8.3},
+    {id:'metal_scrape_drag', label:'Metal raspando/arrastando', dur:11.0},
+    {id:'metal_fork_scrape', label:'Raspado metálico curto', dur:4.0},
+    {id:'metal_stress', label:'Metal sob estresse', dur:7.1},
+    {id:'factory_impacts_chains', label:'Fábrica: correntes e impactos', dur:45.0},
+    {id:'chain_dragging', label:'Corrente arrastando', dur:41.8},
+    {id:'dentist_drill', label:'Broca de dentista', dur:63.8},
+    {id:'radio_buzz_static', label:'Zumbido elétrico / estática', dur:40.0},
+    {id:'radio_static_longwave', label:'Estática de rádio (onda longa)', dur:40.0},
+    {id:'walkie_interference', label:'Walkie-talkie / interferência', dur:18.3},
+    {id:'radio_static_breathing', label:'Estática de rádio com respiração', dur:60.0},
+    {id:'bells_ominous', label:'Sinos ominosos', dur:29.7},
+    {id:'radio_military', label:'Comunicação de rádio militar', dur:37.4},
+    {id:'radio_tuning', label:'Sintonizando rádio', dur:19.3},
+    {id:'radio_static_tuning', label:'Estática de sintonia', dur:60.1},
+    {id:'factory_walk_main', label:'The Factory Walk (ambiente longo, 6min)', dur:364.4}
+  ];
+  var SAMPLE_LIBRARY_BY_ID = {};
+  SAMPLE_LIBRARY.forEach(function(s){ SAMPLE_LIBRARY_BY_ID[s.id] = s; });
+  function sampleUrl(id){ return 'aud/samples/' + id + '.mp3'; }
+
+  // id -> Promise<AudioBuffer> while loading; id -> AudioBuffer once resolved
+  // (sampleBufferReady is the synchronous-read cache build() actually uses --
+  // build() runs inside buildTimeline's single synchronous pass, so the
+  // buffer has to already be sitting there, not still in flight)
+  var sampleBufferCache = {}, sampleBufferReady = {};
+  function loadSampleBuffer(id){
+    if(sampleBufferReady[id]) return Promise.resolve(sampleBufferReady[id]);
+    if(sampleBufferCache[id]) return sampleBufferCache[id];
+    var entry = SAMPLE_LIBRARY_BY_ID[id];
+    if(!entry) return Promise.resolve(null);
+    var ctx = getAc();
+    var p = fetch(sampleUrl(id)).then(function(r){ return r.arrayBuffer(); })
+      .then(function(ab){ return ctx.decodeAudioData(ab); })
+      .then(function(buf){ sampleBufferReady[id] = buf; return buf; })
+      .catch(function(err){ delete sampleBufferCache[id]; throw err; });
+    sampleBufferCache[id] = p;
+    return p;
+  }
+  // scans every "amostra real" slot across all three zones that's ON and has
+  // a file picked, and preloads exactly those -- called before any play/
+  // export/preview so buildTimeline's synchronous build() calls always find
+  // their buffer already sitting in sampleBufferReady
+  function preloadUsedSamples(){
+    var ids = {};
+    ['before','during','after'].forEach(function(zone){
+      ['sample1','sample2','sample3','sample4'].forEach(function(key){
+        var p = state[zone] && state[zone][key];
+        if(p && p.on && p.file) ids[p.file] = true;
+      });
+    });
+    return Promise.all(Object.keys(ids).map(loadSampleBuffer));
+  }
+  function buildSampleElement(ctx, bus, t, dur, p){
+    var buf = sampleBufferReady[p.file];
+    if(!buf) return;                       // not loaded yet -- skip silently rather than throw
+    var src = ctx.createBufferSource(); src.buffer = buf;
+    src.playbackRate.value = p.speed || 1;
+    src.detune.value = (p.pitch || 0) * 100;   // semitones -> cents, independent slider from speed
+    if(p.loop >= 0.5){ src.loop = true; src.loopStart = 0; src.loopEnd = buf.duration; }
+    var g = ctx.createGain(); g.gain.value = p.level;
+    src.connect(g); g.connect(bus);
+    src.start(t);
+    src.stop(t + dur);   // harmless no-op if it already finished naturally (non-loop, shorter than dur)
+  }
+  function sampleElementDef(n){
+    return { label:'Amostra real ' + n, kind:'continuous', real:true, params:[
+      {key:'file', label:'arquivo', type:'select', options:SAMPLE_LIBRARY, def:SAMPLE_LIBRARY[0].id},
+      {key:'level', label:'volume', min:0, max:2, step:0.01, def:0.8},
+      {key:'pitch', label:'pitch (semitons)', min:-12, max:12, step:0.5, def:0},
+      {key:'speed', label:'velocidade', min:0.3, max:3, step:0.01, def:1},
+      {key:'loop', label:'repetir (loop)', min:0, max:1, step:1, def:1}
+    ], build:buildSampleElement };
+  }
+
+  // =========================================================================
   // the element registry -- one build(ctx, bus, t, dur, params) per texture.
   // "continuous" elements fill the zone (through its fading bus); "oneshot"
   // elements place themselves at an offset inside the zone and connect
   // straight to master (they carry their own envelope).
   // =========================================================================
   var ELEMENTS = {
+
+    sample1: sampleElementDef(1),
+    sample2: sampleElementDef(2),
+    sample3: sampleElementDef(3),
+    sample4: sampleElementDef(4),
+
 
     cassette: { label:'Fita cassete tocando', kind:'continuous', params:[
       {key:'motor',label:'motor',min:0,max:0.3,step:0.005,def:0.06},
@@ -588,7 +701,7 @@
   };
 
   var ZONE_ELEMENTS = ['cassette','staticN','radio','radioTuning','radioInterference','emi',
-    'roomTone','organic','wind','surface','cue','riser','swell'];
+    'roomTone','organic','wind','surface','cue','riser','swell','sample1','sample2','sample3','sample4'];
 
   // =========================================================================
   // UI: generic card renderer, one per zone
@@ -610,7 +723,7 @@
     ZONE_ELEMENTS.forEach(function(key){
       var el = ELEMENTS[key], p = state[zoneName][key];
       var dom = { inputs:{} };
-      var card = document.createElement('div'); card.className = 'card off';
+      var card = document.createElement('div'); card.className = el.real ? 'card off real' : 'card off';
       dom.card = card;
       var hd = document.createElement('div'); hd.className = 'hd';
       var chk = document.createElement('input'); chk.type = 'checkbox';
@@ -624,14 +737,36 @@
       });
       dom.checkbox = chk;
       var lbl = document.createElement('label'); lbl.textContent = el.label;
+      hd.appendChild(chk); hd.appendChild(lbl);
+      if(el.real){
+        var tag = document.createElement('span'); tag.className = 'realTag'; tag.textContent = 'real';
+        hd.appendChild(tag);
+      }
       var prevBtn = document.createElement('button'); prevBtn.type = 'button'; prevBtn.className = 'previewBtn';
       prevBtn.textContent = '▶ ouvir'; prevBtn.title = 'toca só este elemento sozinho, nos valores atuais dos sliders (não precisa estar ligado nem carregar áudio)';
       prevBtn.addEventListener('click', function(e){ e.stopPropagation(); previewElement(key, p); });
-      hd.appendChild(chk); hd.appendChild(lbl); hd.appendChild(prevBtn); card.appendChild(hd);
+      hd.appendChild(prevBtn); card.appendChild(hd);
       var body = document.createElement('div'); body.className = 'body';
       el.params.forEach(function(prm){
         var row = document.createElement('div'); row.className = 'row';
         var rl = document.createElement('label'); rl.textContent = prm.label;
+        if(prm.type === 'select'){
+          var sel = document.createElement('select');
+          prm.options.forEach(function(opt){
+            var o = document.createElement('option'); o.value = opt.id; o.textContent = opt.label;
+            sel.appendChild(o);
+          });
+          sel.value = prm.def;
+          sel.addEventListener('change', function(){
+            p[prm.key] = sel.value;
+            loadSampleBuffer(sel.value);   // background-preload as soon as it's picked
+          });
+          row.appendChild(rl); row.appendChild(sel);
+          body.appendChild(row);
+          dom.inputs[prm.key] = { input:sel, val:null, step:1 };
+          loadSampleBuffer(prm.def);   // preload the default selection too
+          return;
+        }
         var input = document.createElement('input'); input.type = 'range';
         input.min = prm.min; input.max = prm.max; input.step = prm.step; input.value = prm.def;
         var val = document.createElement('span'); val.className = 'val'; val.textContent = prm.def;
@@ -660,7 +795,8 @@
       if(values[k] === undefined) return;
       p[k] = values[k];
       dom.inputs[k].input.value = values[k];
-      dom.inputs[k].val.textContent = dom.inputs[k].step < 1 ? (+values[k]).toFixed(2) : values[k];
+      if(dom.inputs[k].val) dom.inputs[k].val.textContent = dom.inputs[k].step < 1 ? (+values[k]).toFixed(2) : values[k];
+      if(dom.inputs[k].input.tagName === 'SELECT') loadSampleBuffer(values[k]);
     });
   }
   // reset a whole zone to every element off / defaults, then apply the given overrides
@@ -681,6 +817,10 @@
     if(key === 'riser') return (p.length||4) + 0.8;
     if(key === 'swell') return (p.length||8) + 0.8;
     if(key === 'cue') return Math.max(1.5, (p.offset||0) + 1);
+    if(/^sample/.test(key)){
+      var entry = SAMPLE_LIBRARY_BY_ID[p.file];
+      return Math.min(8, (entry ? entry.dur : 8) / Math.max(0.3, p.speed || 1));
+    }
     return 3.5;
   }
   // a new preview stops whatever the last one was doing first -- otherwise
@@ -692,9 +832,12 @@
   function previewElement(key, p){
     stopSources(currentPreviewSources);
     currentPreviewSources = [];
+    var el = ELEMENTS[key];
     var pac = getAc();
-    (pac.resume ? pac.resume() : Promise.resolve()).then(function(){
-      var el = ELEMENTS[key];
+    // real-sample elements need their buffer fetched+decoded before build()
+    // can synchronously read it -- everything else has nothing to await
+    var ready = el.real ? loadSampleBuffer(p.file).catch(function(){ return null; }) : Promise.resolve();
+    Promise.all([pac.resume ? pac.resume() : Promise.resolve(), ready]).then(function(){
       var dur = previewDurFor(key, p);
       var t0 = pac.currentTime + 0.05;
       currentPreviewSources = withSourceTracking(pac, function(){
@@ -762,7 +905,8 @@
       roomSize:+voiceEls.roomSize.value, reverbWet:+voiceEls.reverbWet.value,
       disguiseOn: voiceChecks.disguiseOn.checked, phoneOn: voiceChecks.phoneOn.checked, reverbOn: voiceChecks.reverbOn.checked,
       beforeDur: Math.max(0, +document.getElementById('beforeDur').value || 0),
-      afterDur: Math.max(0, +document.getElementById('afterDur').value || 0)
+      afterDur: Math.max(0, +document.getElementById('afterDur').value || 0),
+      targetDur: Math.max(0, +document.getElementById('targetDur').value || 0)
     };
   }
 
@@ -901,7 +1045,13 @@
     // tape or record actually running slower -- distinct from the formant-
     // preserving disguise above, which decouples pitch from duration on purpose
     var beforeDur = voiceOffset > 0 ? 0 : opts.beforeDur;
-    var afterDur = opts.afterDur, voiceDur = (voiceBuf.duration - voiceOffset) / speed;
+    var afterDur = opts.afterDur;
+    var naturalVoiceDur = (voiceBuf.duration - voiceOffset) / speed;
+    // targetDur lets a short/medium main track (e.g. "The Factory Walk") fill
+    // a longer session by looping -- only kicks in when it's actually longer
+    // than the track's own natural length, never shortens/truncates it
+    var loopVoice = opts.targetDur > 0 && opts.targetDur > naturalVoiceDur;
+    var voiceDur = loopVoice ? opts.targetDur : naturalVoiceDur;
 
     // collect every oscillator/buffer-source node created below so
     // stopPlayback can force-stop the whole timeline immediately instead of
@@ -929,6 +1079,7 @@
     var voiceStart = t0 + beforeDur;
     var chain = buildVoiceChain(ctx, master, opts);
     var src = ctx.createBufferSource(); src.buffer = voiceBuf; src.playbackRate.value = speed;
+    if(loopVoice){ src.loop = true; src.loopStart = 0; src.loopEnd = voiceBuf.duration; }
     // constructing a FormantCorrectionNode throws unless its worklet module was
     // already registered on THIS context (register() is async, called from
     // startPlayback before buildTimeline runs) -- guard on that, and on the
@@ -949,6 +1100,7 @@
       src.connect(chain.input);
     }
     src.start(voiceStart, voiceOffset);
+    if(loopVoice) src.stop(voiceStart + voiceDur);   // otherwise a looped source plays forever
     placeZone('during', voiceStart, voiceDur);
     var afterStart = voiceStart + voiceDur;
     placeZone('after', afterStart, afterDur);
@@ -1015,6 +1167,28 @@
     };
     reader.readAsArrayBuffer(file);
   }
+
+  // lets a library sample (e.g. "The Factory Walk") become the main track
+  // instead of only a zone layer -- the rest of the tool never distinguishes
+  // "voice" from "any loaded buffer", so this just needs to populate the
+  // same rawBuffer the drop zone would
+  function loadSampleAsMain(id, label){
+    var entry = SAMPLE_LIBRARY_BY_ID[id];
+    if(!entry) return;
+    fileName = id.replace(/_/g, '-');
+    fileInfo.textContent = 'carregando ' + label + '…';
+    loadSampleBuffer(id).then(function(buf){
+      rawBuffer = buf;
+      fileInfo.textContent = label + ' — ' + fmt(buf.duration) + ', ' + buf.sampleRate + 'Hz';
+      playBtn.disabled = false; exportBtn.disabled = false;
+      drawWave(buf);
+    }).catch(function(err){
+      fileInfo.textContent = 'erro carregando ' + label + ' (' + (err && err.message || err) + ')';
+    });
+  }
+  document.getElementById('loadFactoryWalk').addEventListener('click', function(){
+    loadSampleAsMain('factory_walk_main', 'The Factory Walk');
+  });
 
   function fmt(s){ s=Math.max(0,s|0); return (s/60|0)+':'+String(s%60).padStart(2,'0'); }
 
@@ -1137,6 +1311,8 @@
     (localAc.resume ? localAc.resume() : Promise.resolve()).then(function(){
       return window.SoundTouchFormant ? ensureFormantRegistered(localAc) : Promise.resolve();
     }).then(function(){
+      return preloadUsedSamples();   // any "amostra real" slots checked on need their buffer ready
+    }).then(function(){
       if(myToken !== playToken) return;   // superseded by a newer play/stop/seek
       starting = false; playBtn.disabled = false;
       var timeline = buildTimeline(localAc, localAc.destination, opts, rawBuffer, true, voiceSeek);
@@ -1169,20 +1345,29 @@
   exportBtn.addEventListener('click', function(){
     if(!rawBuffer) return;
     var format = document.getElementById('exportFormat').value;
-    exportBtn.disabled = true; statusEl.textContent = 'renderizando (1/2)…';
+    exportBtn.disabled = true; statusEl.textContent = 'carregando amostras…';
     var opts = readVoiceOpts();
 
-    var pass1 = (opts.disguiseOn && opts.pitch !== 0 && window.SoundTouchFormant)
-      ? SoundTouchFormant.processOffline({ input: rawBuffer,
-          processorUrl: 'vendor/soundtouch/formant-correction-processor.js',
-          pitchSemitones: opts.pitch, formantStrength: opts.formant })
-      : Promise.resolve(rawBuffer);
+    var pass1 = preloadUsedSamples().then(function(){
+      statusEl.textContent = 'renderizando (1/2)…';
+      return (opts.disguiseOn && opts.pitch !== 0 && window.SoundTouchFormant)
+        ? SoundTouchFormant.processOffline({ input: rawBuffer,
+            processorUrl: 'vendor/soundtouch/formant-correction-processor.js',
+            pitchSemitones: opts.pitch, formantStrength: opts.formant })
+        : Promise.resolve(rawBuffer);
+    });
 
     pass1.then(function(voiceBuf){
       statusEl.textContent = 'renderizando (2/2)…';
-      var estTotal = opts.beforeDur + voiceBuf.duration / (opts.speed || 1) + opts.afterDur + 0.5;
+      var natDur = voiceBuf.duration / (opts.speed || 1);
+      var vDur = (opts.targetDur > 0 && opts.targetDur > natDur) ? opts.targetDur : natDur;
+      var estTotal = opts.beforeDur + vDur + opts.afterDur + 0.5;
       var OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-      var offline = new OfflineCtx(2, Math.ceil(voiceBuf.sampleRate * estTotal), voiceBuf.sampleRate);
+      // match the export's channel count to the source instead of forcing
+      // stereo -- a mono recording exported "in stereo" was silently
+      // doubling WAV size for no audible benefit (the reverb tail is the
+      // only genuinely stereo content, and it still downmixes correctly)
+      var offline = new OfflineCtx(voiceBuf.numberOfChannels, Math.ceil(voiceBuf.sampleRate * estTotal), voiceBuf.sampleRate);
       buildTimeline(offline, offline.destination, opts, voiceBuf, false, 0);
       return offline.startRendering();
     }).then(function(rendered){
