@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Voice Lab</title>
+<style>
+  :root{--bg:#151516;--panel:#1d1e20;--line:#2c2d30;--ink:#e7e7ea;--dim:#8b8d93;--accent:#7fb0ff;--warn:#e0a05a;--zone:#8fd6a8}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    padding:22px 22px 60px}
+  h1{font-size:17px;font-weight:600;margin:0 0 4px}
+  h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--zone);margin:22px 0 10px;
+    padding-top:14px;border-top:1px solid var(--line)}
+  h3:first-of-type{border-top:none;padding-top:0;margin-top:16px}
+  .sub{color:var(--dim);font-size:12.5px;margin:0 0 18px;max-width:900px}
+  .sub b{color:var(--warn)}
+
+  #drop{border:2px dashed var(--line);border-radius:8px;padding:26px;text-align:center;color:var(--dim);
+    cursor:pointer;max-width:1200px;margin-bottom:14px}
+  #drop.over{border-color:var(--accent);color:var(--ink)}
+  #fileInfo{font-size:12.5px;color:var(--dim);margin-top:4px}
+  #file{display:none}
+
+  .transport{display:flex;align-items:center;gap:12px;margin:14px 0;max-width:1200px}
+  button{background:#26272a;border:1px solid var(--line);color:var(--ink);border-radius:6px;
+    padding:6px 11px;font-size:12.5px;cursor:pointer}
+  button:hover{background:#2f3033}
+  button.primary{background:var(--accent);color:#0b1220;border-color:var(--accent);font-weight:600}
+  button.primary:hover{background:#95bdff}
+  button:disabled{opacity:.4;cursor:default}
+  canvas#wave{display:block;flex:1;height:80px;background:#101011;border:1px solid var(--line);
+    border-radius:6px}
+  #clock{font-variant-numeric:tabular-nums;color:var(--dim);white-space:nowrap;font-size:12.5px}
+
+  .zoneWrap{max-width:1200px}
+  .zoneDur{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12.5px;color:var(--dim)}
+  .zoneDur input{width:70px;background:#101011;border:1px solid var(--line);color:var(--ink);
+    border-radius:4px;padding:3px 6px;font-variant-numeric:tabular-nums}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+  .card .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .card .hd label{font-size:12.5px;font-weight:600;flex:1}
+  .card.off .body{opacity:.35;pointer-events:none}
+  .row{display:flex;align-items:center;gap:8px;margin:5px 0}
+  .row label{flex:0 0 110px;font-size:11px;color:var(--dim)}
+  .row input[type=range]{flex:1;accent-color:var(--accent)}
+  .row .val{flex:0 0 42px;text-align:right;font-variant-numeric:tabular-nums;font-size:11px}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+    max-width:1200px;margin-bottom:12px}
+  .panel h2{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);
+    margin:0 0 12px;font-weight:600}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1200px}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  .preset{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+
+  .footer{max-width:1200px;display:flex;align-items:center;gap:12px;margin-top:18px}
+  #status{font-size:12.5px;color:var(--dim)}
+</style>
+</head>
+<body>
+  <h1>Voice Lab</h1>
+  <p class="sub">Editor geral de áudio &mdash; carrega uma gravação, empilha camadas antes/durante/depois
+    dela, ouve tudo junto ao vivo, exporta um <code>.wav</code> processado. Vive no site, HTTPS, nada de
+    servidor local.</p>
+
+  <div id="drop">Solta o áudio aqui (m4a / mp3 / wav) ou clica pra escolher
+    <div id="fileInfo"></div>
+    <input id="file" type="file" accept="audio/*">
+  </div>
+
+  <div class="transport">
+    <button id="playBtn" disabled>&#9658; play</button>
+    <canvas id="wave"></canvas>
+    <span id="clock">0:00 / 0:00</span>
+  </div>
+
+  <h3>Voz</h3>
+  <div class="grid2">
+    <div class="panel">
+      <h2>Disfarce &mdash; leve</h2>
+      <div class="preset">
+        <button data-pitch="-1.2" data-formant="1">um pouco mais grave</button>
+        <button data-pitch="1.0" data-formant="1">um pouco mais agudo</button>
+        <button data-pitch="0" data-formant="1">desligado</button>
+      </div>
+      <div class="row"><label>pitch (semitons)</label>
+        <input id="pitch" type="range" min="-6" max="6" step="0.1" value="-1.2"><span class="val" id="pitchVal"></span></div>
+      <div class="row"><label>preservar timbre</label>
+        <input id="formant" type="range" min="0" max="1" step="0.01" value="1"><span class="val" id="formantVal"></span></div>
+      <p class="sub" style="margin:6px 0 0">0 = o timbre muda junto com o pitch. 1 = só o tom muda
+        (LPC, @soundtouchjs/formant-correction-worklet).</p>
+    </div>
+    <div class="panel">
+      <h2>Linha de telefone</h2>
+      <div class="row"><label>corte grave (Hz)</label>
+        <input id="phoneLo" type="range" min="80" max="800" step="5" value="300"><span class="val" id="phoneLoVal"></span></div>
+      <div class="row"><label>corte agudo (Hz)</label>
+        <input id="phoneHi" type="range" min="1800" max="7000" step="10" value="3400"><span class="val" id="phoneHiVal"></span></div>
+      <div class="row"><label>compansão (&mu;-law)</label>
+        <input id="compand" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="compandVal"></span></div>
+      <div class="row"><label>compressão</label>
+        <input id="compress" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="compressVal"></span></div>
+      <p class="sub" style="margin:6px 0 0">Zerado por padrão &mdash; isso aqui é pra imitar telefone
+        especificamente. Sobe só se quiser esse efeito.</p>
+    </div>
+  </div>
+
+  <h3>Antes</h3>
+  <div class="zoneWrap">
+    <div class="zoneDur"><span>duração</span><input id="beforeDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
+    <div class="cards" id="beforeCards"></div>
+  </div>
+
+  <h3>Durante (junto com a voz)</h3>
+  <div class="zoneWrap"><div class="cards" id="duringCards"></div></div>
+
+  <h3>Depois</h3>
+  <div class="zoneWrap">
+    <div class="zoneDur"><span>duração</span><input id="afterDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
+    <div class="cards" id="afterCards"></div>
+  </div>
+
+  <h3>Sala / Reverb</h3>
+  <div class="panel" style="max-width:1200px">
+    <div class="row"><label>tamanho da sala</label>
+      <input id="roomSize" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="roomSizeVal"></span></div>
+    <div class="row"><label>quantidade (wet)</label>
+      <input id="reverbWet" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="reverbWetVal"></span></div>
+    <p class="sub" style="margin:6px 0 0">Impulso sintético (ruído moldado por uma curva de decaimento) —
+      sala pequena e seca até uma cauda longa. Aplica em cima de tudo (voz + todas as camadas).</p>
+  </div>
+
+  <div class="footer">
+    <button id="exportBtn" class="primary" disabled>exportar .wav processado</button>
+    <span id="status"></span>
+  </div>
+
+<script src="vendor/soundtouch/formant-correction.bundle.js"></script>
+<script>
+(function(){
+
+  // =========================================================================
+  // noise / reverb primitives
+  // =========================================================================
+  function pinkNoiseBuffer(ctx, seconds){
+    var n = Math.max(1, Math.floor(ctx.sampleRate * seconds));
+    var buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+    var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(var i=0;i<n;i++){
+      var white=Math.random()*2-1;
+      b0=0.99886*b0+white*0.0555179; b1=0.99332*b1+white*0.0750759;
+      b2=0.96900*b2+white*0.1538520; b3=0.86650*b3+white*0.3104856;
+      b4=0.55000*b4+white*0.5329522; b5=-0.7616*b5-white*0.0168980;
+      d[i]=(b0+b1+b2+b3+b4+b5+b6+white*0.5362)*0.09;
+      b6=white*0.115926;
+    }
+    return buf;
+  }
+  function makeReverbIR(ctx, roomSize){
+    var len = Math.floor(ctx.sampleRate * (0.25 + roomSize*3.5));
+    var ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for(var ch=0; ch<2; ch++){
+      var d = ir.getChannelData(ch);
+      for(var i=0;i<len;i++){
+        var decay = Math.pow(1 - i/len, 1.6 + roomSize*3.2);
+        d[i] = (Math.random()*2-1) * decay;
+      }
+    }
+    return ir;
+  }
+  // continuous layers fade in/out rather than snapping on -- "camadas dinâmicas"
+  function fadedBus(ctx, dest, t, dur, fadeTime){
+    var g = ctx.createGain(); g.gain.value = 0; g.connect(dest);
+    var ft = Math.max(0.05, Math.min(fadeTime, dur/2.2));
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(1, t+ft);
+    g.gain.setValueAtTime(1, Math.max(t+ft, t+dur-ft));
+    g.gain.linearRampToValueAtTime(0, t+dur);
+    return g;
+  }
+
+  // =========================================================================
+  // the element registry -- one build(ctx, bus, t, dur, params) per texture.
+  // "continuous" elements fill the zone (through its fading bus); "oneshot"
+  // elements place themselves at an offset inside the zone and connect
+  // straight to master (they carry their own envelope).
+  // =========================================================================
+  var ELEMENTS = {
+
+    cassette: { label:'Fita cassete tocando', kind:'continuous', params:[
+      {key:'motor',label:'motor',min:0,max:0.3,step:0.005,def:0.06},
+      {key:'hiss',label:'chiado de fita',min:0,max:0.3,step:0.005,def:0.05},
+      {key:'wow',label:'wow/flutter',min:0,max:1,step:0.01,def:0.5},
+      {key:'click',label:'clique de play',min:0,max:1,step:1,def:1}
+    ], build:function(ctx,bus,t,dur,p){
+      if(p.motor>0){
+        var g=ctx.createGain(); g.gain.value=p.motor; g.connect(bus);
+        var o1=ctx.createOscillator(); o1.type='triangle'; o1.frequency.value=48;
+        var o2=ctx.createOscillator(); o2.type='triangle'; o2.frequency.value=96;
+        var g2=ctx.createGain(); g2.gain.value=0.3;
+        o1.connect(g); o2.connect(g2); g2.connect(g);
+        var lfo1=ctx.createOscillator(); lfo1.type='sine'; lfo1.frequency.value=0.6;
+        var lfo1g=ctx.createGain(); lfo1g.gain.value=p.wow*10;
+        lfo1.connect(lfo1g); lfo1g.connect(o1.detune); lfo1g.connect(o2.detune);
+        var lfo2=ctx.createOscillator(); lfo2.type='sine'; lfo2.frequency.value=4.2;
+        var lfo2g=ctx.createGain(); lfo2g.gain.value=p.wow*4;
+        lfo2.connect(lfo2g); lfo2g.connect(o1.detune); lfo2g.connect(o2.detune);
+        [o1,o2,lfo1,lfo2].forEach(function(o){ o.start(t); o.stop(t+dur); });
+      }
+      if(p.hiss>0){
+        var hs=ctx.createBufferSource(); hs.buffer=pinkNoiseBuffer(ctx,Math.min(dur,6)); hs.loop=true;
+        var hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=2800;
+        var hg=ctx.createGain(); hg.gain.value=p.hiss;
+        hs.connect(hp); hp.connect(hg); hg.connect(bus); hs.start(t); hs.stop(t+dur);
+      }
+      if(p.click){
+        var c=ctx.createBufferSource();
+        var cb=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.04),ctx.sampleRate), cd=cb.getChannelData(0);
+        for(var i=0;i<cd.length;i++) cd[i]=(Math.random()*2-1)*(1-i/cd.length);
+        c.buffer=cb;
+        var cg=ctx.createGain(); cg.gain.value=0.5;
+        c.connect(cg); cg.connect(bus); c.start(t);
+      }
+    }},
+
+    staticN: { label:'Estática', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.3},
+      {key:'grit',label:'textura/grit',min:0,max:1,step:0.01,def:0.3}
+    ], build:function(ctx,bus,t,dur,p){
+      var src=ctx.createBufferSource(); src.buffer=pinkNoiseBuffer(ctx,Math.min(dur,6)); src.loop=true;
+      var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1200+p.grit*1400; bp.Q.value=1.1;
+      var grit=ctx.createWaveShaper();
+      var n=512, curve=new Float32Array(n);
+      for(var k=0;k<n;k++){ var x=k/(n-1)*2-1; curve[k]=Math.tanh(x*(1+p.grit*6)); }
+      grit.curve=curve;
+      var g=ctx.createGain(); g.gain.value=p.level;
+      src.connect(bp); bp.connect(grit); grit.connect(g); g.connect(bus);
+      src.start(t); src.stop(t+dur);
+    }},
+
+    radio: { label:'Rádio (locução ao fundo)', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:0.6,step:0.01,def:0.12},
+      {key:'chatter',label:'cadência de fala',min:0,max:1,step:0.01,def:0.5}
+    ], build:function(ctx,bus,t,dur,p){
+      var src=ctx.createBufferSource(); src.buffer=pinkNoiseBuffer(ctx,Math.min(dur,6)); src.loop=true;
+      var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.Q.value=1.4;
+      var g=ctx.createGain(); g.gain.value=0.0001;
+      src.connect(bp); bp.connect(g); g.connect(bus); src.start(t); src.stop(t+dur);
+      var tt=t;
+      while(tt<t+dur){
+        var seg=0.1+Math.random()*0.3;
+        var lvl=p.level*(0.3+Math.random()*0.9)*(Math.random()<0.15-p.chatter*0.1?0.05:1);
+        g.gain.linearRampToValueAtTime(Math.max(0.0001,lvl), tt+seg*0.4);
+        tt+=seg;
+      }
+    }},
+
+    radioTuning: { label:'Rádio sintonizando', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.5}
+    ], build:function(ctx,bus,t,dur,p){
+      var noise=ctx.createBufferSource(); noise.buffer=pinkNoiseBuffer(ctx,dur);
+      var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=3;
+      var g=ctx.createGain(); g.gain.value=p.level;
+      noise.connect(bp); bp.connect(g); g.connect(bus);
+      var steps=6;
+      for(var i=0;i<=steps;i++){
+        var tt=t+(dur*0.75)*(i/steps);
+        bp.frequency.setValueAtTime(400+Math.random()*4000, tt);
+      }
+      bp.frequency.linearRampToValueAtTime(1800, t+dur);
+      noise.start(t); noise.stop(t+dur);
+    }},
+
+    radioInterference: { label:'Interferência de rádio', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.3},
+      {key:'density',label:'densidade de blips',min:0,max:1,step:0.01,def:0.4}
+    ], build:function(ctx,bus,t,dur,p){
+      var o=ctx.createOscillator(); o.type='sine'; o.frequency.value=4200;
+      var og=ctx.createGain(); og.gain.value=p.level*0.15;
+      o.connect(og); og.connect(bus);
+      var lfo=ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.05;
+      var lfog=ctx.createGain(); lfog.gain.value=1800;
+      lfo.connect(lfog); lfog.connect(o.frequency);
+      o.start(t); o.stop(t+dur); lfo.start(t); lfo.stop(t+dur);
+      var n=Math.floor(p.density*dur*3);
+      for(var i=0;i<n;i++){
+        var bt=t+Math.random()*dur, bdur=0.02+Math.random()*0.08;
+        var bsrc=ctx.createBufferSource();
+        var bb=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*bdur)),ctx.sampleRate), bd=bb.getChannelData(0);
+        for(var k2=0;k2<bd.length;k2++) bd[k2]=Math.random()*2-1;
+        bsrc.buffer=bb;
+        var bbp=ctx.createBiquadFilter(); bbp.type='bandpass'; bbp.frequency.value=1000+Math.random()*3000; bbp.Q.value=2;
+        var bg=ctx.createGain(); bg.gain.value=p.level*0.4;
+        bsrc.connect(bbp); bbp.connect(bg); bg.connect(bus); bsrc.start(bt);
+      }
+    }},
+
+    emi: { label:'Interferência eletromagnética', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.25},
+      {key:'freq',label:'frequência base (Hz)',min:50,max:400,step:1,def:120}
+    ], build:function(ctx,bus,t,dur,p){
+      var o=ctx.createOscillator(); o.type='square'; o.frequency.value=p.freq;
+      var g=ctx.createGain(); g.gain.value=p.level*0.12;
+      var bg=ctx.createGain(); bg.gain.value=1;
+      o.connect(g); g.connect(bg); bg.connect(bus); o.start(t); o.stop(t+dur);
+      var tt=t;
+      while(tt<t+dur){
+        var on=Math.random()<0.6, segDur=0.05+Math.random()*0.25;
+        bg.gain.setValueAtTime(on?1:0.05, tt);
+        tt+=segDur;
+      }
+      var chirps=Math.max(0,Math.floor(dur/4));
+      for(var i=0;i<chirps;i++){
+        var ct=t+Math.random()*dur;
+        var co=ctx.createOscillator(); co.type='sawtooth';
+        var cgain=ctx.createGain(); cgain.gain.value=0.0001;
+        co.connect(cgain); cgain.connect(bus);
+        co.frequency.setValueAtTime(200, ct);
+        co.frequency.exponentialRampToValueAtTime(3000, ct+0.15);
+        cgain.gain.setValueAtTime(0.0001, ct);
+        cgain.gain.exponentialRampToValueAtTime(p.level*0.1, ct+0.01);
+        cgain.gain.exponentialRampToValueAtTime(0.0001, ct+0.15);
+        co.start(ct); co.stop(ct+0.16);
+      }
+    }},
+
+    roomTone: { label:'Room tone', kind:'continuous', params:[
+      {key:'hum',label:'zumbido (60Hz+harm.)',min:0,max:0.25,step:0.005,def:0.035},
+      {key:'hiss',label:'chiado (pink noise)',min:0,max:0.25,step:0.005,def:0.03}
+    ], build:function(ctx,bus,t,dur,p){
+      if(p.hum>0){
+        var humG=ctx.createGain(); humG.gain.value=p.hum; humG.connect(bus);
+        var lfo=ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.08;
+        [[1,1.0],[2,0.34],[3,0.15],[4,0.06]].forEach(function(h){
+          var o=ctx.createOscillator(); o.type='sine'; o.frequency.value=60*h[0];
+          var og=ctx.createGain(); og.gain.value=h[1];
+          var lg=ctx.createGain(); lg.gain.value=h[1]*0.18;
+          lfo.connect(lg); lg.connect(og.gain);
+          o.connect(og); og.connect(humG); o.start(t); o.stop(t+dur);
+        });
+        lfo.start(t); lfo.stop(t+dur);
+      }
+      if(p.hiss>0){
+        var hs=ctx.createBufferSource(); hs.buffer=pinkNoiseBuffer(ctx,Math.min(dur,8)); hs.loop=true;
+        var hg=ctx.createGain(); hg.gain.value=p.hiss;
+        hs.connect(hg); hg.connect(bus); hs.start(t); hs.stop(t+dur);
+      }
+    }},
+
+    organic: { label:'Tons orgânicos', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:0.3,step:0.005,def:0.05},
+      {key:'root',label:'nota base (Hz)',min:40,max:200,step:1,def:80}
+    ], build:function(ctx,bus,t,dur,p){
+      if(p.level<=0) return;
+      var g=ctx.createGain(); g.gain.value=p.level; g.connect(bus);
+      [1,1.503,2.01].forEach(function(ratio,idx){
+        var o=ctx.createOscillator(); o.type=idx===0?'sine':'triangle'; o.frequency.value=p.root*ratio;
+        var og=ctx.createGain(); og.gain.value=idx===0?1:0.4;
+        var lfo=ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.03+idx*0.017;
+        var lfog=ctx.createGain(); lfog.gain.value=3+idx*2;
+        lfo.connect(lfog); lfog.connect(o.detune);
+        o.connect(og); og.connect(g);
+        o.start(t); o.stop(t+dur); lfo.start(t); lfo.stop(t+dur);
+      });
+    }},
+
+    wind: { label:'Vento', kind:'continuous', params:[
+      {key:'level',label:'intensidade',min:0,max:0.4,step:0.005,def:0.08},
+      {key:'gust',label:'rajadas',min:0,max:1,step:0.01,def:0.5}
+    ], build:function(ctx,bus,t,dur,p){
+      if(p.level<=0) return;
+      var src=ctx.createBufferSource(); src.buffer=pinkNoiseBuffer(ctx,Math.min(dur,10)); src.loop=true;
+      var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=500; bp.Q.value=0.8;
+      var g=ctx.createGain(); g.gain.value=p.level;
+      src.connect(bp); bp.connect(g); g.connect(bus);
+      var gustLfo=ctx.createOscillator(); gustLfo.type='sine'; gustLfo.frequency.value=0.04+p.gust*0.08;
+      var gustG=ctx.createGain(); gustG.gain.value=300+p.gust*500;
+      gustLfo.connect(gustG); gustG.connect(bp.frequency);
+      var gustLfo2=ctx.createOscillator(); gustLfo2.type='sine'; gustLfo2.frequency.value=0.11+p.gust*0.05;
+      var gustG2=ctx.createGain(); gustG2.gain.value=p.level*p.gust*0.6;
+      gustLfo2.connect(gustG2); gustG2.connect(g.gain);
+      [src,gustLfo,gustLfo2].forEach(function(o){ o.start(t); o.stop(t+dur); });
+    }},
+
+    surface: { label:'Surface feedback (crepitação)', kind:'continuous', params:[
+      {key:'density',label:'densidade estalos',min:0,max:1,step:0.01,def:0.4},
+      {key:'hiss',label:'chiado de superfície',min:0,max:0.2,step:0.005,def:0.02}
+    ], build:function(ctx,bus,t,dur,p){
+      if(p.hiss>0){
+        var hs=ctx.createBufferSource(); hs.buffer=pinkNoiseBuffer(ctx,Math.min(dur,6)); hs.loop=true;
+        var hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=3500;
+        var hg=ctx.createGain(); hg.gain.value=p.hiss;
+        hs.connect(hp); hp.connect(hg); hg.connect(bus); hs.start(t); hs.stop(t+dur);
+      }
+      var n=Math.floor(p.density*dur*8);
+      for(var i=0;i<n;i++){
+        var pt=t+Math.random()*dur, pdur=0.003+Math.random()*0.01;
+        var psrc=ctx.createBufferSource();
+        var pb=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*pdur)),ctx.sampleRate), pd=pb.getChannelData(0);
+        for(var k=0;k<pd.length;k++) pd[k]=Math.random()*2-1;
+        psrc.buffer=pb;
+        var pg=ctx.createGain(); pg.gain.value=0.15+Math.random()*0.25;
+        psrc.connect(pg); pg.connect(bus); psrc.start(pt);
+      }
+    }},
+
+    cue: { label:'Thread cue (sinalizador)', kind:'oneshot', params:[
+      {key:'offset',label:'posição (s)',min:0,max:60,step:0.1,def:0},
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.3},
+      {key:'pitch',label:'tom (Hz)',min:80,max:2000,step:10,def:440},
+      {key:'type',label:'tipo 0=sino 1=thud 2=tick',min:0,max:2,step:1,def:0}
+    ], build:function(ctx,master,t,dur,p){
+      var ct=t+Math.min(p.offset, Math.max(0,dur-0.05));
+      if(p.type<0.5){
+        var g=ctx.createGain(); g.gain.value=0.0001; g.connect(master);
+        [1,2.76,5.4].forEach(function(ratio,i){
+          var o=ctx.createOscillator(); o.type='sine'; o.frequency.value=p.pitch*ratio;
+          var og=ctx.createGain(); og.gain.value=p.level/(i+1);
+          o.connect(og); og.connect(g); o.start(ct); o.stop(ct+2.5);
+        });
+        g.gain.setValueAtTime(0.0001, ct);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.001,p.level), ct+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ct+2.4);
+      } else if(p.type<1.5){
+        var o2=ctx.createOscillator(); o2.type='sine'; o2.frequency.value=p.pitch*0.25;
+        var g2=ctx.createGain(); g2.gain.value=0.0001;
+        o2.connect(g2); g2.connect(master);
+        o2.frequency.exponentialRampToValueAtTime(Math.max(20,p.pitch*0.1), ct+0.3);
+        g2.gain.setValueAtTime(0.0001, ct);
+        g2.gain.exponentialRampToValueAtTime(Math.max(0.001,p.level), ct+0.01);
+        g2.gain.exponentialRampToValueAtTime(0.0001, ct+0.6);
+        o2.start(ct); o2.stop(ct+0.65);
+      } else {
+        var o3=ctx.createOscillator(); o3.type='square'; o3.frequency.value=p.pitch*3;
+        var g3=ctx.createGain(); g3.gain.value=0.0001;
+        o3.connect(g3); g3.connect(master);
+        g3.gain.setValueAtTime(0.0001, ct);
+        g3.gain.exponentialRampToValueAtTime(Math.max(0.001,p.level*0.6), ct+0.004);
+        g3.gain.exponentialRampToValueAtTime(0.0001, ct+0.05);
+        o3.start(ct); o3.stop(ct+0.06);
+      }
+    }},
+
+    riser: { label:'Riser', kind:'oneshot', params:[
+      {key:'offset',label:'posição do fim (s)',min:0,max:60,step:0.1,def:0},
+      {key:'length',label:'duração (s)',min:0.5,max:20,step:0.1,def:4},
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.35}
+    ], build:function(ctx,master,t,dur,p){
+      var endT=t+Math.min(p.offset||dur, dur);
+      var startT=Math.max(t, endT-p.length);
+      var actualLen=endT-startT;
+      if(actualLen<=0.05) return;
+      var src=ctx.createBufferSource(); src.buffer=pinkNoiseBuffer(ctx,actualLen);
+      var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=1.2;
+      var g=ctx.createGain(); g.gain.value=0.0001;
+      src.connect(bp); bp.connect(g); g.connect(master);
+      bp.frequency.setValueAtTime(150, startT);
+      bp.frequency.exponentialRampToValueAtTime(3800, endT);
+      g.gain.setValueAtTime(0.0001, startT);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.001,p.level), endT-0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, endT);
+      src.start(startT); src.stop(endT+0.05);
+    }},
+
+    swell: { label:'Swell', kind:'oneshot', params:[
+      {key:'offset',label:'centro (s)',min:0,max:60,step:0.1,def:5},
+      {key:'length',label:'duração total (s)',min:1,max:30,step:0.5,def:8},
+      {key:'level',label:'intensidade',min:0,max:1,step:0.01,def:0.3},
+      {key:'root',label:'nota base (Hz)',min:40,max:300,step:1,def:90}
+    ], build:function(ctx,master,t,dur,p){
+      var centerT=t+Math.min(p.offset, dur+p.length);
+      var startT=Math.max(t, centerT-p.length/2);
+      var endT=centerT+p.length/2;
+      var g=ctx.createGain(); g.gain.value=0.0001; g.connect(master);
+      [1,2,3].forEach(function(ratio,i){
+        var o=ctx.createOscillator(); o.type=i===0?'sine':'triangle'; o.frequency.value=p.root*ratio;
+        var og=ctx.createGain(); og.gain.value=1/(i+1);
+        o.connect(og); og.connect(g); o.start(startT); o.stop(endT);
+      });
+      g.gain.setValueAtTime(0.0001, startT);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.001,p.level), centerT);
+      g.gain.exponentialRampToValueAtTime(0.0001, endT);
+    }}
+  };
+
+  var ZONE_ELEMENTS = ['cassette','staticN','radio','radioTuning','radioInterference','emi',
+    'roomTone','organic','wind','surface','cue','riser','swell'];
+
+  // =========================================================================
+  // UI: generic card renderer, one per zone
+  // =========================================================================
+  var state = { before:{}, during:{}, after:{} };
+  ZONE_ELEMENTS.forEach(function(key){
+    ['before','during','after'].forEach(function(zone){
+      var p = { on:false };
+      ELEMENTS[key].params.forEach(function(prm){ p[prm.key] = prm.def; });
+      state[zone][key] = p;
+    });
+  });
+
+  function renderZone(zoneName, containerEl){
+    ZONE_ELEMENTS.forEach(function(key){
+      var el = ELEMENTS[key], p = state[zoneName][key];
+      var card = document.createElement('div'); card.className = 'card off';
+      var hd = document.createElement('div'); hd.className = 'hd';
+      var chk = document.createElement('input'); chk.type = 'checkbox';
+      chk.addEventListener('change', function(){ p.on = chk.checked; card.classList.toggle('off', !chk.checked); });
+      var lbl = document.createElement('label'); lbl.textContent = el.label;
+      hd.appendChild(chk); hd.appendChild(lbl); card.appendChild(hd);
+      var body = document.createElement('div'); body.className = 'body';
+      el.params.forEach(function(prm){
+        var row = document.createElement('div'); row.className = 'row';
+        var rl = document.createElement('label'); rl.textContent = prm.label;
+        var input = document.createElement('input'); input.type = 'range';
+        input.min = prm.min; input.max = prm.max; input.step = prm.step; input.value = prm.def;
+        var val = document.createElement('span'); val.className = 'val'; val.textContent = prm.def;
+        input.addEventListener('input', function(){
+          p[prm.key] = +input.value;
+          val.textContent = (prm.step < 1) ? (+input.value).toFixed(2) : input.value;
+        });
+        row.appendChild(rl); row.appendChild(input); row.appendChild(val);
+        body.appendChild(row);
+      });
+      card.appendChild(body);
+      containerEl.appendChild(card);
+    });
+  }
+  renderZone('before', document.getElementById('beforeCards'));
+  renderZone('during', document.getElementById('duringCards'));
+  renderZone('after', document.getElementById('afterCards'));
+
+  // ---- voice / phone controls ----
+  var voiceEls = {};
+  ['pitch','formant','phoneLo','phoneHi','compand','compress','roomSize','reverbWet'].forEach(function(id){
+    voiceEls[id] = document.getElementById(id);
+  });
+  var voiceVals = {};
+  Object.keys(voiceEls).forEach(function(id){ voiceVals[id] = document.getElementById(id+'Val'); });
+  function syncVoiceVals(){
+    voiceVals.pitch.textContent = (+voiceEls.pitch.value).toFixed(1);
+    voiceVals.formant.textContent = (+voiceEls.formant.value).toFixed(2);
+    voiceVals.phoneLo.textContent = voiceEls.phoneLo.value;
+    voiceVals.phoneHi.textContent = voiceEls.phoneHi.value;
+    voiceVals.compand.textContent = (+voiceEls.compand.value).toFixed(2);
+    voiceVals.compress.textContent = (+voiceEls.compress.value).toFixed(2);
+    voiceVals.roomSize.textContent = (+voiceEls.roomSize.value).toFixed(2);
+    voiceVals.reverbWet.textContent = (+voiceEls.reverbWet.value).toFixed(2);
+  }
+  Object.keys(voiceEls).forEach(function(id){ voiceEls[id].addEventListener('input', syncVoiceVals); });
+  syncVoiceVals();
+  document.querySelectorAll('.preset').forEach(function(row){
+    row.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        voiceEls.pitch.value = b.dataset.pitch; voiceEls.formant.value = b.dataset.formant; syncVoiceVals();
+      });
+    });
+  });
+
+  function readVoiceOpts(){
+    return {
+      pitch:+voiceEls.pitch.value, formant:+voiceEls.formant.value,
+      phoneLo:+voiceEls.phoneLo.value, phoneHi:+voiceEls.phoneHi.value,
+      compand:+voiceEls.compand.value, compress:+voiceEls.compress.value,
+      roomSize:+voiceEls.roomSize.value, reverbWet:+voiceEls.reverbWet.value,
+      beforeDur: Math.max(0, +document.getElementById('beforeDur').value || 0),
+      afterDur: Math.max(0, +document.getElementById('afterDur').value || 0)
+    };
+  }
+
+  function buildVoiceChain(ctx, master, opts){
+    var hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=opts.phoneLo;
+    var lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=opts.phoneHi;
+    var ws = ctx.createWaveShaper();
+    var n=1024, curve=new Float32Array(n), mu=255;
+    for(var i=0;i<n;i++){
+      var x=i/(n-1)*2-1;
+      var y=Math.sign(x)*Math.log(1+mu*Math.abs(x))/Math.log(1+mu);
+      curve[i]=x*(1-opts.compand)+y*opts.compand;
+    }
+    ws.curve=curve; ws.oversample='2x';
+    var comp = ctx.createDynamicsCompressor();
+    comp.threshold.value=-8-opts.compress*32; comp.ratio.value=1.5+opts.compress*10;
+    comp.attack.value=0.003; comp.release.value=0.25; comp.knee.value=6;
+    hp.connect(lp); lp.connect(ws); ws.connect(comp); comp.connect(master);
+    return { input: hp };
+  }
+
+  // =========================================================================
+  // timeline assembly -- shared between live preview and offline export
+  // =========================================================================
+  function buildTimeline(ctx, dest, opts, voiceBuf){
+    var master = ctx.createGain(); master.gain.value = 1;   // dry bus, everything below feeds this
+    var t0 = 0.05;
+    var beforeDur = opts.beforeDur, afterDur = opts.afterDur, voiceDur = voiceBuf.duration;
+
+    function placeZone(zoneName, zStart, zDur){
+      if(zDur <= 0) return;
+      var bus = fadedBus(ctx, master, zStart, zDur, zoneName==='during' ? 0.9 : 0.6);
+      ZONE_ELEMENTS.forEach(function(key){
+        var p = state[zoneName][key];
+        if(!p.on) return;
+        var el = ELEMENTS[key];
+        el.build(ctx, el.kind === 'continuous' ? bus : master, zStart, zDur, p);
+      });
+    }
+
+    placeZone('before', t0, beforeDur);
+    var voiceStart = t0 + beforeDur;
+    var chain = buildVoiceChain(ctx, master, opts);
+    var src = ctx.createBufferSource(); src.buffer = voiceBuf; src.connect(chain.input);
+    src.start(voiceStart);
+    placeZone('during', voiceStart, voiceDur);
+    var afterStart = voiceStart + voiceDur;
+    placeZone('after', afterStart, afterDur);
+
+    // reverb send (parallel wet path) + dry path, both to destination
+    master.connect(dest);
+    if(opts.reverbWet > 0){
+      var send = ctx.createGain(); send.gain.value = opts.reverbWet;
+      var conv = ctx.createConvolver(); conv.buffer = makeReverbIR(ctx, opts.roomSize);
+      master.connect(send); send.connect(conv); conv.connect(dest);
+    }
+
+    return { voiceSrc: src, total: t0 + beforeDur + voiceDur + afterDur };
+  }
+
+  // =========================================================================
+  // file loading, waveform, playback, export (same shape as before)
+  // =========================================================================
+  var dropZone=document.getElementById('drop'), fileInput=document.getElementById('file'),
+      fileInfo=document.getElementById('fileInfo'), playBtn=document.getElementById('playBtn'),
+      exportBtn=document.getElementById('exportBtn'), statusEl=document.getElementById('status'),
+      clockEl=document.getElementById('clock'), wave=document.getElementById('wave');
+
+  var ac=null, rawBuffer=null, fileName='audio', playing=false, playSrc=null, rafId=null;
+
+  dropZone.addEventListener('click', function(){ fileInput.click(); });
+  dropZone.addEventListener('dragover', function(e){ e.preventDefault(); dropZone.classList.add('over'); });
+  dropZone.addEventListener('dragleave', function(){ dropZone.classList.remove('over'); });
+  dropZone.addEventListener('drop', function(e){
+    e.preventDefault(); dropZone.classList.remove('over');
+    if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function(){ if(fileInput.files[0]) loadFile(fileInput.files[0]); });
+
+  function getAc(){ if(!ac){ var Ctx=window.AudioContext||window.webkitAudioContext; ac=new Ctx(); } return ac; }
+
+  function loadFile(file){
+    fileName = file.name.replace(/\.[^.]+$/, '');
+    fileInfo.textContent = 'carregando ' + file.name + '…';
+    var reader = new FileReader();
+    reader.onload = function(){
+      var localAc = getAc();
+      localAc.decodeAudioData(reader.result.slice(0), function(buf){
+        rawBuffer = buf;
+        fileInfo.textContent = file.name + ' — ' + fmt(buf.duration) + ', ' + buf.sampleRate + 'Hz';
+        playBtn.disabled = false; exportBtn.disabled = false;
+        drawWave(buf);
+      }, function(err){
+        fileInfo.textContent = 'não consegui decodificar esse arquivo (' + (err && err.message || err) + ')';
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function fmt(s){ s=Math.max(0,s|0); return (s/60|0)+':'+String(s%60).padStart(2,'0'); }
+
+  function drawWave(buf){
+    var ctx2d = wave.getContext('2d');
+    var w = wave.clientWidth||900, h=80;
+    wave.width = w*devicePixelRatio; wave.height = h*devicePixelRatio;
+    ctx2d.scale(devicePixelRatio, devicePixelRatio);
+    ctx2d.clearRect(0,0,w,h);
+    var data = buf.getChannelData(0);
+    var step = Math.max(1, Math.floor(data.length/w));
+    ctx2d.fillStyle = '#4a90ff';
+    for(var x=0;x<w;x++){
+      var min=1,max=-1;
+      for(var i=0;i<step;i++){ var v=data[x*step+i]||0; if(v<min)min=v; if(v>max)max=v; }
+      var y0=(1-(max+1)/2)*h, y1=(1-(min+1)/2)*h;
+      ctx2d.fillRect(x,y0,1,Math.max(1,y1-y0));
+    }
+  }
+
+  var formantRegistered = new WeakSet();
+  function ensureFormantRegistered(ctx){
+    if(!window.SoundTouchFormant) return Promise.resolve();
+    if(formantRegistered.has(ctx)) return Promise.resolve();
+    return SoundTouchFormant.FormantCorrectionNode.register(ctx, 'vendor/soundtouch/formant-correction-processor.js')
+      .then(function(){ formantRegistered.add(ctx); })
+      .catch(function(err){ statusEl.textContent = 'disfarce de voz não carregou (' + err.message + ') — tocando sem ele.'; });
+  }
+
+  playBtn.addEventListener('click', function(){
+    if(!rawBuffer) return;
+    if(playing){ stopPlayback(); return; }
+    startPlayback();
+  });
+  function stopPlayback(){
+    playing=false; playBtn.textContent='▶ play';
+    if(playSrc){ try{ playSrc.stop(); }catch(e){} playSrc=null; }
+    if(rafId) cancelAnimationFrame(rafId);
+  }
+  function startPlayback(){
+    var localAc = getAc();
+    var opts = readVoiceOpts();
+    (localAc.resume ? localAc.resume() : Promise.resolve()).then(function(){
+      return (opts.pitch !== 0) ? ensureFormantRegistered(localAc) : Promise.resolve();
+    }).then(function(){
+      // if pitch-shifted, we need the shifted buffer for live preview too --
+      // reuse processOffline() (it's the only correct path for this worklet)
+      var voicePromise = (opts.pitch !== 0 && window.SoundTouchFormant)
+        ? SoundTouchFormant.processOffline({ input: rawBuffer,
+            processorUrl: 'vendor/soundtouch/formant-correction-processor.js',
+            pitchSemitones: opts.pitch, formantStrength: opts.formant })
+        : Promise.resolve(rawBuffer);
+      return voicePromise;
+    }).then(function(voiceBuf){
+      var timeline = buildTimeline(localAc, localAc.destination, opts, voiceBuf);
+      playSrc = timeline.voiceSrc; playing = true; playBtn.textContent = '■ stop';
+      var t0 = performance.now();
+      (function tick(){
+        var el = (performance.now()-t0)/1000;
+        clockEl.textContent = fmt(el) + ' / ' + fmt(timeline.total);
+        if(el < timeline.total && playing) rafId = requestAnimationFrame(tick);
+        else stopPlayback();
+      })();
+    });
+  }
+
+  exportBtn.addEventListener('click', function(){
+    if(!rawBuffer) return;
+    exportBtn.disabled = true; statusEl.textContent = 'renderizando (1/2)…';
+    var opts = readVoiceOpts();
+
+    var pass1 = (opts.pitch !== 0 && window.SoundTouchFormant)
+      ? SoundTouchFormant.processOffline({ input: rawBuffer,
+          processorUrl: 'vendor/soundtouch/formant-correction-processor.js',
+          pitchSemitones: opts.pitch, formantStrength: opts.formant })
+      : Promise.resolve(rawBuffer);
+
+    pass1.then(function(voiceBuf){
+      statusEl.textContent = 'renderizando (2/2)…';
+      var estTotal = opts.beforeDur + voiceBuf.duration + opts.afterDur + 0.5;
+      var OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      var offline = new OfflineCtx(2, Math.ceil(voiceBuf.sampleRate * estTotal), voiceBuf.sampleRate);
+      buildTimeline(offline, offline.destination, opts, voiceBuf);
+      return offline.startRendering();
+    }).then(function(rendered){
+      var blob = encodeWav(rendered);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = fileName + '-processed.wav';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      statusEl.textContent = 'exportado: ' + a.download;
+      exportBtn.disabled = false;
+    }).catch(function(err){
+      statusEl.textContent = 'erro exportando: ' + (err && err.message || err);
+      exportBtn.disabled = false;
+    });
+  });
+
+  function encodeWav(buf){
+    var ch=buf.numberOfChannels, len=buf.length, sr=buf.sampleRate;
+    var blockAlign=ch*2, dataSize=len*blockAlign;
+    var ab=new ArrayBuffer(44+dataSize), view=new DataView(ab);
+    function ws(off,s){ for(var i=0;i<s.length;i++) view.setUint8(off+i, s.charCodeAt(i)); }
+    ws(0,'RIFF'); view.setUint32(4,36+dataSize,true); ws(8,'WAVE');
+    ws(12,'fmt '); view.setUint32(16,16,true); view.setUint16(20,1,true);
+    view.setUint16(22,ch,true); view.setUint32(24,sr,true);
+    view.setUint32(28,sr*blockAlign,true); view.setUint16(32,blockAlign,true); view.setUint16(34,16,true);
+    ws(36,'data'); view.setUint32(40,dataSize,true);
+    var offset=44, chans=[]; for(var c=0;c<ch;c++) chans.push(buf.getChannelData(c));
+    for(var i=0;i<len;i++){
+      for(var c2=0;c2<ch;c2++){
+        var s=Math.max(-1,Math.min(1,chans[c2][i]));
+        view.setInt16(offset, s<0?s*0x8000:s*0x7FFF, true);
+        offset+=2;
+      }
+    }
+    return new Blob([ab], {type:'audio/wav'});
+  }
+})();
+</script>
+</body>
+</html>
