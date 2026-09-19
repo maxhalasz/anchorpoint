@@ -146,15 +146,22 @@
   </div>
 
   <h3>Antes</h3>
+  <p class="sub" style="margin-top:-6px">Camadas que tocam ANTES da gravação principal começar, preenchendo
+    a "duração" abaixo em silêncio &mdash; o intro da chamada/fita. Marcar a caixa já toca uma prévia
+    na hora; pro efeito entrar na reprodução completa, dá o play de novo.</p>
   <div class="zoneWrap">
     <div class="zoneDur"><span>duração</span><input id="beforeDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
     <div class="cards" id="beforeCards"></div>
   </div>
 
   <h3>Durante (junto com a voz)</h3>
+  <p class="sub" style="margin-top:-6px">Camadas que tocam JUNTO com a gravação, por baixo da voz, do
+    começo ao fim dela.</p>
   <div class="zoneWrap"><div class="cards" id="duringCards"></div></div>
 
   <h3>Depois</h3>
+  <p class="sub" style="margin-top:-6px">Mesma ideia de "Antes", mas depois que a gravação termina &mdash;
+    o outro da chamada/fita.</p>
   <div class="zoneWrap">
     <div class="zoneDur"><span>duração</span><input id="afterDur" type="number" step="0.5" min="0" value="3"><span>s</span></div>
     <div class="cards" id="afterCards"></div>
@@ -563,7 +570,14 @@
       dom.card = card;
       var hd = document.createElement('div'); hd.className = 'hd';
       var chk = document.createElement('input'); chk.type = 'checkbox';
-      chk.addEventListener('change', function(){ p.on = chk.checked; card.classList.toggle('off', !chk.checked); });
+      // checking the box only enables the layer for the NEXT full playback
+      // (it doesn't retroactively touch whatever's already playing) -- that
+      // silence read as "does nothing" to Max, so checking ON now also
+      // immediately previews the element alone, same as the "ouvir" button
+      chk.addEventListener('change', function(){
+        p.on = chk.checked; card.classList.toggle('off', !chk.checked);
+        if(chk.checked) previewElement(key, p);
+      });
       dom.checkbox = chk;
       var lbl = document.createElement('label'); lbl.textContent = el.label;
       var prevBtn = document.createElement('button'); prevBtn.type = 'button'; prevBtn.className = 'previewBtn';
