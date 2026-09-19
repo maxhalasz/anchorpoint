@@ -44,6 +44,7 @@
   .card .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
   .card .hd label{font-size:12.5px;font-weight:600;flex:1}
   .card.off .body{opacity:.35;pointer-events:none}
+  .panel.off .body{opacity:.35;pointer-events:none}
   .row{display:flex;align-items:center;gap:8px;margin:5px 0}
   .row label{flex:0 0 110px;font-size:11px;color:var(--dim)}
   .row input[type=range]{flex:1;accent-color:var(--accent)}
@@ -87,20 +88,26 @@
   </div>
 
   <h3>Voz</h3>
+  <p class="sub" style="margin-top:-6px">Os três painéis com checkbox (Disfarce, Linha de telefone,
+    Reverb mais abaixo) ficam ao vivo &mdash; mexer neles <b>enquanto o preview toca</b> já muda o
+    som na hora, sem precisar parar e tocar de novo. As camadas de Antes/Durante/Depois não (são
+    eventos já agendados quando o play começa) &mdash; pra ouvir uma mudança nelas, toca de novo.</p>
   <div class="grid2">
-    <div class="panel">
-      <h2>Disfarce &mdash; leve</h2>
-      <div class="preset">
-        <button data-pitch="-1.2" data-formant="1">um pouco mais grave</button>
-        <button data-pitch="1.0" data-formant="1">um pouco mais agudo</button>
-        <button data-pitch="0" data-formant="1">desligado</button>
+    <div class="panel" id="panelDisguise">
+      <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+        <input id="disguiseOn" type="checkbox"> Disfarce &mdash; leve</label></h2>
+      <div class="body">
+        <div class="preset">
+          <button data-pitch="-1.2" data-formant="1">um pouco mais grave</button>
+          <button data-pitch="1.0" data-formant="1">um pouco mais agudo</button>
+        </div>
+        <div class="row"><label>pitch (semitons)</label>
+          <input id="pitch" type="range" min="-6" max="6" step="0.1" value="-1.2"><span class="val" id="pitchVal"></span></div>
+        <div class="row"><label>preservar timbre</label>
+          <input id="formant" type="range" min="0" max="1" step="0.01" value="1"><span class="val" id="formantVal"></span></div>
+        <p class="sub" style="margin:6px 0 0">0 = o timbre muda junto com o pitch. 1 = só o tom muda
+          (LPC, @soundtouchjs/formant-correction-worklet).</p>
       </div>
-      <div class="row"><label>pitch (semitons)</label>
-        <input id="pitch" type="range" min="-6" max="6" step="0.1" value="-1.2"><span class="val" id="pitchVal"></span></div>
-      <div class="row"><label>preservar timbre</label>
-        <input id="formant" type="range" min="0" max="1" step="0.01" value="1"><span class="val" id="formantVal"></span></div>
-      <p class="sub" style="margin:6px 0 0">0 = o timbre muda junto com o pitch. 1 = só o tom muda
-        (LPC, @soundtouchjs/formant-correction-worklet).</p>
     </div>
     <div class="panel">
       <h2>Velocidade (fita/vinil antigo)</h2>
@@ -114,20 +121,23 @@
       <p class="sub" style="margin:6px 0 0">Isso é <code>playbackRate</code> puro, não o disfarce de
         cima &mdash; desacelera e baixa o tom JUNTOS, do jeito que uma fita ou vinil de verdade
         mudando de velocidade faz (o disfarce acima faz o oposto: muda só o tom, mantém a duração).
-        Os dois se combinam se você ligar ambos.</p>
+        Os dois se combinam se você ligar ambos. Também fica ao vivo durante o play.</p>
     </div>
-    <div class="panel">
-      <h2>Linha de telefone</h2>
-      <div class="row"><label>corte grave (Hz)</label>
-        <input id="phoneLo" type="range" min="80" max="800" step="5" value="300"><span class="val" id="phoneLoVal"></span></div>
-      <div class="row"><label>corte agudo (Hz)</label>
-        <input id="phoneHi" type="range" min="1800" max="7000" step="10" value="3400"><span class="val" id="phoneHiVal"></span></div>
-      <div class="row"><label>compansão (&mu;-law)</label>
-        <input id="compand" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="compandVal"></span></div>
-      <div class="row"><label>compressão</label>
-        <input id="compress" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="compressVal"></span></div>
-      <p class="sub" style="margin:6px 0 0">Zerado por padrão &mdash; isso aqui é pra imitar telefone
-        especificamente. Sobe só se quiser esse efeito.</p>
+    <div class="panel" id="panelPhone">
+      <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+        <input id="phoneOn" type="checkbox"> Linha de telefone</label></h2>
+      <div class="body">
+        <div class="row"><label>corte grave (Hz)</label>
+          <input id="phoneLo" type="range" min="80" max="800" step="5" value="300"><span class="val" id="phoneLoVal"></span></div>
+        <div class="row"><label>corte agudo (Hz)</label>
+          <input id="phoneHi" type="range" min="1800" max="7000" step="10" value="3400"><span class="val" id="phoneHiVal"></span></div>
+        <div class="row"><label>compansão (&mu;-law)</label>
+          <input id="compand" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="compandVal"></span></div>
+        <div class="row"><label>compressão</label>
+          <input id="compress" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="compressVal"></span></div>
+        <p class="sub" style="margin:6px 0 0">Desligado por padrão &mdash; isso aqui é pra imitar
+          telefone especificamente. Liga só se quiser esse efeito.</p>
+      </div>
     </div>
   </div>
 
@@ -147,13 +157,17 @@
   </div>
 
   <h3>Sala / Reverb</h3>
-  <div class="panel" style="max-width:1200px">
-    <div class="row"><label>tamanho da sala</label>
-      <input id="roomSize" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="roomSizeVal"></span></div>
-    <div class="row"><label>quantidade (wet)</label>
-      <input id="reverbWet" type="range" min="0" max="1" step="0.01" value="0"><span class="val" id="reverbWetVal"></span></div>
-    <p class="sub" style="margin:6px 0 0">Impulso sintético (ruído moldado por uma curva de decaimento) —
-      sala pequena e seca até uma cauda longa. Aplica em cima de tudo (voz + todas as camadas).</p>
+  <div class="panel" style="max-width:1200px" id="panelReverb">
+    <h2><label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+      <input id="reverbOn" type="checkbox"> ligado</label></h2>
+    <div class="body">
+      <div class="row"><label>tamanho da sala</label>
+        <input id="roomSize" type="range" min="0" max="1" step="0.01" value="0.2"><span class="val" id="roomSizeVal"></span></div>
+      <div class="row"><label>quantidade (wet)</label>
+        <input id="reverbWet" type="range" min="0" max="1" step="0.01" value="0.3"><span class="val" id="reverbWetVal"></span></div>
+      <p class="sub" style="margin:6px 0 0">Impulso sintético (ruído moldado por uma curva de decaimento)
+        &mdash; sala pequena e seca até uma cauda longa. Aplica em cima de tudo (voz + todas as camadas).</p>
+    </div>
   </div>
 
   <div class="footer">
@@ -168,8 +182,16 @@
   // =========================================================================
   // noise / reverb primitives
   // =========================================================================
+  // generating pink noise is a real per-sample cost (48k+ iterations per call),
+  // and most callers already cap themselves to ~6-8s and loop it -- regenerating
+  // it separately for every single active layer was the main reason preview
+  // playback was slow/inconsistent to start with more than one or two layers
+  // on. cache one buffer per (context, rounded length) instead.
   function pinkNoiseBuffer(ctx, seconds){
-    var n = Math.max(1, Math.floor(ctx.sampleRate * seconds));
+    var key = Math.max(1, Math.ceil(seconds));
+    if(!ctx.__pinkCache) ctx.__pinkCache = {};
+    if(ctx.__pinkCache[key]) return ctx.__pinkCache[key];
+    var n = Math.max(1, Math.floor(ctx.sampleRate * key));
     var buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
     var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
     for(var i=0;i<n;i++){
@@ -180,6 +202,7 @@
       d[i]=(b0+b1+b2+b3+b4+b5+b6+white*0.5362)*0.09;
       b6=white*0.115926;
     }
+    ctx.__pinkCache[key] = buf;
     return buf;
   }
   function makeReverbIR(ctx, roomSize){
@@ -591,6 +614,20 @@
   });
   var voiceVals = {};
   Object.keys(voiceEls).forEach(function(id){ voiceVals[id] = document.getElementById(id+'Val'); });
+
+  // on/off checkboxes -- bypass their whole chain when off (not just zeroed
+  // sliders, which for the phone band still narrowed the signal even at
+  // compand=compress=0), toggle the panel dimming, and push live if playing
+  var voiceChecks = {};
+  ['disguiseOn','phoneOn','reverbOn'].forEach(function(id){ voiceChecks[id] = document.getElementById(id); });
+  var panelFor = { disguiseOn:document.getElementById('panelDisguise'), phoneOn:document.getElementById('panelPhone'), reverbOn:document.getElementById('panelReverb') };
+  Object.keys(voiceChecks).forEach(function(id){
+    voiceChecks[id].addEventListener('change', function(){
+      panelFor[id].classList.toggle('off', !voiceChecks[id].checked);
+      pushLiveVoiceParams();
+    });
+  });
+
   function syncVoiceVals(){
     voiceVals.pitch.textContent = (+voiceEls.pitch.value).toFixed(1);
     voiceVals.formant.textContent = (+voiceEls.formant.value).toFixed(2);
@@ -602,14 +639,16 @@
     voiceVals.roomSize.textContent = (+voiceEls.roomSize.value).toFixed(2);
     voiceVals.reverbWet.textContent = (+voiceEls.reverbWet.value).toFixed(2);
   }
-  Object.keys(voiceEls).forEach(function(id){ voiceEls[id].addEventListener('input', syncVoiceVals); });
+  Object.keys(voiceEls).forEach(function(id){
+    voiceEls[id].addEventListener('input', function(){ syncVoiceVals(); pushLiveVoiceParams(); });
+  });
   syncVoiceVals();
   document.querySelectorAll('.preset').forEach(function(row){
     row.querySelectorAll('button').forEach(function(b){
       b.addEventListener('click', function(){
-        if(b.dataset.pitch !== undefined){ voiceEls.pitch.value = b.dataset.pitch; voiceEls.formant.value = b.dataset.formant; }
+        if(b.dataset.pitch !== undefined){ voiceEls.pitch.value = b.dataset.pitch; voiceEls.formant.value = b.dataset.formant; voiceChecks.disguiseOn.checked = true; panelFor.disguiseOn.classList.remove('off'); }
         if(b.dataset.speed !== undefined){ voiceEls.speed.value = b.dataset.speed; }
-        syncVoiceVals();
+        syncVoiceVals(); pushLiveVoiceParams();
       });
     });
   });
@@ -620,6 +659,7 @@
       phoneLo:+voiceEls.phoneLo.value, phoneHi:+voiceEls.phoneHi.value,
       compand:+voiceEls.compand.value, compress:+voiceEls.compress.value,
       roomSize:+voiceEls.roomSize.value, reverbWet:+voiceEls.reverbWet.value,
+      disguiseOn: voiceChecks.disguiseOn.checked, phoneOn: voiceChecks.phoneOn.checked, reverbOn: voiceChecks.reverbOn.checked,
       beforeDur: Math.max(0, +document.getElementById('beforeDur').value || 0),
       afterDur: Math.max(0, +document.getElementById('afterDur').value || 0)
     };
@@ -630,31 +670,34 @@
   // built to show off what combining zones/reverb/speed can do
   // =========================================================================
   var PRESETS = [
-    { name:'Limpo', voice:{pitch:0,formant:1,speed:1,phoneLo:300,phoneHi:3400,compand:0,compress:0,roomSize:0.2,reverbWet:0,beforeDur:0,afterDur:0},
+    { name:'Limpo', voice:{pitch:0,formant:1,speed:1,phoneLo:300,phoneHi:3400,compand:0,compress:0,roomSize:0.2,reverbWet:0,disguiseOn:false,phoneOn:false,reverbOn:false,beforeDur:0,afterDur:0},
       before:{}, during:{}, after:{} },
 
-    { name:'Chamada telefônica', voice:{pitch:0,formant:1,speed:1,phoneLo:300,phoneHi:3400,compand:0.35,compress:0.5,roomSize:0.1,reverbWet:0,beforeDur:0,afterDur:0},
+    { name:'Chamada telefônica', voice:{pitch:0,formant:1,speed:1,phoneLo:300,phoneHi:3400,compand:0.35,compress:0.5,roomSize:0.1,reverbWet:0,disguiseOn:false,phoneOn:true,reverbOn:false,beforeDur:0,afterDur:0},
       before:{}, during:{ roomTone:{hum:0.03,hiss:0.025} }, after:{} },
 
-    { name:'Disfarce leve', voice:{pitch:-1.3,formant:1,speed:1,phoneLo:300,phoneHi:3400,compand:0,compress:0.15,roomSize:0.15,reverbWet:0.08,beforeDur:0,afterDur:0},
+    { name:'Disfarce leve', voice:{pitch:-1.3,formant:1,speed:1,phoneLo:300,phoneHi:3400,compand:0,compress:0.15,roomSize:0.15,reverbWet:0.08,disguiseOn:true,phoneOn:false,reverbOn:true,beforeDur:0,afterDur:0},
       before:{}, during:{ roomTone:{hum:0.02,hiss:0.02} }, after:{} },
 
-    { name:'Fita antiga desgastada', voice:{pitch:0,formant:1,speed:0.94,phoneLo:200,phoneHi:5000,compand:0.15,compress:0.3,roomSize:0.15,reverbWet:0.05,beforeDur:2.5,afterDur:2},
+    { name:'Fita antiga desgastada', voice:{pitch:0,formant:1,speed:0.94,phoneLo:200,phoneHi:5000,compand:0.15,compress:0.3,roomSize:0.15,reverbWet:0.05,disguiseOn:false,phoneOn:true,reverbOn:true,beforeDur:2.5,afterDur:2},
       before:{ cassette:{motor:0.08,hiss:0.06,wow:0.6,click:1} },
       during:{ cassette:{motor:0.06,hiss:0.06,wow:0.6,click:0}, surface:{density:0.3,hiss:0.015} },
       after:{ cassette:{motor:0.08,hiss:0.06,wow:0.6,click:0} } },
 
-    { name:'Rádio pirata perdido', voice:{pitch:0.5,formant:1,speed:1,phoneLo:500,phoneHi:3000,compand:0.4,compress:0.5,roomSize:0.05,reverbWet:0,beforeDur:3,afterDur:2},
-      before:{ radioTuning:{level:0.6} },
-      during:{ radioInterference:{level:0.25,density:0.3}, emi:{level:0.15,freq:100}, staticN:{level:0.08,grit:0.3} },
-      after:{ radioInterference:{level:0.4,density:0.6} } },
+    // toned down after Max flagged it as too shrill: less companding, wider
+    // (less nasal) phone band, every noise-based layer cut well back, and the
+    // loud burst after the voice removed entirely -- psychological, not abrasive
+    { name:'Rádio pirata perdido', voice:{pitch:0.2,formant:1,speed:1,phoneLo:400,phoneHi:3800,compand:0.2,compress:0.3,roomSize:0.25,reverbWet:0.1,disguiseOn:true,phoneOn:true,reverbOn:true,beforeDur:3,afterDur:2.5},
+      before:{ radioTuning:{level:0.35} },
+      during:{ radioInterference:{level:0.08,density:0.12}, emi:{level:0.05,freq:100}, staticN:{level:0.04,grit:0.15}, roomTone:{hum:0.02,hiss:0.015} },
+      after:{ radioInterference:{level:0.1,density:0.15} } },
 
-    { name:'Sala grande e vazia', voice:{pitch:0,formant:1,speed:1,phoneLo:80,phoneHi:7000,compand:0,compress:0.1,roomSize:0.85,reverbWet:0.4,beforeDur:4,afterDur:4},
+    { name:'Sala grande e vazia', voice:{pitch:0,formant:1,speed:1,phoneLo:80,phoneHi:7000,compand:0,compress:0.1,roomSize:0.85,reverbWet:0.4,disguiseOn:false,phoneOn:false,reverbOn:true,beforeDur:4,afterDur:4},
       before:{ swell:{offset:4,length:6,level:0.25,root:70}, organic:{level:0.04,root:70} },
       during:{ roomTone:{hum:0.02,hiss:0.015}, organic:{level:0.03,root:70} },
       after:{ organic:{level:0.05,root:70} } },
 
-    { name:'Transmissão distorcida do além', voice:{pitch:-3,formant:0.4,speed:0.88,phoneLo:150,phoneHi:4500,compand:0.3,compress:0.4,roomSize:0.7,reverbWet:0.3,beforeDur:5,afterDur:4},
+    { name:'Transmissão distorcida do além', voice:{pitch:-3,formant:0.4,speed:0.88,phoneLo:150,phoneHi:4500,compand:0.3,compress:0.4,roomSize:0.7,reverbWet:0.3,disguiseOn:true,phoneOn:true,reverbOn:true,beforeDur:5,afterDur:4},
       before:{ riser:{offset:5,length:4,level:0.4}, emi:{level:0.2,freq:90}, organic:{level:0.05,root:55} },
       during:{ emi:{level:0.12,freq:90}, roomTone:{hum:0.03,hiss:0.02}, surface:{density:0.2,hiss:0.01} },
       after:{ cue:{offset:0.3,level:0.35,pitch:180,type:1}, organic:{level:0.06,root:55} } }
@@ -666,6 +709,12 @@
     voiceEls.phoneLo.value = preset.voice.phoneLo; voiceEls.phoneHi.value = preset.voice.phoneHi;
     voiceEls.compand.value = preset.voice.compand; voiceEls.compress.value = preset.voice.compress;
     voiceEls.roomSize.value = preset.voice.roomSize; voiceEls.reverbWet.value = preset.voice.reverbWet;
+    voiceChecks.disguiseOn.checked = !!preset.voice.disguiseOn;
+    voiceChecks.phoneOn.checked = !!preset.voice.phoneOn;
+    voiceChecks.reverbOn.checked = !!preset.voice.reverbOn;
+    panelFor.disguiseOn.classList.toggle('off', !preset.voice.disguiseOn);
+    panelFor.phoneOn.classList.toggle('off', !preset.voice.phoneOn);
+    panelFor.reverbOn.classList.toggle('off', !preset.voice.reverbOn);
     document.getElementById('beforeDur').value = preset.voice.beforeDur;
     document.getElementById('afterDur').value = preset.voice.afterDur;
     syncVoiceVals();
@@ -673,6 +722,7 @@
     applyZone('during', preset.during);
     applyZone('after', preset.after);
     statusEl.textContent = 'preset aplicado: ' + preset.name;
+    pushLiveVoiceParams();
   }
 
   var presetRow = document.getElementById('presetRow');
@@ -696,35 +746,61 @@
     setRawBuffer: function(buf){ rawBuffer = buf; playBtn.disabled = false; exportBtn.disabled = false; drawWave(buf); }
   };
 
-  function buildVoiceChain(ctx, master, opts){
-    var hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=opts.phoneLo;
-    var lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=opts.phoneHi;
-    var ws = ctx.createWaveShaper();
+  function muLawCurve(amt){
     var n=1024, curve=new Float32Array(n), mu=255;
     for(var i=0;i<n;i++){
       var x=i/(n-1)*2-1;
       var y=Math.sign(x)*Math.log(1+mu*Math.abs(x))/Math.log(1+mu);
-      curve[i]=x*(1-opts.compand)+y*opts.compand;
+      curve[i]=x*(1-amt)+y*amt;
     }
-    ws.curve=curve; ws.oversample='2x';
+    return curve;
+  }
+
+  // the phone chain always exists, with a parallel dry bypass crossfaded by
+  // phoneOn -- lets the checkbox (and, live, the sliders) work without
+  // rebuilding the graph, and means "off" is actually silent, not just a
+  // narrower band left engaged at compand=compress=0
+  function buildVoiceChain(ctx, master, opts){
+    var input = ctx.createGain(); input.gain.value = 1;
+    var hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=opts.phoneLo;
+    var lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=opts.phoneHi;
+    var ws = ctx.createWaveShaper(); ws.curve=muLawCurve(opts.compand); ws.oversample='2x';
     var comp = ctx.createDynamicsCompressor();
     comp.threshold.value=-8-opts.compress*32; comp.ratio.value=1.5+opts.compress*10;
     comp.attack.value=0.003; comp.release.value=0.25; comp.knee.value=6;
-    hp.connect(lp); lp.connect(ws); ws.connect(comp); comp.connect(master);
-    return { input: hp };
+    var wetG = ctx.createGain(); wetG.gain.value = opts.phoneOn ? 1 : 0;
+    var dryG = ctx.createGain(); dryG.gain.value = opts.phoneOn ? 0 : 1;
+    input.connect(hp); hp.connect(lp); lp.connect(ws); ws.connect(comp); comp.connect(wetG); wetG.connect(master);
+    input.connect(dryG); dryG.connect(master);
+    return { input:input, hp:hp, lp:lp, ws:ws, comp:comp, wetG:wetG, dryG:dryG };
   }
 
   // =========================================================================
-  // timeline assembly -- shared between live preview and offline export
+  // timeline assembly -- shared between live preview and offline export.
+  // liveDisguise=true builds a real-time FormantCorrectionNode (pitch/formant
+  // become live AudioParams, adjustable while playing) instead of expecting an
+  // already pitch-shifted voiceBuf -- used for preview only. Export keeps using
+  // processOffline() beforehand (see the export handler) and calls this with
+  // liveDisguise=false, since that offline path is the maintainer-recommended
+  // one and there's no "live" to serve during a render anyway.
   // =========================================================================
-  function buildTimeline(ctx, dest, opts, voiceBuf){
+  // voiceOffset (seconds, in the RAW voice buffer's own time, pre-speed) lets
+  // playback jump straight into the recording -- clicking the waveform. When
+  // set, the "before" zone is skipped outright (a seek means "past the intro")
+  // and "during" zone layers start fresh at the seek point rather than trying
+  // to resume mid-envelope, which the scheduled-one-shot architecture can't do
+  // cleanly. The voice itself DOES seek exactly, via the buffer source's own
+  // offset argument -- that's the part that actually matters for scrubbing.
+  function buildTimeline(ctx, dest, opts, voiceBuf, liveDisguise, voiceOffset){
+    voiceOffset = Math.max(0, Math.min(voiceOffset || 0, voiceBuf.duration - 0.05));
     var master = ctx.createGain(); master.gain.value = 1;   // dry bus, everything below feeds this
     var t0 = 0.05;
     var speed = opts.speed || 1;
     // old-style speed change: playbackRate couples pitch to duration, same as a
     // tape or record actually running slower -- distinct from the formant-
     // preserving disguise above, which decouples pitch from duration on purpose
-    var beforeDur = opts.beforeDur, afterDur = opts.afterDur, voiceDur = voiceBuf.duration / speed;
+    var beforeDur = voiceOffset > 0 ? 0 : opts.beforeDur;
+    var afterDur = opts.afterDur, voiceDur = (voiceBuf.duration - voiceOffset) / speed;
 
     function placeZone(zoneName, zStart, zDur){
       if(zDur <= 0) return;
@@ -741,21 +817,32 @@
     var voiceStart = t0 + beforeDur;
     var chain = buildVoiceChain(ctx, master, opts);
     var src = ctx.createBufferSource(); src.buffer = voiceBuf; src.playbackRate.value = speed;
-    src.connect(chain.input);
-    src.start(voiceStart);
+    var formantNode = null;
+    if(liveDisguise && window.SoundTouchFormant){
+      formantNode = new SoundTouchFormant.FormantCorrectionNode({ context: ctx, outputChannelCount: 1 });
+      formantNode.pitchSemitones.value = opts.disguiseOn ? opts.pitch : 0;
+      formantNode.formantStrength.value = opts.formant;
+      src.connect(formantNode); formantNode.connect(chain.input);
+    } else {
+      src.connect(chain.input);
+    }
+    src.start(voiceStart, voiceOffset);
     placeZone('during', voiceStart, voiceDur);
     var afterStart = voiceStart + voiceDur;
     placeZone('after', afterStart, afterDur);
 
-    // reverb send (parallel wet path) + dry path, both to destination
+    // reverb send (parallel wet path) + dry path, both to destination -- kept
+    // even when off (gain 0) so the on/off checkbox can toggle it live
     master.connect(dest);
-    if(opts.reverbWet > 0){
-      var send = ctx.createGain(); send.gain.value = opts.reverbWet;
-      var conv = ctx.createConvolver(); conv.buffer = makeReverbIR(ctx, opts.roomSize);
-      master.connect(send); send.connect(conv); conv.connect(dest);
-    }
+    var reverbSend = ctx.createGain(); reverbSend.gain.value = opts.reverbOn ? opts.reverbWet : 0;
+    var conv = ctx.createConvolver(); conv.buffer = makeReverbIR(ctx, opts.roomSize);
+    master.connect(reverbSend); reverbSend.connect(conv); conv.connect(dest);
 
-    return { voiceSrc: src, total: t0 + beforeDur + voiceDur + afterDur };
+    return {
+      voiceSrc: src, total: t0 + beforeDur + voiceDur + afterDur,
+      beforeDur: beforeDur, voiceStart: voiceStart, voiceDur: voiceDur, speed: speed, voiceOffset: voiceOffset,
+      live: { ctx:ctx, src:src, formantNode:formantNode, chain:chain, reverbSend:reverbSend, conv:conv }
+    };
   }
 
   // =========================================================================
@@ -799,10 +886,16 @@
 
   function fmt(s){ s=Math.max(0,s|0); return (s/60|0)+':'+String(s%60).padStart(2,'0'); }
 
+  // the waveform is drawn once into an offscreen canvas and blitted with
+  // drawImage() on every playhead update -- recomputing it from raw samples
+  // on every animation frame (the original approach) is real per-frame cost
+  // for a long recording and was part of what made the preview feel laggy
+  var waveOffscreen = document.createElement('canvas');
   function drawWave(buf){
-    var ctx2d = wave.getContext('2d');
     var w = wave.clientWidth||900, h=80;
     wave.width = w*devicePixelRatio; wave.height = h*devicePixelRatio;
+    waveOffscreen.width = wave.width; waveOffscreen.height = wave.height;
+    var ctx2d = waveOffscreen.getContext('2d');
     ctx2d.scale(devicePixelRatio, devicePixelRatio);
     ctx2d.clearRect(0,0,w,h);
     var data = buf.getChannelData(0);
@@ -814,7 +907,26 @@
       var y0=(1-(max+1)/2)*h, y1=(1-(min+1)/2)*h;
       ctx2d.fillRect(x,y0,1,Math.max(1,y1-y0));
     }
+    drawPlayhead(0);
   }
+  // frac: 0..1 position within the VOICE (not the before/after zones -- the
+  // waveform only shows the recording itself, so that's what the playhead
+  // and click-to-seek are relative to)
+  function drawPlayhead(frac){
+    var ctx2d = wave.getContext('2d');
+    ctx2d.setTransform(1,0,0,1,0,0);
+    ctx2d.clearRect(0,0,wave.width,wave.height);
+    ctx2d.drawImage(waveOffscreen,0,0);
+    var x = Math.max(0, Math.min(wave.width-2, Math.round(frac*wave.width)));
+    ctx2d.fillStyle = 'rgba(224,160,90,.9)';
+    ctx2d.fillRect(x,0,2,wave.height);
+  }
+  wave.addEventListener('click', function(e){
+    if(!rawBuffer) return;
+    var rect = wave.getBoundingClientRect();
+    var frac = Math.max(0, Math.min(1, (e.clientX-rect.left)/rect.width));
+    startPlayback(frac * rawBuffer.duration);
+  });
 
   var formantRegistered = new WeakSet();
   function ensureFormantRegistered(ctx){
@@ -825,40 +937,82 @@
       .catch(function(err){ statusEl.textContent = 'disfarce de voz não carregou (' + err.message + ') — tocando sem ele.'; });
   }
 
+  // pushes the current slider/checkbox values onto whatever's actually
+  // playing right now -- only phone EQ, reverb and the live disguise worklet
+  // can do this (persistent nodes for the life of the voice source); the
+  // scheduled one-shot zone layers can't be retargeted without a restart
+  var currentLive = null;
+  function pushLiveVoiceParams(){
+    if(!currentLive) return;
+    var opts = readVoiceOpts();
+    var ctx = currentLive.ctx, now = ctx.currentTime, chain = currentLive.chain;
+    if(currentLive.src) currentLive.src.playbackRate.value = opts.speed;
+    if(currentLive.formantNode){
+      currentLive.formantNode.pitchSemitones.value = opts.disguiseOn ? opts.pitch : 0;
+      currentLive.formantNode.formantStrength.value = opts.formant;
+    }
+    chain.hp.frequency.value = opts.phoneLo; chain.lp.frequency.value = opts.phoneHi;
+    chain.ws.curve = muLawCurve(opts.compand);
+    chain.comp.threshold.value = -8-opts.compress*32; chain.comp.ratio.value = 1.5+opts.compress*10;
+    chain.wetG.gain.setTargetAtTime(opts.phoneOn?1:0, now, 0.03);
+    chain.dryG.gain.setTargetAtTime(opts.phoneOn?0:1, now, 0.03);
+    if(currentLive.reverbSend){
+      currentLive.reverbSend.gain.setTargetAtTime(opts.reverbOn?opts.reverbWet:0, now, 0.05);
+      if(currentLive.conv) currentLive.conv.buffer = makeReverbIR(ctx, opts.roomSize);
+    }
+  }
+
+  var playToken = 0, starting = false;
   playBtn.addEventListener('click', function(){
-    if(!rawBuffer) return;
+    if(!rawBuffer || starting) return;
     if(playing){ stopPlayback(); return; }
-    startPlayback();
+    startPlayback(0);
   });
   function stopPlayback(){
-    playing=false; playBtn.textContent='▶ play';
+    playToken++;                          // invalidate any startPlayback() still in flight
+    starting = false;
+    playing=false; playBtn.disabled=!rawBuffer; playBtn.textContent='▶ play';
     if(playSrc){ try{ playSrc.stop(); }catch(e){} playSrc=null; }
     if(rafId) cancelAnimationFrame(rafId);
+    currentLive = null;
   }
-  function startPlayback(){
+  // voiceSeek: seconds into the raw recording to start from (0 = the top).
+  // clicking the waveform calls this directly.
+  function startPlayback(voiceSeek){
+    if(playing) stopPlayback();
+    starting = true; playBtn.disabled = true; playBtn.textContent = '… carregando';
+    var myToken = ++playToken;
     var localAc = getAc();
     var opts = readVoiceOpts();
     (localAc.resume ? localAc.resume() : Promise.resolve()).then(function(){
-      return (opts.pitch !== 0) ? ensureFormantRegistered(localAc) : Promise.resolve();
+      return (opts.disguiseOn && window.SoundTouchFormant) ? ensureFormantRegistered(localAc) : Promise.resolve();
     }).then(function(){
-      // if pitch-shifted, we need the shifted buffer for live preview too --
-      // reuse processOffline() (it's the only correct path for this worklet)
-      var voicePromise = (opts.pitch !== 0 && window.SoundTouchFormant)
-        ? SoundTouchFormant.processOffline({ input: rawBuffer,
-            processorUrl: 'vendor/soundtouch/formant-correction-processor.js',
-            pitchSemitones: opts.pitch, formantStrength: opts.formant })
-        : Promise.resolve(rawBuffer);
-      return voicePromise;
-    }).then(function(voiceBuf){
-      var timeline = buildTimeline(localAc, localAc.destination, opts, voiceBuf);
+      if(myToken !== playToken) return;   // superseded by a newer play/stop/seek
+      starting = false; playBtn.disabled = false;
+      var timeline = buildTimeline(localAc, localAc.destination, opts, rawBuffer, true, voiceSeek);
+      currentLive = timeline.live;
       playSrc = timeline.voiceSrc; playing = true; playBtn.textContent = '■ stop';
       var t0 = performance.now();
       (function tick(){
+        if(myToken !== playToken) return;
         var el = (performance.now()-t0)/1000;
         clockEl.textContent = fmt(el) + ' / ' + fmt(timeline.total);
+        var voiceElapsed = el - timeline.beforeDur;                 // time within the voice zone
+        if(voiceElapsed >= 0 && voiceElapsed <= timeline.voiceDur){
+          var bufPos = timeline.voiceOffset + voiceElapsed*timeline.speed;
+          drawPlayhead(bufPos / rawBuffer.duration);
+        } else if(voiceElapsed < 0){
+          drawPlayhead(timeline.voiceOffset / rawBuffer.duration);  // still in "before"
+        } else {
+          drawPlayhead(1);                                          // into "after"
+        }
         if(el < timeline.total && playing) rafId = requestAnimationFrame(tick);
         else stopPlayback();
       })();
+    }).catch(function(err){
+      if(myToken !== playToken) return;
+      starting = false; playBtn.disabled = false; playBtn.textContent = '▶ play';
+      statusEl.textContent = 'erro no preview: ' + (err && err.message || err);
     });
   }
 
@@ -867,7 +1021,7 @@
     exportBtn.disabled = true; statusEl.textContent = 'renderizando (1/2)…';
     var opts = readVoiceOpts();
 
-    var pass1 = (opts.pitch !== 0 && window.SoundTouchFormant)
+    var pass1 = (opts.disguiseOn && opts.pitch !== 0 && window.SoundTouchFormant)
       ? SoundTouchFormant.processOffline({ input: rawBuffer,
           processorUrl: 'vendor/soundtouch/formant-correction-processor.js',
           pitchSemitones: opts.pitch, formantStrength: opts.formant })
@@ -878,7 +1032,7 @@
       var estTotal = opts.beforeDur + voiceBuf.duration / (opts.speed || 1) + opts.afterDur + 0.5;
       var OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
       var offline = new OfflineCtx(2, Math.ceil(voiceBuf.sampleRate * estTotal), voiceBuf.sampleRate);
-      buildTimeline(offline, offline.destination, opts, voiceBuf);
+      buildTimeline(offline, offline.destination, opts, voiceBuf, false, 0);
       return offline.startRendering();
     }).then(function(rendered){
       var blob = encodeWav(rendered);
