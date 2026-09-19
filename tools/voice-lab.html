@@ -399,25 +399,55 @@
     });
     return Promise.all(Object.keys(ids).map(loadSampleBuffer));
   }
+  // three placement modes, picked per slot: 'loop' fills the whole zone
+  // (the only mode this used to have), 'moment' fires once at a fixed
+  // position, 'scatter' fires several times at random positions across the
+  // zone -- same idea as radioInterference's/surface's scatter pattern,
+  // just reusable with a real sample instead of synthesized noise
   function buildSampleElement(ctx, bus, t, dur, p){
     var buf = sampleBufferReady[p.file];
     if(!buf) return;                       // not loaded yet -- skip silently rather than throw
-    var src = ctx.createBufferSource(); src.buffer = buf;
-    src.playbackRate.value = p.speed || 1;
-    src.detune.value = (p.pitch || 0) * 100;   // semitones -> cents, independent slider from speed
-    if(p.loop >= 0.5){ src.loop = true; src.loopStart = 0; src.loopEnd = buf.duration; }
-    var g = ctx.createGain(); g.gain.value = p.level;
-    src.connect(g); g.connect(bus);
-    src.start(t);
-    src.stop(t + dur);   // harmless no-op if it already finished naturally (non-loop, shorter than dur)
+    var speed = p.speed || 1;
+    var natDur = buf.duration / speed;
+    var mode = p.mode || 'loop';
+
+    function fire(startAt, stopAt, loop){
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      src.playbackRate.value = speed;
+      src.detune.value = (p.pitch || 0) * 100;   // semitones -> cents, independent slider from speed
+      if(loop){ src.loop = true; src.loopStart = 0; src.loopEnd = buf.duration; }
+      var g = ctx.createGain(); g.gain.value = p.level;
+      src.connect(g); g.connect(bus);
+      src.start(startAt);
+      src.stop(stopAt);
+    }
+
+    if(mode === 'moment'){
+      var startAt = t + Math.min(Math.max(0, p.offset || 0), Math.max(0, dur - 0.05));
+      fire(startAt, Math.min(startAt + natDur, t + dur + 0.05), false);
+    } else if(mode === 'scatter'){
+      var n = Math.max(1, Math.round(p.density || 3));
+      for(var i=0;i<n;i++){
+        var hitAt = t + Math.random() * Math.max(0.05, dur - 0.05);
+        fire(hitAt, Math.min(hitAt + natDur, t + dur + 0.05), false);
+      }
+    } else {
+      fire(t, t + dur, true);   // loop -- harmless no-op stop if it ever finished on its own
+    }
   }
   function sampleElementDef(n){
     return { label:'Amostra real ' + n, kind:'continuous', real:true, params:[
       {key:'file', label:'arquivo', type:'select', options:SAMPLE_LIBRARY, def:SAMPLE_LIBRARY[0].id},
+      {key:'mode', label:'modo', type:'select', options:[
+        {id:'loop', label:'loop (preenche a zona)'},
+        {id:'moment', label:'um momento (posição fixa)'},
+        {id:'scatter', label:'espalhada (vários disparos)'}
+      ], def:'loop'},
       {key:'level', label:'volume', min:0, max:2, step:0.01, def:0.8},
       {key:'pitch', label:'pitch (semitons)', min:-12, max:12, step:0.5, def:0},
       {key:'speed', label:'velocidade', min:0.3, max:3, step:0.01, def:1},
-      {key:'loop', label:'repetir (loop)', min:0, max:1, step:1, def:1}
+      {key:'offset', label:'posição (s, modo momento)', min:0, max:60, step:0.5, def:0},
+      {key:'density', label:'disparos (modo espalhada)', min:1, max:12, step:1, def:3}
     ], build:buildSampleElement };
   }
 
@@ -798,12 +828,13 @@
           sel.value = prm.def;
           sel.addEventListener('change', function(){
             p[prm.key] = sel.value;
-            loadSampleBuffer(sel.value);   // background-preload as soon as it's picked
+            if(prm.key === 'file') loadSampleBuffer(sel.value);   // background-preload as soon as it's picked
+            previewElement(key, p);   // hear the new choice immediately, same reasoning as the checkbox
           });
           row.appendChild(rl); row.appendChild(sel);
           body.appendChild(row);
           dom.inputs[prm.key] = { input:sel, val:null, step:1 };
-          loadSampleBuffer(prm.def);   // preload the default selection too
+          if(prm.key === 'file') loadSampleBuffer(prm.def);   // preload the default selection too
           return;
         }
         var input = document.createElement('input'); input.type = 'range';
@@ -813,6 +844,13 @@
           p[prm.key] = +input.value;
           val.textContent = (prm.step < 1) ? (+input.value).toFixed(2) : input.value;
         });
+        // a slider only ever changed the STATE object -- nothing re-played to
+        // demonstrate it, so moving it while nothing happened to be actively
+        // playing looked exactly like "the slider does nothing". 'change'
+        // (fires once, on release/commit, unlike 'input' which fires every
+        // drag tick) triggers the same isolated preview as "ouvir"/checking
+        // the box, so adjusting a value always has an audible answer.
+        input.addEventListener('change', function(){ previewElement(key, p); });
         row.appendChild(rl); row.appendChild(input); row.appendChild(val);
         body.appendChild(row);
         dom.inputs[prm.key] = { input:input, val:val, step:prm.step };
@@ -835,7 +873,7 @@
       p[k] = values[k];
       dom.inputs[k].input.value = values[k];
       if(dom.inputs[k].val) dom.inputs[k].val.textContent = dom.inputs[k].step < 1 ? (+values[k]).toFixed(2) : values[k];
-      if(dom.inputs[k].input.tagName === 'SELECT') loadSampleBuffer(values[k]);
+      if(k === 'file' && dom.inputs[k].input.tagName === 'SELECT') loadSampleBuffer(values[k]);
     });
   }
   // reset a whole zone to every element off / defaults, then apply the given overrides
@@ -858,7 +896,15 @@
     if(key === 'cue') return Math.max(1.5, (p.offset||0) + 1);
     if(/^sample/.test(key)){
       var entry = SAMPLE_LIBRARY_BY_ID[p.file];
-      return Math.min(8, (entry ? entry.dur : 8) / Math.max(0.3, p.speed || 1));
+      var natDur = (entry ? entry.dur : 8) / Math.max(0.3, p.speed || 1);
+      var mode = p.mode || 'loop';
+      // moment/scatter need enough window to actually contain the hit(s) --
+      // a fixed 8s cap was clipping a "moment" placed past 8s down to almost
+      // nothing (offset gets clamped to just inside the preview window,
+      // which for a far offset meant barely a sliver of playback)
+      if(mode === 'moment') return Math.min(16, (p.offset || 0) + natDur + 0.5);
+      if(mode === 'scatter') return Math.min(10, natDur + 2);
+      return Math.min(8, natDur);
     }
     return 3.5;
   }
@@ -998,26 +1044,48 @@
 
     { name:'Fita antiga desgastada', voice:{pitch:0,formant:1,speed:0.94,phoneLo:200,phoneHi:5000,compand:0.15,compress:0.3,roomSize:0.15,reverbWet:0.05,disguiseOn:false,phoneOn:true,reverbOn:true,beforeDur:2.5,afterDur:2},
       before:{ cassette:{motor:0.08,hiss:0.06,wow:0.6,click:1} },
-      during:{ cassette:{motor:0.06,hiss:0.06,wow:0.6,click:0}, surface:{density:0.3,hiss:0.015} },
+      during:{ cassette:{motor:0.06,hiss:0.06,wow:0.6,click:0}, surface:{density:0.3,hiss:0.015},
+        sample1:{file:'metal_stress', mode:'scatter', density:2, level:0.35} },
       after:{ cassette:{motor:0.08,hiss:0.06,wow:0.6,click:0} } },
 
     // toned down after Max flagged it as too shrill: less companding, wider
     // (less nasal) phone band, every noise-based layer cut well back, and the
-    // loud burst after the voice removed entirely -- psychological, not abrasive
+    // loud burst after the voice removed entirely -- psychological, not
+    // abrasive. Rebuilt again to use the real radio samples instead of pure
+    // synthesis now that they exist -- radio_tuning/radio_static_tuning/
+    // walkie_interference/radio_military replace what staticN+radioTuning
+    // were approximating before.
     { name:'Rádio pirata perdido', voice:{pitch:0.2,formant:1,speed:1,phoneLo:400,phoneHi:3800,compand:0.2,compress:0.3,roomSize:0.25,reverbWet:0.1,disguiseOn:true,phoneOn:true,reverbOn:true,beforeDur:3,afterDur:2.5},
-      before:{ radioTuning:{level:0.35} },
-      during:{ radioInterference:{level:0.08,density:0.12}, emi:{level:0.05,freq:100}, staticN:{level:0.04,grit:0.15}, roomTone:{hum:0.02,hiss:0.015} },
-      after:{ radioInterference:{level:0.1,density:0.15} } },
+      before:{ sample1:{file:'radio_tuning', mode:'loop', level:0.45} },
+      during:{ radioInterference:{level:0.06,density:0.1}, emi:{level:0.04,freq:100}, roomTone:{hum:0.02,hiss:0.015},
+        sample1:{file:'radio_static_tuning', mode:'loop', level:0.3},
+        sample2:{file:'walkie_interference', mode:'scatter', density:3, level:0.3} },
+      after:{ sample1:{file:'radio_military', mode:'moment', offset:0.3, level:0.4} } },
 
     { name:'Sala grande e vazia', voice:{pitch:0,formant:1,speed:1,phoneLo:80,phoneHi:7000,compand:0,compress:0.1,roomSize:0.85,reverbWet:0.4,disguiseOn:false,phoneOn:false,reverbOn:true,beforeDur:4,afterDur:4},
       before:{ swell:{offset:4,length:6,level:0.25,root:70}, organic:{level:0.04,root:70} },
       during:{ roomTone:{hum:0.02,hiss:0.015}, organic:{level:0.03,root:70} },
-      after:{ organic:{level:0.05,root:70} } },
+      after:{ organic:{level:0.05,root:70}, sample1:{file:'bells_ominous', mode:'moment', offset:1, level:0.3} } },
 
+    // dentist-drill scatter is a direct nod to Akira Yamaoka's Silent Hill
+    // sound design (a pitched-down dentist drill on the final boss) --
+    // researched before adding, see the memory notes for this session
     { name:'Transmissão distorcida do além', voice:{pitch:-3,formant:0.4,speed:0.88,phoneLo:150,phoneHi:4500,compand:0.3,compress:0.4,roomSize:0.7,reverbWet:0.3,disguiseOn:true,phoneOn:true,reverbOn:true,beforeDur:5,afterDur:4},
       before:{ riser:{offset:5,length:4,level:0.4}, emi:{level:0.2,freq:90}, organic:{level:0.05,root:55} },
-      during:{ emi:{level:0.12,freq:90}, roomTone:{hum:0.03,hiss:0.02}, surface:{density:0.2,hiss:0.01} },
-      after:{ cue:{offset:0.3,level:0.35,pitch:180,type:1}, organic:{level:0.06,root:55} } }
+      during:{ emi:{level:0.12,freq:90}, roomTone:{hum:0.03,hiss:0.02}, surface:{density:0.2,hiss:0.01},
+        sample1:{file:'dentist_drill', mode:'scatter', density:2, level:0.3, pitch:-4} },
+      after:{ cue:{offset:0.3,level:0.35,pitch:180,type:1}, organic:{level:0.06,root:55},
+        sample1:{file:'metal_groan_low', mode:'moment', offset:0.5, level:0.45, pitch:-3} } },
+
+    // new preset built specifically to show off the real-sample library --
+    // loop/moment/scatter all present across before/during/after
+    { name:'Fábrica industrial', voice:{pitch:0,formant:1,speed:1,phoneLo:250,phoneHi:4200,compand:0.2,compress:0.35,roomSize:0.4,reverbWet:0.15,disguiseOn:false,phoneOn:true,reverbOn:true,beforeDur:3,afterDur:3},
+      before:{ sample1:{file:'factory_impacts_chains', mode:'loop', level:0.4} },
+      during:{ roomTone:{hum:0.03,hiss:0.02},
+        sample1:{file:'factory_impacts_chains', mode:'loop', level:0.3},
+        sample2:{file:'metal_groan_low', mode:'scatter', density:2, level:0.35},
+        sample3:{file:'chain_dragging', mode:'scatter', density:1, level:0.3} },
+      after:{ sample1:{file:'metal_hatch_rusty', mode:'moment', offset:0.4, level:0.4} } }
   ];
 
   function applyPreset(preset){
